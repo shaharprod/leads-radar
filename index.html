@@ -712,7 +712,9 @@ function scoreBiz(b){
     if(b.rev.negative>=2) add(b.rev.negative+' מתוך 5 הביקורות האחרונות שליליות (3 כוכבים ומטה)',15,'rev');
   }
   // Website — 35
+  const plat=platformOf(b.website);
   if(!b.website){ add('אין אתר אינטרנט כלל — ההזדמנות הגדולה ביותר',35,'web'); }
+  else if(plat){ pres+=3; add('אין אתר עצמאי — הקישור בגוגל מוביל לדף ב'+plat+' בלבד',30,'web'); }
   else {
     pres+=10;
     const s=b.site;
@@ -817,7 +819,7 @@ function vitality(b){
   if(hw!=null) add('hours','שעות פתיחה בשבוע', hw>=60?10:hw>=40?8:hw>=20?5:hw>0?2:0, 10, hw+' שעות');
   const s=b.site&&!b.site.error?b.site:null;
   // 6. real web traffic (CrUX)
-  if(s && s.crux && s.crux.hasData!=null) add('traffic','תנועה אמיתית לאתר (Chrome)', s.crux.hasData?15:0, 15,
+  if(s && s.crux && s.crux.hasData!=null && !platformOf(b.website) && !(s.crux.origin&&platformOf(s.crux.origin))) add('traffic','תנועה אמיתית לאתר (Chrome)', s.crux.hasData?15:0, 15,
     s.crux.hasData?('לגוגל יש נתוני גלישה אמיתיים על האתר'+(s.crux.phone?' (כולל מנייד)':'')+' — יש לו כמות גולשים משמעותית'):'אין מספיק גולשים באתר כדי שגוגל יאסוף עליו נתונים');
   // 7. site freshness
   if(s){ const ds=[s.sitemapInfo&&s.sitemapInfo.daysSinceUpdate, s.pageDates&&s.pageDates.daysSince].filter(x=>x!=null);
@@ -845,8 +847,14 @@ function vitalHtml(b){
     ${V.parts.map(p=>`<tr><td>${esc(p.label)}</td><td style="white-space:nowrap">${p.got}/${p.max}</td><td class="hint">${esc(p.note||'')}</td></tr>`).join('')}</table>
     <div class="hint" style="margin-top:6px">מבוסס על ${V.conf} מדדים זמינים מתוך 10. ${b.astate!=='done'?'«🔬 נתח» מוסיף תנועה לאתר, עדכונים, פרסום, רשם החברות וביקורות. ':''}ליד טוב = <b>חיוניות גבוהה + ציון הזדמנות גבוה</b>: לעסק יש לקוחות וכסף, ונוכחות דיגיטלית חלשה.</div></div>`;
 }
+const PLATFORMS=[[/(^|\.)facebook\.com$|(^|\.)fb\.com$/,'פייסבוק'],[/(^|\.)instagram\.com$/,'אינסטגרם'],[/(^|\.)tiktok\.com$/,'טיקטוק'],[/(^|\.)b144\.co\.il$/,'b144'],
+  [/(^|\.)d\.co\.il$/,'דפי זהב'],[/(^|\.)easy\.co\.il$/,'איזי'],[/(^|\.)midrag\.co\.il$/,'מידרג'],[/(^|\.)linktr\.ee$/,'Linktree'],[/(^|\.)wa\.me$|whatsapp\.com$/,'וואטסאפ'],
+  [/(^|\.)business\.site$|sites\.google\.com$/,'אתר חינמי של גוגל'],[/(^|\.)yad2\.co\.il$/,'יד2'],[/(^|\.)zap\.co\.il$/,'זאפ'],[/(^|\.)linkedin\.com$/,'לינקדאין'],[/(^|\.)youtube\.com$/,'יוטיוב'],
+  [/(^|\.)booksy\.com$|(^|\.)fresha\.com$|(^|\.)calendly\.com$/,'מערכת זימון תורים']];
+function platformOf(url){ if(!url) return null; let host; try{ host=new URL(/^https?:/i.test(url)?url:'https://'+url).hostname.toLowerCase(); }catch(e){ return null; }
+  const m=PLATFORMS.find(([re])=>re.test(host)); return m?m[1]:null; }
 async function cruxClient(url){
-  if(!settings.key||!url) return null;
+  if(!settings.key||!url||platformOf(url)) return null;
   let origin; try{ origin=new URL(/^https?:/i.test(url)?url:'https://'+url).origin; }catch(e){ return null; }
   const q=async body=>{ const r=await fetchT('https://chromeuxreport.googleapis.com/v1/records:queryRecord?key='+encodeURIComponent(settings.key),
       {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)},10000);
@@ -907,7 +915,7 @@ function render(){
 function cardHtml(b){
   const sc=b._s||scoreBiz(b), cls=sc.opp>=70?'s-hi':sc.opp>=40?'s-mid':'s-low', st=stageOf(b.id), s=b.site;
   const chip=(ok,t,warn)=>`<span class="chip ${ok?'ok':(warn?'w':'no')}">${ok?'✓ ':''}${t}</span>`;
-  let chips=[ b.website?chip(1,'אתר'):chip(0,'אין אתר'), b.phone?chip(1,'טלפון'):chip(0,'אין טלפון'),
+  let chips=[ b.website&&!platformOf(b.website)?chip(1,'אתר'):chip(0,b.website?'אין אתר עצמאי':'אין אתר'), b.phone?chip(1,'טלפון'):chip(0,'אין טלפון'),
     b.hours.length?chip(1,'שעות'):chip(0,'אין שעות',1), b.photos?chip(1,b.photos+' תמונות'):chip(0,'אין תמונות') ];
   if(b.astate==='run') chips.push('<span class="chip run"><span class="sp" style="width:10px;height:10px"></span> מנתח...</span>');
   else if(s && s.error) chips.push('<span class="chip w">⚠️ האתר לא נבדק</span>');
@@ -921,6 +929,7 @@ function cardHtml(b){
   if(b.site&&b.site.tech&&(b.site.tech.googleAds||b.site.tech.metaPixel)) chips.push('<span class="chip w">💰 מפרסם</span>');
   if(leads[b.id]&&leads[b.id].seq&&!leads[b.id].seq.done){ const d=seqDue(leads[b.id].seq); chips.push(`<span class="chip ${d>=0?'w':''}">🔁 סדרה${d>=0?' · להיום':''}</span>`); }
   if(b.kit) chips.push('<span class="chip ok">🎁 ערכה</span>');
+  if(platformOf(b.website)) chips.push(`<span class="chip no">אתר = דף ${esc(platformOf(b.website))}</span>`);
   if(hasMobile(b)) chips.push('<span class="chip ok">📱 נייד</span>');
   if(leads[b.id]&&leads[b.id].contact) chips.push(`<span class="chip ok">👤 ${esc(leads[b.id].contact)}</span>`);
   if(b.lic&&b.lic.records&&b.lic.records.length) chips.push('<span class="chip ok">🏗️ קבלן רשום</span>');
