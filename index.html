@@ -851,8 +851,11 @@ const PLATFORMS=[[/(^|\.)facebook\.com$|(^|\.)fb\.com$/,'פייסבוק'],[/(^|\
   [/(^|\.)d\.co\.il$/,'דפי זהב'],[/(^|\.)easy\.co\.il$/,'איזי'],[/(^|\.)midrag\.co\.il$/,'מידרג'],[/(^|\.)linktr\.ee$/,'Linktree'],[/(^|\.)wa\.me$|whatsapp\.com$/,'וואטסאפ'],
   [/(^|\.)business\.site$|sites\.google\.com$/,'אתר חינמי של גוגל'],[/(^|\.)yad2\.co\.il$/,'יד2'],[/(^|\.)zap\.co\.il$/,'זאפ'],[/(^|\.)linkedin\.com$/,'לינקדאין'],[/(^|\.)youtube\.com$/,'יוטיוב'],
   [/(^|\.)booksy\.com$|(^|\.)fresha\.com$|(^|\.)calendly\.com$/,'מערכת זימון תורים']];
-function platformOf(url){ if(!url) return null; let host; try{ host=new URL(/^https?:/i.test(url)?url:'https://'+url).hostname.toLowerCase(); }catch(e){ return null; }
-  const m=PLATFORMS.find(([re])=>re.test(host)); return m?m[1]:null; }
+function platformOf(url){ if(!url) return null; let u; try{ u=new URL(/^https?:/i.test(url)?url:'https://'+url); }catch(e){ return null; }
+  const host=u.hostname.toLowerCase(); const m=PLATFORMS.find(([re])=>re.test(host)); if(m) return m[1];
+  // deep page on someone else's site (directory / portal listing), e.g. /he/page/120/business-name
+  const segs=u.pathname.split('/').filter(Boolean); if(segs.length>=3 || /\/(page|business|biz|listing|company|profile|place)s?\//i.test(u.pathname)) return 'אתר צד שלישי ('+host.replace(/^www\./,'')+')';
+  return null; }
 async function cruxClient(url){
   if(!settings.key||!url||platformOf(url)) return null;
   let origin; try{ origin=new URL(/^https?:/i.test(url)?url:'https://'+url).origin; }catch(e){ return null; }
