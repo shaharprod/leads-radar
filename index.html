@@ -263,6 +263,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     <button id="btnLeadsCsv">⬇️ ייצוא הלידים ל-CSV</button>
   </div>
   <div class="hint" style="margin-bottom:10px">כל עסק שסימנת לו שלב (מעבר ל״חדש״) נשמר כאן לתמיד — גם אחרי סריקות חדשות. לחיצה על כרטיס פותחת אותו.</div>
+  <div id="seqPanel"></div>
   <div class="board" id="board"></div>
   <div class="panel" style="margin-top:16px" id="watchPanel">
     <div class="toolbar" style="margin-bottom:8px"><b style="font-size:16px">🛰️ מעקב אזורים ועסקים חדשים</b><div class="spacer"></div>
@@ -318,7 +319,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
 </dialog>
 
 <dialog id="dlgBiz"><div class="dlg-h"><b id="bizTitle"></b><div class="spacer"></div>
-  <button id="bizReport">📄 דוח</button><button id="bizLive">🔗 קישור חי</button><button id="bizQuote">💰 הצעת מחיר</button><button id="bizOutreach">✉️ פנייה</button>
+  <button id="bizReport">📄 דוח</button><button id="bizLive">🔗 קישור חי</button><button id="bizQuote">💰 הצעת מחיר</button><button id="bizKit">🎁 ערכת תוכן</button><button id="bizOutreach">✉️ פנייה</button>
   <button class="ghost" data-close>סגור</button></div><div class="dlg-b" id="bizBody"></div></dialog>
 
 <dialog id="dlgOut"><div class="dlg-h"><b id="outTitle">✉️ פנייה מותאמת</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
@@ -330,6 +331,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     <div class="toolbar" style="margin-top:10px">
       <button id="outAi" class="primary">✨ נסח מחדש עם AI</button>
       <button id="outCopy">📋 העתק</button>
+      <button id="outSeq">🔁 התחל סדרת מעקב (3 הודעות)</button>
       <a id="outSend" class="hidden" target="_blank"><button>🚀 פתח לשליחה</button></a>
       <span id="outStatus" class="hint"></span>
     </div>
@@ -346,6 +348,10 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <span class="hint">לחיצה פותחת את וואטסאפ עם ההודעה מוכנה, מעבירה את הליד לשלב «📞 נוצר קשר» ועוברת לבא. השליחה עצמה — בוואטסאפ, ממך.</span></div>
   </div></dialog>
 
+<dialog id="dlgKit"><div class="dlg-h"><b id="kitTitle">🎁 ערכת תוכן</b><div class="spacer"></div>
+  <button id="kitGen" class="primary">✨ צור ערכת תוכן</button><button id="kitDl" class="hidden">⬇️ הורד כמתנה ללקוח</button><button class="ghost" data-close>סגור</button></div>
+  <div class="dlg-b" id="kitBody"></div></dialog>
+
 <dialog id="dlgHelp"><div class="dlg-h"><b>❓ איך זה עובד</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
     <div class="sec"><h5>1. הגדרות</h5><div class="hint">⚙️ הגדרות → מפתח Google, המיתוג שלך לדוחות, ואופציונלית מפתח Gemini ו-Webhook.</div></div>
@@ -357,6 +363,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     <div class="sec"><h5>⚔️ מתחרים ו📍 דירוג מקומי</h5><div class="hint">בכרטיס המלא: השוואה ל-3 המתחרים החזקים באותה קטגוריה עד 3 ק״מ, ו«בדוק דירוג מקומי» — מפת חום של המקום של העסק בגוגל מפות מ-9 או 25 נקודות סביבו.</div></div>
     <div class="sec"><h5>🔗 קישור חי, 💰 הצעת מחיר, 🏢 רשם החברות</h5><div class="hint">«קישור חי» מעלה את הדוח לשרת שלך ומראה כמה פעמים ומתי הלקוח פתח אותו. «הצעת מחיר» בונה הצעה לפי הליקויים והחבילות שהגדרת. «רשם החברות» מביא ח.פ., סטטוס ותאריך הקמה.</div></div>
     <div class="sec"><h5>📲 תור וואטסאפ ו🛰️ מעקב אזורים</h5><div class="hint">«תור וואטסאפ» עובר ליד אחרי ליד עם הודעה מוכנה. «⭐ מעקב שבועי» שומר אזור — כל יום ראשון השרת מזהה עסקים חדשים שנפתחו בו (לשונית 📋 הלידים שלי).</div></div>
+    <div class="sec"><h5>🎁 ערכת תוכן, 🔁 סדרת מעקב, 💰 אותות קנייה</h5><div class="hint">«🎁 ערכת תוכן» — AI כותב לעסק תיאור לגוגל, 3 פוסטים ותשובות לביקורות; מורידים כמתנה או שהיא נכנסת לדוח. «🔁 התחל סדרת מעקב» בחלון הפנייה — 3 הודעות (היום / 3 ימים / שבוע) עם תזכורת ב«📋 הלידים שלי». «💰 אותות קנייה» — פיקסלים ותגי פרסום באתר, קישור לספריות המודעות, ובדיקת רישום באינדקסים.</div></div>
     <div class="sec"><h5>7. משפך לידים</h5><div class="hint">בכל כרטיס בוחרים שלב (נוצר קשר / פגישה / הצעה / לקוח). הליד נשמר ב«📋 הלידים שלי» עם הערות ותאריך מעקב. Webhook שולח לידים ל-Make / Zapier / n8n.</div></div>
   </div></dialog>
 
@@ -723,6 +730,7 @@ function scoreBiz(b){
       if(s.ssl && s.ssl.daysLeft!=null && s.ssl.daysLeft<30) add('תעודת האבטחה (SSL) של האתר פגה בעוד '+s.ssl.daysLeft+' ימים',15,'web');
       if(s.domain && s.domain.daysToExpire!=null && s.domain.daysToExpire<60) add('הדומיין של האתר פג בעוד '+s.domain.daysToExpire+' ימים',15,'web');
     }
+    { const miss=Object.values(b.cites||{}).filter(v=>v===false).length; if(miss) add('העסק לא רשום ב-'+miss+' אינדקסים עסקיים מובילים (b144, דפי זהב, איזי...)',Math.min(15,4*miss),'gbp'); }
     if(b.rank && b.rank.avg>10) add('בגוגל מפות העסק מופיע בממוצע במקום '+b.rank.avg.toFixed(1)+' על «'+b.rank.kw+'» באזור — מחוץ ל-3 הראשונים',20,'gbp');
     if(b.psi && !b.psi.error){ if(b.psi.perf<50) add('ציון מהירות מובייל של גוגל: '+b.psi.perf+'/100',15,'web'); else if(b.psi.perf<80) add('ציון מהירות מובייל בינוני: '+b.psi.perf+'/100',7,'web'); }
   }
@@ -746,7 +754,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -803,6 +811,9 @@ function cardHtml(b){
     const n=Object.keys(s.social||{}).length; if(n) chips.push(chip(1,n+' רשתות'));
     if(s.platform) chips.push(`<span class="chip">${esc(s.platform)}</span>`); }
   { const pr=presenceOf(b); chips.push(`<span class="chip ${pr.count>=5?'ok':pr.count>=3?'w':'no'}">📡 ${pr.count}/${pr.total} ערוצים</span>`); }
+  if(b.site&&b.site.tech&&(b.site.tech.googleAds||b.site.tech.metaPixel)) chips.push('<span class="chip w">💰 מפרסם</span>');
+  if(leads[b.id]&&leads[b.id].seq&&!leads[b.id].seq.done){ const d=seqDue(leads[b.id].seq); chips.push(`<span class="chip ${d>=0?'w':''}">🔁 סדרה${d>=0?' · להיום':''}</span>`); }
+  if(b.kit) chips.push('<span class="chip ok">🎁 ערכה</span>');
   if(hasMobile(b)) chips.push('<span class="chip ok">📱 נייד</span>');
   if(leads[b.id]&&leads[b.id].contact) chips.push(`<span class="chip ok">👤 ${esc(leads[b.id].contact)}</span>`);
   if(b.lic&&b.lic.records&&b.lic.records.length) chips.push('<span class="chip ok">🏗️ קבלן רשום</span>');
@@ -849,7 +860,7 @@ window.openBiz = id=>{
         <div class="kv" style="margin-top:10px"><div>צ׳אט</div><div>${(s.chat||[]).join(', ')||'— אין —'}</div><div>קביעת תורים</div><div>${(s.booking||[]).join(', ')||'— אין —'}</div><div>טופס</div><div>${s.form?'יש':'אין'}</div></div></div>
       <div class="sec"><h5>📇 פרטי קשר שנמצאו באתר</h5><div class="kv">
         <div>וואטסאפ</div><div>${(s.whatsapp||[]).map(w=>`<a href="https://wa.me/${esc(w)}" target="_blank">${esc(w)}</a>`).join(', ')||'—'}</div>
-        <div>מיילים</div><div>${(s.emails||[]).map(e=>`<a href="mailto:${esc(e)}">${esc(e)}</a>`).join('<br>')||'— לא נמצאו —'}</div>
+        <div>מיילים</div><div>${(s.emails||[]).map(e=>`<a href="mailto:${esc(e)}">${esc(e)}</a> ${s.emailCheck?(s.emailCheck[e]?'<span class="chip ok" style="padding:0 6px">✓ מקבל דואר</span>':'<span class="chip no" style="padding:0 6px">✕ הדומיין לא מקבל דואר</span>'):''}`).join('<br>')||'— לא נמצאו —'}</div>
         <div>טלפונים</div><div>${(s.tels||[]).map(esc).join(', ')||'—'}</div></div></div>`;
   }
   let psiH='';
@@ -877,7 +888,7 @@ window.openBiz = id=>{
       <div>דירוג</div><div>⭐ ${b.rating||'—'} · ${b.reviews} ביקורות</div><div>תמונות</div><div>${b.photos}</div>
       <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
       <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
-    ${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${regHtml(b)}${licHtml(b)}${digHtml(b)}
+    ${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${signalsHtml(b)}${regHtml(b)}${licHtml(b)}${digHtml(b)}
     <div class="sec"><h5>📋 ניהול הליד</h5>
       <div class="row row2"><div><label>שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
         <div><label>תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
@@ -1039,7 +1050,7 @@ function updateSend(){
   const b=findBiz(outBizId), a=$('outSend'), txt=$('outText').value; let href='';
   const wa = (b.site&&b.site.whatsapp&&b.site.whatsapp[0]) || waNum(b.phone);
   if(outCh==='wa' && wa) href='https://wa.me/'+wa+'?text='+encodeURIComponent(txt);
-  if(outCh==='email'){ const em=b.site&&b.site.emails&&b.site.emails[0]; href='mailto:'+(em||'')+'?subject='+encodeURIComponent($('outSubj').value)+'&body='+encodeURIComponent(txt); }
+  if(outCh==='email'){ const em=bestEmail(b); href='mailto:'+(em||'')+'?subject='+encodeURIComponent($('outSubj').value)+'&body='+encodeURIComponent(txt); }
   if(outCh==='call' && b.phone) href='tel:'+b.phone.replace(/\s/g,'');
   a.classList.toggle('hidden',!href); if(href) a.href=href;
 }
@@ -1047,7 +1058,6 @@ document.querySelectorAll('#outTabs button').forEach(x=>x.onclick=()=>setOutCh(x
 $('outText').oninput=updateSend; $('outSubj').oninput=updateSend;
 $('outCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText($('outText').value); $('outStatus').textContent='✓ הועתק'; }catch(e){ $('outText').select(); document.execCommand('copy'); $('outStatus').textContent='✓ הועתק'; } };
 $('outAi').onclick=async()=>{
-  if(!settings.gemini){ $('outStatus').innerHTML='צריך מפתח Gemini ב-<a href="#" onclick="dlgOut.close();$(\'btnSettings\').click();return false">⚙️ הגדרות</a>'; return; }
   const b=findBiz(outBizId), sc=scoreBiz(b);
   const kind={wa:'הודעת וואטסאפ קצרה (עד 70 מילים)',email:'מייל פנייה קרה (עד 150 מילים) — בלי שורת נושא',call:'תסריט שיחת טלפון קרה עם פתיחה, ממצא, שאלה, ערך, סגירה וטיפול בהתנגדות',dm:'הודעה קצרה ברשת חברתית (עד 50 מילים)'}[outCh];
   const prompt=`כתוב בעברית ${kind} מ${settings.person||'יועץ'} (${settings.tagline||''}, ${settings.brand||''}) אל בעל העסק "${b.name}" (${b.type}, ${b.address}).
@@ -1057,10 +1067,7 @@ ${sc.fix.slice(0,6).map(f=>'- '+f.t).join('\n')}
 דרישות: טון אישי, מכבד ולא מתלהם; התייחסות ספציפית לממצא אחד או שניים (לא רשימה ארוכה); ללא הבטחות מספריות; הנעה לפעולה רכה — להציע לשלוח דוח ביקורת חינמי או שיחה של 15 דקות${settings.link?' ('+settings.link+')':''}. אל תשתמש במילה "מומחה". החזר רק את הטקסט עצמו.`;
   $('outStatus').innerHTML='<span class="sp"></span> מנסח...'; $('outAi').disabled=true;
   try{
-    const r=await fetchT('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(settings.model||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(settings.gemini),
-      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.8}})}, 45000);
-    const j=await r.json(); if(j.error) throw new Error(j.error.message);
-    const txt=(j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text).join(''))||'';
+    const txt=await aiText(prompt,0.8);
     if(!txt) throw new Error('תשובה ריקה');
     $('outText').value=txt.trim(); updateSend(); $('outStatus').textContent='✓ נוסח ב-AI';
   }catch(e){ $('outStatus').textContent='שגיאת AI: '+e.message; }
@@ -1082,6 +1089,7 @@ $('btnHookAll').onclick=()=>{ const ids=results.filter(b=>scoreBiz(b).opp>=70).m
 
 /* ---------- leads board ---------- */
 function renderBoard(){
+  try{ $('seqPanel').innerHTML=seqPanelHtml(); }catch(e){}
   const q=$('leadSearch').value.trim(); const today=new Date().toISOString().slice(0,10);
   const all=Object.entries(leads).filter(([id,l])=>l.biz && (!q || (l.biz.name+' '+(l.note||'')).includes(q)));
   $('board').innerHTML=STAGES.filter(s=>s.id!=='new').map(s=>{
@@ -1106,7 +1114,7 @@ function rowsOf(list){
       'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
       'ערוצים דיגיטליים':presenceOf(b).count+'/'+presenceOf(b).total,
       'פייסבוק':socialOf(b).facebook||'','אינסטגרם':socialOf(b).instagram||'','טיקטוק':socialOf(b).tiktok||'','יוטיוב':socialOf(b).youtube||'','לינקדאין':socialOf(b).linkedin||'','פלטפורמה':w.platform||'',
-      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
+      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','מפרסם':(t.googleAds||t.metaPixel)?'כן':'','מייל תקין':bestEmail(b),'שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
   });
 }
 function dl(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
@@ -1260,9 +1268,8 @@ async function gemini(prompt){
 }
 window.summarizeReviews = async id=>{
   const b=findBiz(id); if(!b.rev||b.rev.error||!b.rev.list.length) return alert('קודם צריך «🔬 נתח» עם ניתוח ביקורות.');
-  if(!settings.gemini) return alert('לסיכום AI צריך מפתח Gemini ב-⚙️ הגדרות.');
   busy('מסכם ביקורות עם AI...');
-  try{ b.revSummary={text: await gemini(`סכם בעברית, ב-3 עד 5 תבליטים קצרים, מה הלקוחות אוהבים ומה מפריע להם בעסק "${b.name}", לפי הביקורות הבאות. אם יש תלונה חוזרת — הדגש אותה. בלי הקדמה.\n\n`+b.rev.list.map(r=>`(${r.rating}★, ${r.when}) ${r.text}`).join('\n')), ts:Date.now()}; persistBiz(b); }
+  try{ b.revSummary={text: await aiText(`סכם בעברית, ב-3 עד 5 תבליטים קצרים, מה הלקוחות אוהבים ומה מפריע להם בעסק "${b.name}", לפי הביקורות הבאות. אם יש תלונה חוזרת — הדגש אותה. בלי הקדמה.\n\n`+b.rev.list.map(r=>`(${r.rating}★, ${r.when}) ${r.text}`).join('\n')), ts:Date.now()}; persistBiz(b); }
   catch(e){ alert('שגיאת AI: '+e.message); }
   busy(false); reopen(id);
 };
@@ -1354,6 +1361,7 @@ function reportExtras(b, row){
     <div style="display:grid;grid-template-columns:repeat(${rk.n},1fr);gap:4px;max-width:360px;direction:ltr">${rk.grid.map((p,i)=>{const r=p.r; const bg=r==null||r>20?'#ff6b6b':r<=3?'#2fd48f':r<=6?'#b8e05a':r<=10?'#ffc24d':'#ff8f5a';
       return `<div style="aspect-ratio:1;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;font-weight:800;${i===Math.floor(rk.grid.length/2)?'outline:3px solid #1b2440;outline-offset:-3px':''}">${r==null?'?':r>20?'20+':r}</div>`;}).join('')}</div>
     <p class="note">כל משבצת היא נקודה בשטח; המספר הוא המקום של העסק בתוצאות גוגל מפות למי שמחפש משם. 3 המקומות הראשונים מקבלים את רוב הפניות.</p>`; }
+  if(b.kit) out+=`<h2>🎁 מתנה: הכנו עבורכם תוכן מוכן</h2>${kitHtml(b,true).replace(/var\(--line\)/g,'#e3e7f3').replace(/class="sec"/g,'style="border:1px solid #e3e7f3;border-radius:12px;padding:12px 14px;margin:10px 0"')}`;
   if(b.revSummary) out+=`<h2>מה הלקוחות אומרים</h2><div style="white-space:pre-wrap">${esc(b.revSummary.text)}</div>`;
   const s=b.site; if(s&&!s.error&&(s.ssl||s.domain)) out+=`<h2>דומיין ואבטחה</h2><table>
     ${s.ssl?row(s.ssl.daysLeft>30,'תעודת אבטחה (SSL)','בתוקף עד '+esc(s.ssl.validTo)):''}
@@ -1450,6 +1458,149 @@ window.adoptNew=async id=>{ const x=(window._newLeads||[]).find(l=>l.id===id); i
 $('btnCronNow').onclick=async()=>{ if(needToken()) return; busy('סורק את האזורים במעקב...'); try{ const j=await apiCall('action=cron',{},290000);
   busy(false); alert(j.report.map(r=>r.area+': '+(r.error?'שגיאה — '+r.error:(r.baseline?'קו בסיס נקבע ('+r.found+' עסקים)':r.new+' חדשים מתוך '+r.found))).join('\n')||'אין אזורים במעקב.'); }catch(e){ busy(false); alert(e.message); } loadWatch(); };
 $('btnAckAll').onclick=async()=>{ if(needToken()) return; if(!confirm('לסמן את כל העסקים החדשים כנקראו?')) return; await apiCall('action=ackleads',{method:'POST',body:{all:true}}); loadWatch(); };
+
+/* ============================================================
+   v4 modules: server AI · content kit · follow-up sequences · email MX · buying signals & directories
+   ============================================================ */
+async function aiText(prompt, temp){
+  if(settings.gemini) return await gemini(prompt);
+  if(!settings.token) throw new Error('אין מפתח Gemini ואין טוקן שרת — ⚙️ הגדרות');
+  const j=await apiCall('action=ai',{method:'POST',body:{prompt, temp: temp==null?0.6:temp}},120000); return j.text||'';
+}
+function parseJSON(t){ const m=String(t).replace(/```json|```/g,'').match(/\{[\s\S]*\}/); if(!m) throw new Error('תשובת AI לא בפורמט הצפוי'); return JSON.parse(m[0]); }
+
+/* ---------- 🎁 content kit ---------- */
+window.makeKit = async id=>{
+  const b=findBiz(id); if(!b) return;
+  const neg=(b.rev&&!b.rev.error?b.rev.list:[]).slice(0,5);
+  const prompt=`אתה קופירייטר שיווקי ישראלי. צור "ערכת תוכן מתנה" בעברית לעסק "${b.name}" (${b.type||''}, ${b.address||''}).
+${b.website?'אתר: '+b.website:''} ${b.gextra&&b.gextra.summary?'תיאור גוגל: '+b.gextra.summary:''}
+${b.site&&b.site.title?'כותרת האתר: '+b.site.title:''} ${b.site&&b.site.desc?'תיאור האתר: '+b.site.desc:''}
+${neg.length?'ביקורות אחרונות:\n'+neg.map((r,i)=>`[${i}] ${r.rating}★ ${r.author}: ${r.text}`).join('\n'):'אין ביקורות זמינות.'}
+החזר JSON בלבד, בלי הסברים, במבנה:
+{"description":"תיאור עסק לפרופיל גוגל, עד 700 תווים, טבעי, עם מילות מפתח מקומיות (שם העיר והשירות), בלי הבטחות מוגזמות",
+ "posts":[{"title":"...","text":"פוסט לגוגל/פייסבוק 60-120 מילים עם קריאה לפעולה"},{"title":"...","text":"..."},{"title":"...","text":"..."}],
+ "replies":[{"i":0,"text":"תשובה אדיבה ומקצועית של בעל העסק לביקורת [0], 1-3 משפטים; לביקורת שלילית — אמפתיה, לקיחת אחריות והזמנה לדבר בפרטי"}]}
+כתוב תשובה לכל ביקורת שקיבלת (אם אין — "replies":[]). אל תמציא עובדות שאינן מופיעות למעלה (מחירים, שנות ניסיון, שמות).`;
+  busy('✨ יוצר ערכת תוכן עם AI...');
+  try{ const k=parseJSON(await aiText(prompt,0.7)); b.kit={description:k.description||'', posts:k.posts||[], replies:(k.replies||[]).map(r=>({i:r.i, text:r.text, review:neg[r.i]||null})), ts:Date.now()}; persistBiz(b); }
+  catch(e){ alert('יצירת הערכה נכשלה: '+e.message); }
+  busy(false); if(b.kit) openKit(id);
+};
+function kitHtml(b, forClient){
+  const k=b.kit; if(!k) return '';
+  const cp = t=> forClient?'':`<button onclick="copyTxt(this)" data-t="${esc(t)}" style="font-size:11px;padding:4px 8px;float:left">📋 העתק</button>`;
+  return `<div class="sec"><h5>📝 תיאור עסק מומלץ לפרופיל גוגל</h5>${cp(k.description)}<div style="white-space:pre-wrap">${esc(k.description)}</div></div>
+   <div class="sec"><h5>📣 3 פוסטים מוכנים (גוגל / פייסבוק / אינסטגרם)</h5>${(k.posts||[]).map(p=>`<div style="border-top:1px solid var(--line);padding:8px 0">${cp(p.text)}<b>${esc(p.title||'')}</b><div style="white-space:pre-wrap">${esc(p.text||'')}</div></div>`).join('')}</div>
+   ${(k.replies||[]).length?`<div class="sec"><h5>💬 תשובות מוכנות לביקורות בגוגל</h5>${k.replies.map(r=>`<div style="border-top:1px solid var(--line);padding:8px 0">${r.review?`<div class="hint">${'★'.repeat(r.review.rating||0)} ${esc(r.review.author||'')}: ${esc((r.review.text||'').slice(0,160))}</div>`:''}${cp(r.text)}<div style="white-space:pre-wrap">↩️ ${esc(r.text)}</div></div>`).join('')}</div>`:''}`;
+}
+window.copyTxt = async el=>{ const t=el.dataset.t; try{ await navigator.clipboard.writeText(t); el.textContent='✓ הועתק'; }catch(e){ el.textContent='✕'; } };
+window.openKit = id=>{
+  const b=findBiz(id); curKit=id;
+  $('kitTitle').textContent='🎁 ערכת תוכן — '+b.name;
+  $('kitBody').innerHTML = b.kit ? kitHtml(b) : `<div class="hint">ערכת מתנה לעסק: תיאור עסק משופר לגוגל, 3 פוסטים מוכנים, ותשובות מקצועיות לביקורות האחרונות שלו${b.rev&&!b.rev.error?'':' (כדי לכלול ביקורות — הרץ קודם «🔬 נתח»)'}. מצרפים לפנייה — ומראים ערך לפני שהוא שילם שקל.</div>`;
+  $('kitGen').textContent = b.kit?'✨ צור מחדש':'✨ צור ערכת תוכן';
+  $('kitDl').classList.toggle('hidden',!b.kit);
+  if(!dlgKit.open) dlgKit.showModal();
+};
+let curKit=null;
+function kitGiftHtml(b){
+  const c=settings.color||'#4f7cff';
+  return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>מתנה עבור ${esc(b.name)}</title>
+<style>body{margin:0;font-family:"Segoe UI",Rubik,Arial,sans-serif;background:#f4f6fb;color:#1b2440;line-height:1.8}.page{max-width:820px;margin:0 auto;background:#fff;padding:34px 38px}
+.top{display:flex;align-items:center;gap:14px;border-bottom:4px solid ${c};padding-bottom:14px;margin-bottom:18px}.top img{max-height:50px}.brand{font-weight:800;color:${c}}
+.sec{border:1px solid #e3e7f3;border-radius:12px;padding:14px 16px;margin:14px 0}h5{margin:0 0 8px;color:${c};font-size:16px}.hint{color:#667;font-size:13px}
+@media print{body{background:#fff}.page{padding:0}}</style></head><body><div class="page">
+<div class="top">${settings.logo?`<img src="${esc(settings.logo)}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="hint">${esc(settings.tagline||'')}</div></div></div>
+<h1 style="margin:0">🎁 הכנו עבורכם — ${esc(b.name)}</h1><p>תוכן מוכן לשימוש, בחינם, בלי התחייבות. אפשר להעתיק ולהדביק כבר היום.</p>
+${kitHtml(b,true).replace(/var\(--line\)/g,'#e3e7f3')}
+<p class="hint">רוצים שנטפל בזה בשבילכם באופן קבוע? ${esc(settings.person||'')} ${settings.phone?'· '+esc(settings.phone):''} ${settings.link?'· '+esc(settings.link):''}</p></div></body></html>`;
+}
+
+/* ---------- 🔁 follow-up sequences ---------- */
+const SEQ_DAYS=[0,3,7];
+function seqText(b, step, ch){
+  const sc=scoreBiz(b), top=(sc.fix[0]&&sc.fix[0].t)||'כמה דברים שאפשר לשפר', me=settings.person||'', L=leads[b.id]||{}, hi=L.contact?' '+L.contact.split(' ')[0]:'';
+  const link=b.live&&b.live.url?'\n'+b.live.url:(settings.link?'\n'+settings.link:'');
+  if(step===0) return outreachText(b, ch);
+  if(step===1) return ch==='email'
+    ? `שלום${hi},\n\nרק מקפיץ את המייל הקודם שלי לגבי ${b.name}. הממצא הבולט היה: ${top}.\nזה בדרך כלל תיקון של ימים בודדים — ועושה הבדל מורגש בפניות.\nלשלוח לך את הדוח המלא?${link}\n\nתודה,\n${me}`
+    : `היי${hi} 🙂 רק מקפיץ — כתבתי לפני כמה ימים על ${b.name}. הדבר הכי בולט שמצאתי: ${top}.${b.kit?'\nהכנתי לכם גם תיאור עסק ופוסטים מוכנים לגוגל — בחינם.':''}\nרוצה שאשלח?${link}`;
+  return ch==='email'
+    ? `שלום${hi},\n\nלא ארצה להטריד יותר 🙂 אם בהמשך תרצו לטפל ב${top.replace(/^אין /,'')} — הדוח שהכנתי נשאר זמין עבורכם:${link||' (אשמח לשלוח)'}\n\nבהצלחה,\n${me}`
+    : `היי${hi}, זו ההודעה האחרונה שלי בנושא 🙂 אם בהמשך תרצו לשפר את הנוכחות של ${b.name} בגוגל — אני כאן.${link}\nבהצלחה!`;
+}
+function seqOf(id){ return leads[id]&&leads[id].seq; }
+function seqDue(seq){ // index of next unsent step whose day has come, else null
+  if(!seq) return null; const start=new Date(seq.start).getTime();
+  for(let i=0;i<SEQ_DAYS.length;i++){ if(!seq.sent[i]){ return Date.now()>=start+SEQ_DAYS[i]*864e5 ? i : -1; } } return null; }
+window.startSeq = id=>{
+  const b=findBiz(id); const ch=outCh==='email'?'email':'wa';
+  leads[id]=Object.assign({created:Date.now()}, leads[id], {seq:{start:new Date().toISOString(), ch, sent:[false,false,false]}, biz:slim(b)});
+  if(stageOf(id)==='new'||stageOf(id)==='hot') leads[id].stage='contact';
+  saveLeads(); sendSeqStep(id,0);
+};
+window.sendSeqStep = (id, i)=>{
+  const b=findBiz(id), L=leads[id], s=L.seq, txt=seqText(b,i,s.ch);
+  let href='';
+  if(s.ch==='wa'){ const wa=(b.site&&b.site.whatsapp&&b.site.whatsapp[0])||waNum(L.direct||b.phone); href='https://wa.me/'+wa+'?text='+encodeURIComponent(txt); }
+  else { const em=bestEmail(b); href='mailto:'+(em||'')+'?subject='+encodeURIComponent((i?'Re: ':'')+'ממצאי בדיקת נוכחות דיגיטלית — '+b.name)+'&body='+encodeURIComponent(txt); }
+  window.open(href,'_blank');
+  s.sent[i]=true; s['at'+i]=new Date().toISOString();
+  const next=s.sent.indexOf(false); L.due = next>=0 ? new Date(new Date(s.start).getTime()+SEQ_DAYS[next]*864e5).toISOString().slice(0,10) : L.due;
+  if(next<0) s.done=true;
+  saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard();
+  log('🔁 נשלח שלב '+(i+1)+'/3 ל'+b.name+(next>=0?' · הבא ב-'+L.due:' · הסדרה הושלמה'));
+};
+window.stopSeq = id=>{ if(leads[id]&&leads[id].seq){ leads[id].seq.stopped=true; leads[id].seq.done=true; saveLeads(); renderBoard(); render(); } };
+function seqPanelHtml(){
+  const rows=Object.entries(leads).filter(([id,l])=>l.seq&&!l.seq.done&&l.biz).map(([id,l])=>{ const due=seqDue(l.seq); return {id,l,due}; });
+  const today=rows.filter(r=>r.due!=null&&r.due>=0), later=rows.filter(r=>r.due===-1);
+  const item=r=>{ const n=r.l.seq.sent.indexOf(false); const when=new Date(new Date(r.l.seq.start).getTime()+SEQ_DAYS[n]*864e5).toLocaleDateString('he-IL');
+    return `<div style="padding:7px 0;border-top:1px solid var(--line)"><b>${esc(r.l.biz.name)}</b> <span class="hint">· ${r.l.seq.ch==='wa'?'💬 וואטסאפ':'📧 מייל'} · שלב ${n+1}/3 · ${r.due>=0?'<b style="color:var(--gold)">להיום</b>':'מתוכנן ל-'+when}</span>
+      ${r.due>=0?`<button style="font-size:12px;padding:5px 10px;margin-inline-start:8px" onclick="sendSeqStep('${r.id}',${n})">📤 שלח שלב ${n+1}</button>`:''}
+      <a href="#" onclick="stopSeq('${r.id}');return false" class="hint" style="margin-inline-start:8px">⏹ עצור</a></div>`; };
+  return `<div class="panel" style="margin-bottom:16px"><b style="font-size:16px">📬 סדרות מעקב</b> <span class="hint">· ${today.length} להיום · ${later.length} בהמשך</span>
+    ${today.length+later.length?today.concat(later).map(item).join(''):'<div class="hint" style="margin-top:6px">אין סדרות פעילות. מתחילים מ«✉️ פנייה» → «🔁 התחל סדרת מעקב» (3 הודעות: היום, אחרי 3 ימים, אחרי שבוע).</div>'}</div>`;
+}
+
+/* ---------- 📧 email check ---------- */
+function bestEmail(b){ const s=b.site; if(!s||!s.emails) return ''; const ok=s.emailCheck||{}; return s.emails.find(e=>ok[e]!==false)||s.emails[0]||''; }
+
+/* ---------- 💰 buying signals & directories ---------- */
+const DIRS=[['b144','b144.co.il'],['דפי זהב','d.co.il'],['איזי','easy.co.il'],['מידרג','midrag.co.il'],['זאפ','zap.co.il'],['רסט / 2eat','rest.co.il OR site:2eat.co.il'],['יד2 עסקים','yad2.co.il']];
+function signalsHtml(b){
+  const s=b.site&&!b.site.error?b.site:null, t=(s&&s.tech)||{}, dom=b.website?String(b.website).replace(/^https?:\/\//,'').split('/')[0].replace(/^www\./,''):'';
+  const sig=[];
+  if(t.googleAds) sig.push(['💰','תג Google Ads באתר — העסק מפרסם (או פרסם) בגוגל. יש לו תקציב שיווק.']);
+  if(t.metaPixel) sig.push(['💰','Meta Pixel באתר — העסק מריץ או הריץ קמפיינים בפייסבוק/אינסטגרם.']);
+  if(t.tiktokPixel) sig.push(['💰','TikTok Pixel — משקיע בטיקטוק.']);
+  if(s&&s.copyrightYear&&s.copyrightYear<new Date().getFullYear()-2) sig.push(['🕸️','האתר לא עודכן מאז '+s.copyrightYear+' — בשל לחידוש.']);
+  if(s&&s.domain&&s.domain.ageYears!=null&&s.domain.ageYears<1.5) sig.push(['🆕','דומיין חדש ('+s.domain.ageYears+' שנים) — עסק צעיר שבונה נוכחות.']);
+  if(b.reviews>0&&b.reviews<10&&b.rev&&b.rev.daysSince!=null&&b.rev.daysSince<60) sig.push(['🆕','מעט ביקורות אבל טריות — עסק חדש או מתעורר.']);
+  if(b.rev&&!b.rev.error&&b.rev.negative>=2) sig.push(['🔥','ביקורות שליליות אחרונות — כאב מוניטין פעיל.']);
+  const cites=(b.cites||{});
+  const q=encodeURIComponent, name='"'+b.name+'"', ph=(b.phone||'').replace(/\D/g,'');
+  return `<div class="sec"><h5>💰 אותות קנייה ופרסום</h5>
+    ${sig.length?sig.map(x=>`<div style="padding:3px 0">${x[0]} ${esc(x[1])}</div>`).join(''):`<div class="hint">${s?'לא זוהו אותות פרסום באתר.':'הרץ «🔬 נתח» כדי לזהות תגי פרסום באתר.'}</div>`}
+    <div class="chips" style="margin-top:8px">
+      <a class="chip" target="_blank" style="text-decoration:none" href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=IL&search_type=keyword_unordered&q=${q(b.name)}">📘 מודעות פעילות בספריית המודעות של Meta</a>
+      ${dom?`<a class="chip" target="_blank" style="text-decoration:none" href="https://adstransparency.google.com/?region=IL&domain=${q(dom)}">🔎 מודעות בגוגל (Ads Transparency)</a>`:''}
+    </div></div>
+    <div class="sec"><h5>📇 רישום באינדקסים עסקיים — ${Object.values(cites).filter(v=>v===true).length}/${DIRS.length} סומנו כנמצא</h5>
+    <div class="hint" style="margin-bottom:6px">🔎 פותח חיפוש ממוקד בגוגל באתר האינדקס (לפי שם${ph?' או טלפון':''}). אחרי שבדקת — סמן ✓ נמצא / ✕ לא נמצא. «לא נמצא» נכנס לרשימת השיפורים ולדוח.</div>
+    ${DIRS.map(([n,site],i)=>{ const v=cites[i]; return `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--line)">
+      <span style="flex:1">${esc(n)}</span>
+      <a target="_blank" href="${gSearch('site:'+site+' ('+name+(ph?' OR '+ph:'')+')')}">🔎 בדוק</a>
+      <button style="font-size:11px;padding:3px 8px;${v===true?'background:rgba(47,212,143,.2);border-color:var(--good)':''}" onclick="setCite('${b.id}',${i},true)">✓ נמצא</button>
+      <button style="font-size:11px;padding:3px 8px;${v===false?'background:rgba(255,107,107,.2);border-color:var(--bad)':''}" onclick="setCite('${b.id}',${i},false)">✕ לא נמצא</button></div>`; }).join('')}</div>`;
+}
+window.setCite=(id,i,v)=>{ const b=findBiz(id); b.cites=Object.assign({},b.cites); b.cites[i]=(b.cites[i]===v?undefined:v); persistBiz(b); reopen(id); };
+$('bizKit').onclick=()=>curBiz&&openKit(curBiz);
+$('kitGen').onclick=()=>curKit&&makeKit(curKit);
+$('kitDl').onclick=()=>{ const b=findBiz(curKit); if(!b||!b.kit) return; const html=kitGiftHtml(b); const w=window.open('','_blank'); if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+  dl('מתנה-'+b.name.replace(/[\\/:*?"<>|]/g,'').slice(0,40)+'.html', html, 'text/html;charset=utf-8'); };
+$('outSeq').onclick=()=>outBizId&&startSeq(outBizId);
 
 try{ const lg=$('legend'); lg.open = localStorage.getItem('lr_legend')!=='closed'; lg.addEventListener('toggle',()=>{ try{ localStorage.setItem('lr_legend', lg.open?'open':'closed'); }catch(e){} }); }catch(e){}
 /* ---------- start ---------- */
