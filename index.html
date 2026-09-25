@@ -40,6 +40,21 @@ body.resizing iframe,body.resizing #map,body.resizing-v #map{pointer-events:none
 .map-resize i{display:block;width:60px;height:5px;border-radius:5px;background:var(--line)}
 .map-resize:hover i,.map-resize.drag i{background:var(--acc)}
 .mapwrap.big + .map-resize{display:none}
+.gm-style .gm-style-iw-c{background:#161f3d!important;padding:0!important;border-radius:14px!important;box-shadow:0 8px 28px rgba(0,0,0,.55)!important;border:1px solid #2a3563}
+.gm-style .gm-style-iw-d{overflow:hidden!important;max-height:none!important;padding:0!important}
+.gm-style .gm-style-iw-tc::after{background:#161f3d!important}
+.gm-style .gm-style-iw-chr{display:none}
+.mini{width:270px;color:#eef2ff;font-family:"Segoe UI",Rubik,Arial,sans-serif}
+.mini-img{height:120px;background:#0e1530 center/cover no-repeat;border-radius:14px 14px 0 0}
+.mini-noimg{display:flex;align-items:center;justify-content:center;font-size:40px;height:70px}
+.mini-b{padding:10px 12px 12px}
+.mini-top{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.mini-name{font-size:14.5px;line-height:1.35}
+.mini-score{border:1.5px solid;border-radius:9px;padding:1px 7px;font-weight:800;font-size:14px;flex:0 0 auto}
+.mini-meta{font-size:12px;color:#9aa7cf;margin-top:3px}
+.mini-fix{font-size:12px;color:#ffd166;margin-top:6px;line-height:1.45}
+.mini-acts{display:flex;gap:5px;margin-top:9px}
+.mini-acts button{flex:1;font-size:11.5px;padding:6px 4px;border-radius:8px}
 @media(max-width:980px){.wrap{grid-template-columns:1fr}.splitter{display:none}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
 .panel h3{margin:0 0 12px;font-size:15px}
@@ -396,13 +411,42 @@ function initMap(){
   fitCircle(); drawMarkers();
 }
 function fitCircle(){ if(circle&&map) map.fitBounds(circle.getBounds()); }
+let miniIW=null, miniTimer=null, miniFor=null;
+function miniHtml(b){
+  const sc=scoreBiz(b), pr=presenceOf(b), col=sc.opp>=70?'#ff6b6b':sc.opp>=40?'#ffc24d':'#2fd48f';
+  return `<div class="mini" dir="rtl" id="miniCard">
+    ${b.photoUrl?`<div class="mini-img" style="background-image:url('${esc(b.photoUrl)}')"></div>`:`<div class="mini-img mini-noimg">🏪</div>`}
+    <div class="mini-b">
+      <div class="mini-top"><b class="mini-name">${esc(b.name)}</b><span class="mini-score" style="color:${col};border-color:${col}">${sc.opp}</span></div>
+      <div class="mini-meta">${esc(b.type)}${b.dist!=null?' · '+fmtDist(b.dist):''}</div>
+      <div class="mini-meta">⭐ ${b.rating||'—'} (${b.reviews}) · 📡 ${pr.count}/${pr.total} ערוצים${b.photos?' · 🖼️ '+b.photos:''}</div>
+      ${b.phone?`<div class="mini-meta">📞 ${esc(b.phone)}</div>`:''}
+      ${sc.fix[0]?`<div class="mini-fix">🎯 ${esc(sc.fix[0].t)}</div>`:''}
+      <div class="mini-acts">
+        <button onclick="openBiz('${b.id}')">📋 כרטיס</button>
+        <button onclick="analyzeOne('${b.id}')">🔬 ${b.astate==='done'?'נתח שוב':'נתח'}</button>
+        <button onclick="openOutreach('${b.id}')">✉️ פנייה</button>
+      </div></div></div>`;
+}
+function showMini(b,m){
+  clearTimeout(miniTimer);
+  if(!miniIW){ miniIW=new google.maps.InfoWindow({disableAutoPan:true, headerDisabled:true, maxWidth:300});
+    miniIW.addListener('domready',()=>{ const el=document.getElementById('miniCard'); if(!el) return;
+      el.onmouseenter=()=>clearTimeout(miniTimer); el.onmouseleave=()=>hideMiniSoon(); }); }
+  if(miniFor===b.id && miniIW.getMap()) return;
+  miniFor=b.id; miniIW.setContent(miniHtml(b)); miniIW.open({map, anchor:m, shouldFocus:false});
+}
+function hideMiniSoon(){ clearTimeout(miniTimer); miniTimer=setTimeout(()=>{ if(miniIW) miniIW.close(); miniFor=null; },400); }
 function drawMarkers(){
-  if(!map) return; markers.forEach(m=>m.setMap(null)); markers=[];
+  if(!map) return; markers.forEach(m=>m.setMap(null)); markers=[]; if(miniIW){ miniIW.close(); miniFor=null; }
   results.forEach(b=>{ if(!b.loc) return; const o=scoreBiz(b).opp;
-    const m=new google.maps.Marker({map, position:b.loc, title:b.name,
-      icon:{path:google.maps.SymbolPath.CIRCLE, scale:6, fillOpacity:1, strokeWeight:1, strokeColor:'#0b1020',
+    const m=new google.maps.Marker({map, position:b.loc,
+      icon:{path:google.maps.SymbolPath.CIRCLE, scale:7, fillOpacity:1, strokeWeight:1.5, strokeColor:'#0b1020',
         fillColor: o>=70?'#ff6b6b':o>=40?'#ffc24d':'#2fd48f'}});
-    m.addListener('click',()=>openBiz(b.id)); markers.push(m); });
+    m.addListener('mouseover',()=>showMini(b,m));
+    m.addListener('mouseout',()=>hideMiniSoon());
+    m.addListener('click',()=>{ if(miniFor===b.id && miniIW && miniIW.getMap()) openBiz(b.id); else showMini(b,m); });
+    markers.push(m); });
 }
 $('rad').oninput = e=>{ const m=+e.target.value; $('radLbl').textContent = m>=1000 ? (m/1000).toFixed(m%1000?1:0)+' ק״מ' : m+' מ׳';
   if(circle){ circle.setRadius(m); fitCircle(); } };
