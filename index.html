@@ -215,7 +215,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     </div>
     <div class="toolbar">
       <select id="sort" style="width:auto">
-        <option value="opp">מיון: ציון הזדמנות</option><option value="rating">מיון: דירוג</option>
+        <option value="best">🏆 מיון: ההזדמנויות הטובות ביותר</option><option value="opp">מיון: ציון הזדמנות בלבד</option><option value="rating">מיון: דירוג</option>
         <option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
       <button id="btnCsv">⬇️ CSV לאקסל</button>
       <button id="btnJson">⬇️ JSON</button>
@@ -223,6 +223,32 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <button id="btnHookAll">🔗 שלח חמים ל-Webhook</button>
       <button id="btnClear" class="ghost">🗑️ נקה תוצאות</button>
     </div>
+    <details class="panel" id="legend" style="margin-bottom:12px">
+      <summary style="cursor:pointer;font-weight:700">🗝️ מקרא — מה אומרים המספרים, הצבעים והסימנים</summary>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:12px;font-size:13px;line-height:1.8">
+        <div><b>ציון ההזדמנות (הריבוע בפינת הכרטיס)</b><br>
+          <span class="score s-hi" style="position:static;display:inline-flex;width:34px;height:26px;font-size:13px">85</span> <b style="color:var(--bad)">70–100 · ליד חם</b> — לעסק חסרים הרבה דברים בסיסיים. הכי הרבה מה למכור לו, והוא ירגיש את הכאב.<br>
+          <span class="score s-mid" style="position:static;display:inline-flex;width:34px;height:26px;font-size:13px">55</span> <b style="color:var(--warn)">40–69 · הזדמנות בינונית</b> — יש בסיס, אבל חסרים כמה רכיבים חשובים.<br>
+          <span class="score s-low" style="position:static;display:inline-flex;width:34px;height:26px;font-size:13px">20</span> <b style="color:var(--good)">0–39 · נוכחות חזקה</b> — העסק כבר מסודר דיגיטלית. פחות מתאים כליד (אלא לשירות ספציפי).<br>
+          <span class="hint">הציון = 100 פחות «נוכחות דיגיטלית». נוכחות נמדדת מ: כרטיס גוגל (45), אתר (35), שיווק ומדידה (20). לפני «🔬 נתח» הציון חלקי.</span></div>
+        <div><b>🏆 סדר «ההזדמנויות הטובות ביותר»</b><br>
+          המספר <b>#1, #2...</b> בכרטיס = המקום ברשימה. הסדר לוקח את ציון ההזדמנות ומוסיף:<br>
+          ➕ יש טלפון / וואטסאפ / מייל — אפשר להשיג אותו<br>
+          ➕ עסק פעיל עם כמה ביקורות (לא נטוש, לא ענק)<br>
+          ➖ עסק סגור זמנית / לצמיתות — יורד לתחתית<br>
+          ➖ לידים שסימנת «לא רלוונטי» או «לקוח» — יורדים לסוף</div>
+        <div><b>צבעי התגיות</b><br>
+          <span class="chip ok">✓ ירוק</span> קיים / תקין<br>
+          <span class="chip no">אדום</span> חסר — נקודת מכירה<br>
+          <span class="chip w">צהוב</span> חלקי / לא נבדק<br>
+          <span class="chip run">כחול</span> בבדיקה עכשיו</div>
+        <div><b>סימנים</b><br>
+          🎯 הליקוי הכי חשוב של העסק · 📡 כמה ערוצים דיגיטליים יש לו (מתוך 9)<br>
+          📍 מקום ממוצע בגוגל מפות (מבדיקת דירוג מקומי) · 👁️ כמה פעמים פתח את הדוח החי<br>
+          📱 יש מספר נייד (אפשר וואטסאפ) · 👤 איש קשר שרשמת · 🏗️ קבלן רשום<br>
+          <b>נקודות במפה:</b> 🔴 ליד חם · 🟡 בינוני · 🟢 נוכחות חזקה</div>
+      </div>
+    </details>
     <div class="grid" id="grid"></div>
     <div id="empty" class="panel center" style="color:var(--mut)">עדיין אין תוצאות. בחר אזור ומה מחפשים — ולחץ «התחל סריקה».</div>
   </div>
@@ -609,7 +635,16 @@ async function psiScores(url){
 async function fetchReviews(b){
   try{
     const {Place} = await google.maps.importLibrary('places');
-    const p = new Place({id:b.id}); await p.fetchFields({fields:['reviews']});
+    const p = new Place({id:b.id});
+    try{ await p.fetchFields({fields:['reviews','editorialSummary','paymentOptions','accessibilityOptions','parkingOptions','isReservable','hasDelivery','hasTakeout','hasDineIn','hasRestroom','allowsDogs','isGoodForChildren','hasWiFi']}); }
+    catch(e){ await p.fetchFields({fields:['reviews']}); }
+    const yes=(v,t)=>v===true?t:null, obj=o=>o&&typeof o==='object'?o:{};
+    const pay=obj(p.paymentOptions), acc=obj(p.accessibilityOptions), park=obj(p.parkingOptions);
+    b.gextra={ summary:(p.editorialSummary&&(p.editorialSummary.text||p.editorialSummary))||'',
+      attrs:[yes(p.isReservable,'מקבל הזמנות'),yes(p.hasDelivery,'משלוחים'),yes(p.hasTakeout,'טייק-אווי'),yes(p.hasDineIn,'ישיבה במקום'),yes(p.allowsDogs,'ידידותי לכלבים'),yes(p.isGoodForChildren,'מתאים לילדים'),yes(p.hasWiFi,'WiFi'),yes(p.hasRestroom,'שירותים')].filter(Boolean),
+      pay:[yes(pay.acceptsCreditCards,'כרטיסי אשראי'),yes(pay.acceptsNfc,'תשלום בנייד (NFC)'),yes(pay.acceptsCashOnly,'מזומן בלבד')].filter(Boolean),
+      access:[yes(acc.wheelchairAccessibleEntrance,'כניסה נגישה'),yes(acc.wheelchairAccessibleParking,'חניה נגישה'),yes(acc.wheelchairAccessibleRestroom,'שירותים נגישים')].filter(Boolean),
+      parking:[yes(park.freeParkingLot,'חניון חינם'),yes(park.paidParkingLot,'חניון בתשלום'),yes(park.freeStreetParking,'חניה ברחוב'),yes(park.valetParking,'ואלה')].filter(Boolean) };
     const rv=(p.reviews||[]).map(x=>({rating:x.rating, text:(x.text||'').slice(0,400), when:x.relativePublishTimeDescription||'',
       time:x.publishTime?new Date(x.publishTime).getTime():0, author:(x.authorAttribution&&x.authorAttribution.displayName)||''}));
     const latest = rv.reduce((m,x)=>Math.max(m,x.time||0),0);
@@ -621,6 +656,8 @@ async function analyzeBiz(b){
   const jobs=[];
   if(b.website) jobs.push(auditSite(b.website).then(s=>b.site=s));
   if($('useReviews').checked && mapsLoaded) jobs.push(fetchReviews(b).then(r=>b.rev=r));
+  if(!b.reg) jobs.push(fetchT(api('action=registry&q='+encodeURIComponent(b.name)),{},20000).then(r=>r.json()).then(j=>b.reg={records:j.records||[],ts:Date.now()}).catch(()=>{}));
+  if(!b.lic) jobs.push(fetchT(api('action=licenses&q='+encodeURIComponent(b.name)),{},20000).then(r=>r.json()).then(j=>b.lic={records:j.records||[],ts:Date.now()}).catch(()=>{}));
   if($('usePsi').checked && b.website) jobs.push(psiScores(b.website).then(p=>{ if(p._shot) shots[b.id]=p._shot; delete p._shot; b.psi=p; }));
   await Promise.all(jobs);
   b.astate = (b.site&&b.site.error) ? 'err' : 'done'; b.analyzedAt=Date.now();
@@ -709,7 +746,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -720,6 +757,17 @@ function setStage(id,st){
 window.setStage=setStage;
 function updateLeadsCount(){ const n=Object.values(leads).filter(l=>l.stage&&l.stage!=='new'&&l.stage!=='out').length; $('leadsCount').textContent=n?'('+n+')':''; }
 function findBiz(id){ return results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); }
+
+/* ---------- lead ranking ---------- */
+function hasMobile(b){ const ps=[b.phone].concat((b.site&&b.site.tels)||[]); return ps.some(p=>/^05\d{8}$/.test(String(p||'').replace(/\D/g,'').replace(/^972/,'0'))) || !!(b.site&&b.site.whatsapp&&b.site.whatsapp.length); }
+function leadScore(b){
+  const sc=b._s||scoreBiz(b); let v=sc.opp*0.7;
+  if(b.phone) v+=12; if(hasMobile(b)) v+=6; if(b.site&&b.site.emails&&b.site.emails.length) v+=4;
+  if(b.reviews>=3 && b.reviews<=250) v+=8; else if(b.reviews>0) v+=3;
+  if(b.status && b.status!=='OPERATIONAL') v-=45;
+  const st=stageOf(b.id); if(st==='out') v-=80; if(st==='won') v-=60;
+  return Math.max(0,Math.min(100,Math.round(v)));
+}
 
 /* ---------- render ---------- */
 let rTimer=null; function renderSoon(){ clearTimeout(rTimer); rTimer=setTimeout(render,120); }
@@ -732,9 +780,9 @@ function render(){
   if(f==='nopixel') list=list.filter(b=>b.site&&!b.site.error&&!(b.site.tech&&(b.site.tech.metaPixel||b.site.tech.ga4||b.site.tech.gtm)));
   if(f==='noaccess') list=list.filter(b=>b.site&&!b.site.error&&!b.site.accessibility);
   if(f==='nosocial') list=list.filter(b=>!Object.keys(socialOf(b)).length);
-  const cmp={opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
+  const cmp={best:(a,b)=>leadScore(b)-leadScore(a), opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
     dist:(a,b)=>(a.dist||0)-(b.dist||0), name:(a,b)=>a.name.localeCompare(b.name,'he')};
-  list.sort(cmp[s]);
+  list.sort(cmp[s]||cmp.best); if(s==='best'||!cmp[s]) list.forEach((b,i)=>b._rank=i+1); else list.forEach(b=>b._rank=null);
   $('stTotal').textContent=results.length;
   $('stNoSite').textContent=results.filter(b=>!b.website).length;
   $('stHot').textContent=results.filter(b=>scoreBiz(b).opp>=70).length;
@@ -755,11 +803,14 @@ function cardHtml(b){
     const n=Object.keys(s.social||{}).length; if(n) chips.push(chip(1,n+' רשתות'));
     if(s.platform) chips.push(`<span class="chip">${esc(s.platform)}</span>`); }
   { const pr=presenceOf(b); chips.push(`<span class="chip ${pr.count>=5?'ok':pr.count>=3?'w':'no'}">📡 ${pr.count}/${pr.total} ערוצים</span>`); }
+  if(hasMobile(b)) chips.push('<span class="chip ok">📱 נייד</span>');
+  if(leads[b.id]&&leads[b.id].contact) chips.push(`<span class="chip ok">👤 ${esc(leads[b.id].contact)}</span>`);
+  if(b.lic&&b.lic.records&&b.lic.records.length) chips.push('<span class="chip ok">🏗️ קבלן רשום</span>');
   if(b.live) chips.push(`<span class="chip ${b.live.views?'ok':''}">👁️ ${b.live.views||0} צפיות בדוח</span>`);
   if(b.rank) chips.push(`<span class="chip ${b.rank.avg<=3?'ok':b.rank.avg<=10?'w':'no'}">📍 מקום ${b.rank.avg.toFixed(1)}</span>`);
   if(b.rev && !b.rev.error && b.rev.negative>=2) chips.push(`<span class="chip no">${b.rev.negative} ביקורות שליליות</span>`);
   return `<div class="biz">
-    <div class="score ${cls}">${sc.opp}<small>הזדמנות</small></div>
+    <div class="score ${cls}" title="ציון הזדמנות — ראה 🗝️ מקרא">${sc.opp}<small>הזדמנות</small></div>${b._rank?`<span class="chip" style="position:absolute;top:60px;left:12px;font-weight:800;color:var(--gold);border-color:var(--gold)">🏆 #${b._rank}</span>`:''}
     <h4>${esc(b.name)}</h4>
     <div class="meta">${esc(b.type)}${b.dist!=null?' · '+fmtDist(b.dist):''}<br>${esc(b.address)}<br>
       ${b.phone?'📞 <b>'+esc(b.phone)+'</b><br>':''}⭐ ${b.rating||'—'} (${b.reviews} ביקורות)</div>
@@ -826,10 +877,13 @@ window.openBiz = id=>{
       <div>דירוג</div><div>⭐ ${b.rating||'—'} · ${b.reviews} ביקורות</div><div>תמונות</div><div>${b.photos}</div>
       <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
       <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
-    ${presenceHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${regHtml(b)}
+    ${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${regHtml(b)}${licHtml(b)}${digHtml(b)}
     <div class="sec"><h5>📋 ניהול הליד</h5>
       <div class="row row2"><div><label>שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
         <div><label>תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
+      <div class="row row2" style="grid-template-columns:1fr 1fr 1fr"><div><label>👤 איש קשר (שם)</label><input id="ldContact" value="${esc(L.contact||'')}" placeholder="מי דיבר איתך"></div>
+        <div><label>תפקיד</label><input id="ldRole" value="${esc(L.role||'')}" placeholder="בעלים / מנהל"></div>
+        <div><label>טלפון ישיר</label><input id="ldDirect" value="${esc(L.direct||'')}" placeholder="050-..."></div></div>
       <div class="row"><label>הערות</label><textarea id="ldNote" rows="3">${esc(L.note||'')}</textarea></div>
       <div class="toolbar"><button class="primary" onclick="saveLead('${id}')">שמור ליד</button>
         ${settings.hook?`<button onclick="sendHook(['${id}'])">🔗 שלח ל-Webhook</button>`:''}
@@ -864,8 +918,8 @@ window.editSocial = (id,k)=>{
   render(); openBiz(id);
 };
 window.saveLead = id=>{ const b=findBiz(id);
-  leads[id]=Object.assign({created:Date.now()}, leads[id], {stage:$('ldStage').value, due:$('ldDue').value, note:$('ldNote').value, updated:Date.now(), biz:slim(b)});
-  if(leads[id].stage==='new' && !leads[id].note && !leads[id].due) delete leads[id];
+  leads[id]=Object.assign({created:Date.now()}, leads[id], {stage:$('ldStage').value, due:$('ldDue').value, note:$('ldNote').value, contact:$('ldContact').value.trim(), role:$('ldRole').value.trim(), direct:$('ldDirect').value.trim(), updated:Date.now(), biz:slim(b)});
+  if(leads[id].stage==='new' && !leads[id].note && !leads[id].due && !leads[id].contact) delete leads[id];
   saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard(); log('הליד נשמר.'); };
 $('bizReport').onclick=()=>curBiz&&openReport(curBiz);
 $('bizOutreach').onclick=()=>curBiz&&openOutreach(curBiz);
@@ -963,8 +1017,9 @@ function outreachText(b, ch){
   const sc=scoreBiz(b), top=sc.fix.slice(0,3).map(f=>f.t), me=settings.person||'', brand=settings.brand||'';
   const pts = top.map((t,i)=>(i+1)+'. '+t).join('\n');
   const link = (b.live&&b.live.url ? '\n\n📄 הדוח שהכנתי עבורכם: '+b.live.url : '') + (settings.link ? '\n'+settings.link : '');
-  if(ch==='wa') return `היי, כאן ${me}${brand?' מ-'+brand:''} 👋\nעברתי על הנוכחות הדיגיטלית של ${b.name} ומצאתי ${sc.fix.length} דברים שכנראה עולים לכם בלקוחות. שלושת הבולטים:\n${pts}\n\nהכנתי דוח קצר עם כל הממצאים — לשלוח לך? בלי התחייבות.${link}`;
-  if(ch==='email') return `שלום רב,\n\nשמי ${me}${settings.tagline?', '+settings.tagline:''}.\nבדקתי את הנוכחות הדיגיטלית של ${b.name} בגוגל ובאתר, ומצאתי כמה נקודות שמשפיעות ישירות על כמות הפניות שאתם מקבלים:\n\n${pts}\n\nציון הנוכחות הדיגיטלית של העסק כרגע: ${sc.presence}/100.\nצירפתי/אשמח לשלוח דוח ביקורת מלא עם כל הממצאים וההמלצות — ללא עלות.\n\nאפשר לתאם שיחה קצרה של 15 דקות?${link}\n\nבברכה,\n${me}\n${brand}${settings.phone?'\n'+settings.phone:''}`;
+  const L0=leads[b.id]||{}, hi=L0.contact?L0.contact.split(' ')[0]:'';
+  if(ch==='wa') return `היי${hi?' '+hi:''}, כאן ${me}${brand?' מ-'+brand:''} 👋\nעברתי על הנוכחות הדיגיטלית של ${b.name} ומצאתי ${sc.fix.length} דברים שכנראה עולים לכם בלקוחות. שלושת הבולטים:\n${pts}\n\nהכנתי דוח קצר עם כל הממצאים — לשלוח לך? בלי התחייבות.${link}`;
+  if(ch==='email') return `${hi?'שלום '+hi:'שלום רב'},\n\nשמי ${me}${settings.tagline?', '+settings.tagline:''}.\nבדקתי את הנוכחות הדיגיטלית של ${b.name} בגוגל ובאתר, ומצאתי כמה נקודות שמשפיעות ישירות על כמות הפניות שאתם מקבלים:\n\n${pts}\n\nציון הנוכחות הדיגיטלית של העסק כרגע: ${sc.presence}/100.\nצירפתי/אשמח לשלוח דוח ביקורת מלא עם כל הממצאים וההמלצות — ללא עלות.\n\nאפשר לתאם שיחה קצרה של 15 דקות?${link}\n\nבברכה,\n${me}\n${brand}${settings.phone?'\n'+settings.phone:''}`;
   if(ch==='call') return `🎯 פתיחה:\n"שלום, מדבר ${firstName()}${brand?' מ-'+brand:''}. אני מתקשר לגבי ${b.name} — יש לך דקה? עשיתי בדיקה קצרה לנוכחות שלכם בגוגל ורציתי לשתף משהו שמצאתי."\n\n🔍 הממצא המרכזי:\n"${top[0]||'יש כמה דברים שאפשר לשפר'}."\n\n❓ שאלת חיבור:\n"כמה פניות חדשות מגיעות אליכם היום דרך גוגל או האתר בשבוע?"\n\n💡 ערך:\n"עסקים דומים שתיקנו את זה ראו עלייה בפניות. יש עוד ${Math.max(sc.fix.length-1,0)} נקודות בדוח."\n\n📅 סגירה:\n"אני יכול לשלוח לך את הדוח המלא בוואטסאפ ולקבוע 15 דקות לעבור עליו יחד — מתי נוח לך?"\n\n🛡️ התנגדות "אין זמן / יש לנו מישהו":\n"לגמרי. הדוח חינמי וזה 15 דקות — גם אם תחליטו לעשות את זה עם מישהו אחר, תדעו בדיוק מה לבקש."`;
   if(ch==='dm') return `היי ${b.name} 👋 ראיתי את העסק שלכם בגוגל מפות. שמתי לב ש${(top[0]||'יש כמה דברים לשפר').replace(/^[אב]ין /,'אין ')} — זה משהו שאפשר לתקן די מהר. הכנתי ממצאים קצרים, אשמח לשלוח אם רלוונטי 🙂`;
   return '';
@@ -1051,7 +1106,7 @@ function rowsOf(list){
       'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
       'ערוצים דיגיטליים':presenceOf(b).count+'/'+presenceOf(b).total,
       'פייסבוק':socialOf(b).facebook||'','אינסטגרם':socialOf(b).instagram||'','טיקטוק':socialOf(b).tiktok||'','יוטיוב':socialOf(b).youtube||'','לינקדאין':socialOf(b).linkedin||'','פלטפורמה':w.platform||'',
-      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
+      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
   });
 }
 function dl(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
@@ -1165,6 +1220,29 @@ window.lookupRegistry = async id=>{
   catch(e){ alert('החיפוש ברשם החברות נכשל: '+e.message); }
   busy(false); reopen(id);
 };
+function gextraHtml(b){
+  const g=b.gextra; if(!g) return '';
+  const line=(t,a)=>a&&a.length?`<div>${t}</div><div>${a.map(esc).join(' · ')}</div>`:'';
+  const rows=line('מאפיינים',g.attrs)+line('אמצעי תשלום',g.pay)+line('נגישות',g.access)+line('חניה',g.parking);
+  if(!g.summary && !rows) return '';
+  return `<div class="sec"><h5>🧾 מה גוגל יודע על העסק</h5>${g.summary?`<div style="margin-bottom:8px">${esc(g.summary)}</div>`:''}<div class="kv">${rows}</div></div>`;
+}
+function digHtml(b){
+  const city=(b.address||'').split(',').slice(-2,-1)[0]||'', n='"'+b.name+'"';
+  const links=[
+    ['📰 אזכורים בחדשות', gSearch(n+' '+city+' '+(b.website?' -site:'+String(b.website).replace(/^https?:\/\//,'').split('/')[0]:''))],
+    ['⭐ ביקורות באתרים אחרים (easy, zap, rest)', gSearch(n+' ביקורות OR חוות דעת')],
+    ['💼 עמוד העסק בלינקדאין', gSearch(n+' site:linkedin.com/company')],
+    ['📘 עמוד העסק בפייסבוק', gSearch(n+' '+city+' site:facebook.com')],
+    ['🗂️ אינדקסים עסקיים (b144, dapei zahav)', gSearch(n+' '+city+' site:b144.co.il OR site:d.co.il OR site:easy.co.il')],
+    ['🛒 מודעות דרושים / התרחבות', gSearch(n+' דרושים OR משרה')]];
+  return `<div class="sec"><h5>🔎 חפירה נוספת (חיפושים ממוקדים בגוגל)</h5><div class="chips">${links.map(([t,u])=>`<a class="chip" href="${u}" target="_blank" style="text-decoration:none">${t}</a>`).join('')}</div>
+    <div class="hint" style="margin-top:6px">כל כפתור פותח חיפוש מוכן בגוגל על העסק. מה שמוצאים — אפשר לרשום ב«📋 ניהול הליד».</div></div>`;
+}
+function licHtml(b){
+  const l=b.lic; if(!l||!l.records||!l.records.length) return '';
+  return `<div class="sec"><h5>🏗️ פנקס הקבלנים הרשומים</h5>${l.records.slice(0,4).map(x=>`<div style="border-top:1px solid var(--line);padding:6px 0;font-size:13px"><b>${esc(x.name)}</b> · קבלן ${esc(x.id)}<br><span class="hint">${esc(x.detail||'')} · ${esc(x.city||'')}${x.since?' · רשום מ-'+esc(String(x.since).slice(0,10)):''}</span>${x.phone||x.email?`<br><span class="hint">פרטים במאגר: ${esc(x.phone||'')} ${esc(x.email||'')}</span>`:''}</div>`).join('')}</div>`;
+}
 function regHtml(b){
   const r=b.reg;
   return `<div class="sec"><h5>🏢 רשם החברות (data.gov.il)</h5>
@@ -1373,6 +1451,7 @@ $('btnCronNow').onclick=async()=>{ if(needToken()) return; busy('סורק את �
   busy(false); alert(j.report.map(r=>r.area+': '+(r.error?'שגיאה — '+r.error:(r.baseline?'קו בסיס נקבע ('+r.found+' עסקים)':r.new+' חדשים מתוך '+r.found))).join('\n')||'אין אזורים במעקב.'); }catch(e){ busy(false); alert(e.message); } loadWatch(); };
 $('btnAckAll').onclick=async()=>{ if(needToken()) return; if(!confirm('לסמן את כל העסקים החדשים כנקראו?')) return; await apiCall('action=ackleads',{method:'POST',body:{all:true}}); loadWatch(); };
 
+try{ const lg=$('legend'); lg.open = localStorage.getItem('lr_legend')!=='closed'; lg.addEventListener('toggle',()=>{ try{ localStorage.setItem('lr_legend', lg.open?'open':'closed'); }catch(e){} }); }catch(e){}
 /* ---------- start ---------- */
 $('rad').dispatchEvent(new Event('input'));
 results.forEach(b=>{ if(b.astate==='run') b.astate=''; });
