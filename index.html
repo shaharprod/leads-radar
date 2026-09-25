@@ -183,7 +183,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
         <div><label>סינון תוצאות</label><select id="filt">
           <option value="all">כל העסקים</option><option value="nosite">בלי אתר אינטרנט</option>
           <option value="weak">ציון הזדמנות 50+</option><option value="lowrev">פחות מ-20 ביקורות</option>
-          <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option></select></div>
+          <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option><option value="sweet">💎 עסק חי + נוכחות חלשה (הכי שווה)</option><option value="dormant">🔴 עסקים רדומים</option></select></div>
       </div>
       <button class="primary" id="btnScan" style="width:100%;padding:12px;font-size:15px">🔍 התחל סריקה</button>
       <button id="btnWatch" style="width:100%;margin-top:8px">⭐ מעקב שבועי על האזור הזה — התראה על עסקים חדשים</button>
@@ -215,7 +215,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     </div>
     <div class="toolbar">
       <select id="sort" style="width:auto">
-        <option value="best">🏆 מיון: ההזדמנויות הטובות ביותר</option><option value="opp">מיון: ציון הזדמנות בלבד</option><option value="rating">מיון: דירוג</option>
+        <option value="best">🏆 מיון: ההזדמנויות הטובות ביותר</option><option value="opp">מיון: ציון הזדמנות בלבד</option><option value="vital">💓 מיון: חיוניות העסק</option><option value="rating">מיון: דירוג</option>
         <option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
       <button id="btnCsv">⬇️ CSV לאקסל</button>
       <button id="btnJson">⬇️ JSON</button>
@@ -246,6 +246,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
           🎯 הליקוי הכי חשוב של העסק · 📡 כמה ערוצים דיגיטליים יש לו (מתוך 9)<br>
           📍 מקום ממוצע בגוגל מפות (מבדיקת דירוג מקומי) · 👁️ כמה פעמים פתח את הדוח החי<br>
           📱 יש מספר נייד (אפשר וואטסאפ) · 👤 איש קשר שרשמת · 🏗️ קבלן רשום<br>
+          <b>💓 חיוניות</b> — כמה העסק חי: 🟢 70+ פעיל ומתרחב · 🟡 45–69 יציב · 🔴 מתחת ל-45 רדום/חלש. נמדד מקצב ביקורות, ביקורת אחרונה, שעות פתיחה, תנועה אמיתית לאתר, עדכונים, פרסום ורשומות רשמיות. <b>💎 הכי שווה: חיוניות גבוהה + הזדמנות גבוהה</b> (סינון מוכן).<br>
           <b>נקודות במפה:</b> 🔴 ליד חם · 🟡 בינוני · 🟢 נוכחות חזקה</div>
       </div>
     </details>
@@ -587,6 +588,8 @@ function toBiz(p){
     phone:p.nationalPhoneNumber||p.internationalPhoneNumber||'', website:p.websiteURI||'',
     rating:p.rating||0, reviews:p.userRatingCount||0, status:p.businessStatus||'',
     hours:(p.regularOpeningHours&&p.regularOpeningHours.weekdayDescriptions)||[],
+    hoursWeek:(()=>{ try{ const ps=p.regularOpeningHours&&p.regularOpeningHours.periods; if(!ps||!ps.length) return null;
+      if(ps.length===1&&!ps[0].close) return 168; let m=0; ps.forEach(x=>{ if(!x.close) return; let a=x.open.day*1440+x.open.hour*60+x.open.minute, c=x.close.day*1440+x.close.hour*60+x.close.minute; if(c<=a) c+=10080; m+=c-a; }); return Math.round(m/60); }catch(e){ return null; } })(),
     type:p.primaryTypeDisplayName||(p.types&&p.types[0])||'', types:p.types||[],
     photos:(p.photos||[]).length, photoUrl:(p.photos&&p.photos[0])?p.photos[0].getURI({maxWidth:600}):'',
     priceLevel:p.priceLevel||'', maps:p.googleMapsURI||'', loc, dist:loc?Math.round(dist(center,loc)):null,
@@ -614,6 +617,7 @@ $('btnScan').onclick = async ()=>{
     results=[...found.values()];
     if(!results.length) alertBox('לא נמצאו עסקים. נסה מילת חיפוש אחרת, רדיוס גדול יותר או עומק סריקה גבוה יותר.');
     saveResults(); store.set(LS.last,{center,R,kw,cat,ts:Date.now()});
+    pushSnaps(results).then(()=>loadHist(results));
     render(); drawMarkers(); log('✔ נמצאו '+results.length+' עסקים.');
   }catch(e){ alertBox('הסריקה נכשלה: '+esc(e.message)+'<br>בדרך כלל: Places API (New) לא מופעל, או שהחיוב לא פעיל.'); }
   btn.disabled=false; btn.innerHTML='🔍 התחל סריקה';
@@ -667,6 +671,7 @@ async function analyzeBiz(b){
   if(!b.lic) jobs.push(fetchT(api('action=licenses&q='+encodeURIComponent(b.name)),{},20000).then(r=>r.json()).then(j=>b.lic={records:j.records||[],ts:Date.now()}).catch(()=>{}));
   if($('usePsi').checked && b.website) jobs.push(psiScores(b.website).then(p=>{ if(p._shot) shots[b.id]=p._shot; delete p._shot; b.psi=p; }));
   await Promise.all(jobs);
+  if(b.website && b.site && !b.site.error){ const cx=await cruxClient(b.site.finalUrl||b.website); if(cx) b.site.crux=cx; }
   b.astate = (b.site&&b.site.error) ? 'err' : 'done'; b.analyzedAt=Date.now();
   if(leads[b.id]) { leads[b.id].biz = slim(b); saveLeads(); }
   saveResults(); renderSoon();
@@ -754,7 +759,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -766,6 +771,104 @@ window.setStage=setStage;
 function updateLeadsCount(){ const n=Object.values(leads).filter(l=>l.stage&&l.stage!=='new'&&l.stage!=='out').length; $('leadsCount').textContent=n?'('+n+')':''; }
 function findBiz(id){ return results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); }
 
+/* ============================================================
+   💓 Vitality index — how alive / busy the business is
+   ============================================================ */
+function hoursWeekOf(b){
+  if(typeof b.hoursWeek==='number') return b.hoursWeek;
+  const d=b.hours||[]; if(!d.length) return null; let mins=0;
+  for(const line of d){
+    if(/24\s*שעות|open 24|24 hours/i.test(line)){ mins+=1440; continue; }
+    if(/סגור|closed/i.test(line)) continue;
+    for(const m of line.matchAll(/(\d{1,2}):(\d{2})\s*[–\-]\s*(\d{1,2}):(\d{2})/g)){
+      let a=(+m[1])*60+(+m[2]), c=(+m[3])*60+(+m[4]); if(c<=a) c+=1440; mins+=c-a; }
+  }
+  return Math.round(mins/60);
+}
+function velocityOf(b){
+  const h=b.hist; if(!h||h.length<2) return null;
+  const a=h[0], z=h[h.length-1], days=(Date.parse(z.d)-Date.parse(a.d))/864e5;
+  if(days<7) return {pending:true, days:Math.round(days), since:a.d};
+  return {perMonth: +(((z.r-a.r)/days)*30).toFixed(1), days:Math.round(days), since:a.d, added:z.r-a.r};
+}
+function peersMedian(b){
+  const xs=results.filter(x=>x.type===b.type&&x.id!==b.id).map(x=>x.reviews||0).sort((p,q)=>p-q);
+  return xs.length>=3 ? xs[Math.floor(xs.length/2)] : null;
+}
+function vitality(b){
+  const parts=[]; const add=(k,label,got,max,note)=>parts.push({k,label,got:Math.max(0,Math.min(max,got)),max,note});
+  const closed = b.status && b.status!=='OPERATIONAL';
+  // 1. business status
+  add('status','סטטוס בגוגל', closed?0:10, 10, closed?(b.status==='CLOSED_TEMPORARILY'?'סגור זמנית':'סגור'):'פעיל');
+  // 2. last review recency
+  if(b.rev && !b.rev.error && b.rev.daysSince!=null){ const d=b.rev.daysSince;
+    add('recent','ביקורת אחרונה', d<=30?25:d<=90?18:d<=180?10:d<=365?5:0, 25, 'לפני '+d+' ימים'); }
+  else if(b.reviews===0) add('recent','ביקורת אחרונה',0,25,'אין ביקורות בכלל');
+  // 3. review velocity (tracked) or estimate
+  const v=velocityOf(b);
+  if(v && !v.pending){ const pm=v.perMonth; add('velocity','קצב ביקורות', pm>=8?25:pm>=4?20:pm>=2?14:pm>=1?9:pm>0?5:1, 25, pm+' בחודש (נמדד '+v.days+' ימים, +'+v.added+')'); }
+  else if(b.rev && !b.rev.error && b.rev.list.length){ const n90=b.rev.list.filter(r=>r.time && Date.now()-r.time<90*864e5).length;
+    add('velocity','קצב ביקורות (הערכה)', n90>=4?18:n90>=3?14:n90>=2?10:n90>=1?6:0, 25, n90+' מתוך 5 הביקורות שגוגל מציג נכתבו ב-90 הימים האחרונים'+(v&&v.pending?' · מדידה אמיתית תהיה זמינה אחרי '+(7-v.days)+' ימים':' · מדידה אמיתית תתחיל מהסריקה הבאה')); }
+  // 4. volume vs peers
+  const med=peersMedian(b);
+  if(med!=null){ const r=(b.reviews||0)/Math.max(1,med); add('peers','ביקורות מול מתחרים', r>=2?10:r>=1?8:r>=0.5?5:r>0?2:0, 10, (b.reviews||0)+' מול חציון '+med+' בקטגוריה'); }
+  // 5. hours per week
+  const hw=hoursWeekOf(b);
+  if(hw!=null) add('hours','שעות פתיחה בשבוע', hw>=60?10:hw>=40?8:hw>=20?5:hw>0?2:0, 10, hw+' שעות');
+  const s=b.site&&!b.site.error?b.site:null;
+  // 6. real web traffic (CrUX)
+  if(s && s.crux && s.crux.hasData!=null) add('traffic','תנועה אמיתית לאתר (Chrome)', s.crux.hasData?15:0, 15,
+    s.crux.hasData?('לגוגל יש נתוני גלישה אמיתיים על האתר'+(s.crux.phone?' (כולל מנייד)':'')+' — יש לו כמות גולשים משמעותית'):'אין מספיק גולשים באתר כדי שגוגל יאסוף עליו נתונים');
+  // 7. site freshness
+  if(s){ const ds=[s.sitemapInfo&&s.sitemapInfo.daysSinceUpdate, s.pageDates&&s.pageDates.daysSince].filter(x=>x!=null);
+    if(ds.length){ const d=Math.min(...ds); add('fresh','עדכון אחרון באתר', d<=30?10:d<=90?8:d<=365?4:0, 10, 'לפני '+d+' ימים'+(s.sitemapInfo&&s.sitemapInfo.urls?' · '+s.sitemapInfo.urls+' עמודים':'')); }
+    else if(s.copyrightYear) add('fresh','עדכון אחרון באתר', s.copyrightYear>=new Date().getFullYear()-1?6:0, 10, 'לפי שנת © '+s.copyrightYear);
+  // 8. marketing spend
+    const t=s.tech||{}; add('ads','השקעה בשיווק', (t.googleAds||t.metaPixel||t.tiktokPixel)?5:0, 5, [t.googleAds&&'Google Ads',t.metaPixel&&'Meta Pixel',t.tiktokPixel&&'TikTok'].filter(Boolean).join(', ')||'לא זוהו תגי פרסום'); }
+  // 9. registry (only when unambiguous)
+  if(b.reg && b.reg.records && b.reg.records.length===1){ const r=b.reg.records[0], y=+r.lastReport||0;
+    add('registry','רשם החברות', r.status==='פעילה'&&y>=new Date().getFullYear()-2?5:r.status==='פעילה'?2:0, 5, r.status+(y?' · דוח שנתי אחרון '+y:'')); }
+  // 10. contractor size
+  if(b.lic && b.lic.records && b.lic.records.length){ const e=parseInt(b.lic.records[0].employees,10);
+    if(!isNaN(e)) add('size','עובדים (פנקס הקבלנים)', e>=20?5:e>=5?4:e>=1?2:0, 5, e+' עובדים'+(b.lic.records[0].volume?' · היקף '+b.lic.records[0].volume:'')); }
+  const got=parts.reduce((a,p)=>a+p.got,0), max=parts.reduce((a,p)=>a+p.max,0);
+  let score = max? Math.round(100*got/max) : null;
+  if(closed && score!=null) score=Math.min(score,15);
+  const level = score==null?null : closed?{t:'סגור',c:'no',e:'⚫'} : score>=70?{t:'פעיל ומתרחב',c:'ok',e:'🟢'} : score>=45?{t:'יציב',c:'w',e:'🟡'} : {t:'רדום / חלש',c:'no',e:'🔴'};
+  return {score, level, parts, conf: parts.length, max};
+}
+function vitalHtml(b){
+  const V=vitality(b); if(V.score==null) return '';
+  return `<div class="sec"><h5>💓 מדד חיוניות — ${V.level.e} ${V.score}/100 · ${V.level.t}</h5>
+    <div class="bar"><i style="width:${V.score}%;background:${V.score>=70?'var(--good)':V.score>=45?'var(--warn)':'var(--bad)'}"></i></div>
+    <table class="cmp" style="margin-top:8px"><tr><th>מדד</th><th>נקודות</th><th>פירוט</th></tr>
+    ${V.parts.map(p=>`<tr><td>${esc(p.label)}</td><td style="white-space:nowrap">${p.got}/${p.max}</td><td class="hint">${esc(p.note||'')}</td></tr>`).join('')}</table>
+    <div class="hint" style="margin-top:6px">מבוסס על ${V.conf} מדדים זמינים מתוך 10. ${b.astate!=='done'?'«🔬 נתח» מוסיף תנועה לאתר, עדכונים, פרסום, רשם החברות וביקורות. ':''}ליד טוב = <b>חיוניות גבוהה + ציון הזדמנות גבוה</b>: לעסק יש לקוחות וכסף, ונוכחות דיגיטלית חלשה.</div></div>`;
+}
+async function cruxClient(url){
+  if(!settings.key||!url) return null;
+  let origin; try{ origin=new URL(/^https?:/i.test(url)?url:'https://'+url).origin; }catch(e){ return null; }
+  const q=async body=>{ const r=await fetchT('https://chromeuxreport.googleapis.com/v1/records:queryRecord?key='+encodeURIComponent(settings.key),
+      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)},10000);
+    if(r.status===404) return null; const j=await r.json(); if(j.error) throw new Error(j.error.message); return j.record||null; };
+  try{
+    let rec=await q({origin});
+    if(!rec && !/\/\/www\./.test(origin)) rec=await q({origin:origin.replace('//','//www.')}).catch(()=>null);
+    if(!rec) return {hasData:false};
+    const phone=await q({origin:rec.key.origin, formFactor:'PHONE'}).catch(()=>null);
+    return {hasData:true, phone:!!phone, origin:rec.key.origin};
+  }catch(e){ return {hasData:null, error:e.message}; }
+}
+async function pushSnaps(list){
+  if(!settings.token||!list.length) return;
+  try{ await apiCall('action=snap',{method:'POST',body:{items:list.map(b=>({id:b.id,reviews:b.reviews||0,rating:b.rating||0}))}},60000); }catch(e){}
+}
+async function loadHist(list){
+  if(!settings.token||!list.length) return;
+  try{ const j=await apiCall('action=snaps',{method:'POST',body:{ids:list.map(b=>b.id)}},60000);
+    list.forEach(b=>{ if(j[b.id]) b.hist=j[b.id]; }); saveResults(); render(); }catch(e){}
+}
+
 /* ---------- lead ranking ---------- */
 function hasMobile(b){ const ps=[b.phone].concat((b.site&&b.site.tels)||[]); return ps.some(p=>/^05\d{8}$/.test(String(p||'').replace(/\D/g,'').replace(/^972/,'0'))) || !!(b.site&&b.site.whatsapp&&b.site.whatsapp.length); }
 function leadScore(b){
@@ -773,6 +876,7 @@ function leadScore(b){
   if(b.phone) v+=12; if(hasMobile(b)) v+=6; if(b.site&&b.site.emails&&b.site.emails.length) v+=4;
   if(b.reviews>=3 && b.reviews<=250) v+=8; else if(b.reviews>0) v+=3;
   if(b.status && b.status!=='OPERATIONAL') v-=45;
+  { const V=vitality(b); if(V.score!=null && V.conf>=3) v+=(V.score-50)*0.3; }
   const st=stageOf(b.id); if(st==='out') v-=80; if(st==='won') v-=60;
   return Math.max(0,Math.min(100,Math.round(v)));
 }
@@ -788,7 +892,9 @@ function render(){
   if(f==='nopixel') list=list.filter(b=>b.site&&!b.site.error&&!(b.site.tech&&(b.site.tech.metaPixel||b.site.tech.ga4||b.site.tech.gtm)));
   if(f==='noaccess') list=list.filter(b=>b.site&&!b.site.error&&!b.site.accessibility);
   if(f==='nosocial') list=list.filter(b=>!Object.keys(socialOf(b)).length);
-  const cmp={best:(a,b)=>leadScore(b)-leadScore(a), opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
+  if(f==='sweet') list=list.filter(b=>{ const V=vitality(b); return b._s.opp>=45 && V.score!=null && V.score>=55; });
+  if(f==='dormant') list=list.filter(b=>{ const V=vitality(b); return V.score!=null && V.score<45; });
+  const cmp={best:(a,b)=>leadScore(b)-leadScore(a), vital:(a,b)=>(vitality(b).score||0)-(vitality(a).score||0), opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
     dist:(a,b)=>(a.dist||0)-(b.dist||0), name:(a,b)=>a.name.localeCompare(b.name,'he')};
   list.sort(cmp[s]||cmp.best); if(s==='best'||!cmp[s]) list.forEach((b,i)=>b._rank=i+1); else list.forEach(b=>b._rank=null);
   $('stTotal').textContent=results.length;
@@ -811,6 +917,7 @@ function cardHtml(b){
     const n=Object.keys(s.social||{}).length; if(n) chips.push(chip(1,n+' רשתות'));
     if(s.platform) chips.push(`<span class="chip">${esc(s.platform)}</span>`); }
   { const pr=presenceOf(b); chips.push(`<span class="chip ${pr.count>=5?'ok':pr.count>=3?'w':'no'}">📡 ${pr.count}/${pr.total} ערוצים</span>`); }
+  { const V=vitality(b); if(V.score!=null) chips.push(`<span class="chip ${V.level.c}" title="מדד חיוניות — כמה העסק חי ופעיל">💓 ${V.score} ${V.level.t}</span>`); }
   if(b.site&&b.site.tech&&(b.site.tech.googleAds||b.site.tech.metaPixel)) chips.push('<span class="chip w">💰 מפרסם</span>');
   if(leads[b.id]&&leads[b.id].seq&&!leads[b.id].seq.done){ const d=seqDue(leads[b.id].seq); chips.push(`<span class="chip ${d>=0?'w':''}">🔁 סדרה${d>=0?' · להיום':''}</span>`); }
   if(b.kit) chips.push('<span class="chip ok">🎁 ערכה</span>');
@@ -888,7 +995,7 @@ window.openBiz = id=>{
       <div>דירוג</div><div>⭐ ${b.rating||'—'} · ${b.reviews} ביקורות</div><div>תמונות</div><div>${b.photos}</div>
       <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
       <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
-    ${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${signalsHtml(b)}${regHtml(b)}${licHtml(b)}${digHtml(b)}
+    ${vitalHtml(b)}${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${signalsHtml(b)}${regHtml(b)}${licHtml(b)}${digHtml(b)}
     <div class="sec"><h5>📋 ניהול הליד</h5>
       <div class="row row2"><div><label>שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
         <div><label>תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
@@ -1114,7 +1221,7 @@ function rowsOf(list){
       'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
       'ערוצים דיגיטליים':presenceOf(b).count+'/'+presenceOf(b).total,
       'פייסבוק':socialOf(b).facebook||'','אינסטגרם':socialOf(b).instagram||'','טיקטוק':socialOf(b).tiktok||'','יוטיוב':socialOf(b).youtube||'','לינקדאין':socialOf(b).linkedin||'','פלטפורמה':w.platform||'',
-      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','מפרסם':(t.googleAds||t.metaPixel)?'כן':'','מייל תקין':bestEmail(b),'שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
+      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'חיוניות':vitality(b).score??'','רמת חיוניות':(vitality(b).level||{}).t||'','קצב ביקורות לחודש':(velocityOf(b)||{}).perMonth??'','שעות פתיחה בשבוע':hoursWeekOf(b)??'','תנועה לאתר (CrUX)':b.site&&b.site.crux?(b.site.crux.hasData?'יש':'אין'):'','איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','מפרסם':(t.googleAds||t.metaPixel)?'כן':'','מייל תקין':bestEmail(b),'שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
   });
 }
 function dl(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
@@ -1606,7 +1713,7 @@ try{ const lg=$('legend'); lg.open = localStorage.getItem('lr_legend')!=='closed
 /* ---------- start ---------- */
 $('rad').dispatchEvent(new Event('input'));
 results.forEach(b=>{ if(b.astate==='run') b.astate=''; });
-render(); updateLeadsCount(); boot(); setTimeout(()=>{ refreshViews(); loadNewCount(); },2500);
+render(); updateLeadsCount(); boot(); setTimeout(()=>{ refreshViews(); loadNewCount(); loadHist(results); },2500);
 if(results.length) log('נטענו '+results.length+' תוצאות מהסריקה הקודמת.');
 </script>
 </body>
