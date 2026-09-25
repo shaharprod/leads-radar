@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leads Radar — סורק עסקים לפי מיקום</title>
-<meta name="description" content="סריקת עסקים ברדיוס גיאוגרפי, כרטיס עסק מלא, ציון הזדמנות וייצוא לידים">
+<title>Leads Radar — איתור לידים וביקורת נוכחות דיגיטלית</title>
+<meta name="description" content="סריקת עסקים ברדיוס, ביקורת נוכחות דיגיטלית, דוחות ממותגים, פניות מותאמות וניהול לידים">
 <style>
 :root{
   --bg:#0b1020; --bg2:#121935; --card:#161f3d; --card2:#1d2850;
@@ -12,80 +12,64 @@
   --good:#2fd48f; --warn:#ffc24d; --bad:#ff6b6b; --gold:#ffd166;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
-  font-family:"Segoe UI",Rubik,Arial,sans-serif;font-size:15px}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",Rubik,Arial,sans-serif;font-size:15px}
 a{color:var(--acc2)}
-button{font-family:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);
-  background:var(--card2);color:var(--txt);padding:9px 14px;font-size:14px}
+button{font-family:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);padding:9px 14px;font-size:14px}
 button:hover{background:#26325f}
 button.primary{background:linear-gradient(135deg,#4f7cff,#7a4dff);border:none;font-weight:600}
-button.primary:disabled{opacity:.5;cursor:not-allowed}
+button:disabled{opacity:.5;cursor:not-allowed}
 button.ghost{background:transparent}
-input,select,textarea{font-family:inherit;background:#0e1530;color:var(--txt);
-  border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;width:100%}
+button.danger{background:rgba(255,107,107,.15);border-color:var(--bad);color:#ffb3b3}
+input,select,textarea{font-family:inherit;background:#0e1530;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;width:100%}
 label{display:block;font-size:12px;color:var(--mut);margin:0 0 5px 2px}
-header{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#0d142c;
-  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;flex-wrap:wrap}
-.logo{font-weight:800;font-size:19px;letter-spacing:.3px}
-.logo span{color:var(--acc2)}
+header{display:flex;align-items:center;gap:10px;padding:12px 18px;background:#0d142c;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;flex-wrap:wrap}
+.logo{font-weight:800;font-size:19px}.logo span{color:var(--acc2)}
 .tag{font-size:11px;color:var(--mut);border:1px solid var(--line);padding:3px 8px;border-radius:99px}
 .spacer{flex:1}
+.tabs{display:flex;gap:6px}
+.tabs button.on{background:var(--acc);border-color:var(--acc)}
 .wrap{display:grid;grid-template-columns:360px 1fr;gap:16px;padding:16px;align-items:start}
 @media(max-width:980px){.wrap{grid-template-columns:1fr}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
 .panel h3{margin:0 0 12px;font-size:15px}
-.row{display:grid;gap:10px;margin-bottom:11px}
-.row2{grid-template-columns:1fr 1fr}
+.row{display:grid;gap:10px;margin-bottom:11px}.row2{grid-template-columns:1fr 1fr}
 #map{width:100%;height:330px;border-radius:14px;border:1px solid var(--line);background:#0e1530}
 .mapwrap{position:relative}
-.mapwrap.big{position:fixed;inset:0;z-index:1000;background:var(--bg);padding:0}
+.mapwrap.big{position:fixed;inset:0;z-index:1000;background:var(--bg)}
 .mapwrap.big #map{height:100vh;border-radius:0;border:0}
-#btnBig{position:absolute;top:10px;left:10px;z-index:5;background:#0d142c;border:1px solid var(--acc);
-  font-size:13px;padding:7px 12px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#btnBig{position:absolute;top:10px;left:10px;z-index:5;background:#0d142c;border:1px solid var(--acc);font-size:13px;padding:7px 12px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
 .mapwrap.big #btnBig{top:16px;left:16px;font-size:16px;padding:12px 20px;background:#ff6b6b;border:none;font-weight:700;color:#fff}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 14px}
 @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
-.stat b{display:block;font-size:22px;line-height:1.2}
-.stat small{color:var(--mut);font-size:11px}
+.stat b{display:block;font-size:22px;line-height:1.2}.stat small{color:var(--mut);font-size:11px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
-.biz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;
-  display:flex;flex-direction:column;gap:9px;position:relative}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.biz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:9px;position:relative}
 .biz:hover{border-color:var(--acc)}
 .biz h4{margin:0;font-size:16px;padding-left:54px}
-.score{position:absolute;top:12px;left:12px;width:44px;height:44px;border-radius:12px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+.score{position:absolute;top:12px;left:12px;width:44px;height:44px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:16px}
 .score small{font-size:8px;font-weight:600;opacity:.85}
 .s-hi{background:rgba(255,107,107,.16);color:var(--bad);border:1px solid rgba(255,107,107,.4)}
 .s-mid{background:rgba(255,194,77,.15);color:var(--warn);border:1px solid rgba(255,194,77,.4)}
 .s-low{background:rgba(47,212,143,.14);color:var(--good);border:1px solid rgba(47,212,143,.4)}
-.meta{font-size:12.5px;color:var(--mut);line-height:1.65}
-.meta b{color:var(--txt);font-weight:600}
+.meta{font-size:12.5px;color:var(--mut);line-height:1.65}.meta b{color:var(--txt);font-weight:600}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
 .chip.ok{color:var(--good);border-color:rgba(47,212,143,.45)}
 .chip.no{color:var(--bad);border-color:rgba(255,107,107,.45)}
 .chip.w{color:var(--warn);border-color:rgba(255,194,77,.45)}
+.chip.run{color:var(--acc2);border-color:var(--acc)}
 .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
-.acts button,.acts a{font-size:12px;padding:6px 10px;text-decoration:none;border-radius:9px;
-  border:1px solid var(--line);color:var(--txt);background:var(--card2)}
-.status-bar{display:flex;gap:6px;margin-top:6px}
-.status-bar button{flex:1;font-size:11px;padding:5px}
-.st-new{border-color:var(--line)}
-.st-hot{background:rgba(255,209,102,.18);border-color:var(--gold);color:var(--gold)}
-.st-done{background:rgba(47,212,143,.15);border-color:var(--good);color:var(--good)}
-.st-out{background:rgba(255,107,107,.12);border-color:var(--bad);color:var(--bad)}
-.log{background:#0a0f22;border:1px solid var(--line);border-radius:12px;padding:10px;
-  font-size:12px;color:var(--mut);max-height:120px;overflow:auto;white-space:pre-wrap;line-height:1.6}
-dialog{background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:18px;
-  padding:0;max-width:760px;width:94vw;max-height:88vh}
+.acts button,.acts a{font-size:12px;padding:6px 10px;text-decoration:none;border-radius:9px;border:1px solid var(--line);color:var(--txt);background:var(--card2)}
+.stage-sel{font-size:12px;padding:6px 8px}
+.log{background:#0a0f22;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;color:var(--mut);max-height:120px;overflow:auto;white-space:pre-wrap;line-height:1.6}
+dialog{background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:18px;padding:0;max-width:820px;width:94vw;max-height:90vh}
 dialog::backdrop{background:rgba(3,6,18,.75)}
-.dlg-h{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line);
-  position:sticky;top:0;background:var(--bg2);z-index:2}
-.dlg-b{padding:18px;overflow:auto;max-height:70vh}
-.kv{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;font-size:14px;margin-bottom:16px}
-.kv div:nth-child(odd){color:var(--mut)}
+.dlg-h{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg2);z-index:2}
+.dlg-b{padding:18px;overflow:auto;max-height:74vh}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px 12px;font-size:14px;margin-bottom:6px}
+.kv>div:nth-child(odd){color:var(--mut)}
 .bar{height:9px;border-radius:99px;background:#0e1530;overflow:hidden;margin:6px 0 2px}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#4f7cff,#7a4dff)}
 ul.fix{margin:8px 0 0;padding-inline-start:18px;line-height:1.9;font-size:13.5px}
@@ -93,763 +77,851 @@ ul.fix li b{color:var(--gold)}
 .sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
 .sec h5{margin:0 0 10px;font-size:14px;color:var(--acc2)}
 .hint{font-size:12px;color:var(--mut);line-height:1.7}
-.err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.5);color:#ffb3b3;
-  padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
-.ok-box{background:rgba(47,212,143,.08);border:1px solid rgba(47,212,143,.4);padding:10px 12px;
-  border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
+.err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.5);color:#ffb3b3;padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
+.okbox{background:rgba(47,212,143,.08);border:1px solid rgba(47,212,143,.4);padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
 .center{text-align:center}
-.sp{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.25);
-  border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
+.sp{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
 @keyframes sp{to{transform:rotate(360deg)}}
+.progress{height:6px;background:#0e1530;border-radius:99px;overflow:hidden;margin-top:8px;display:none}
+.progress i{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.board{display:grid;grid-template-columns:repeat(6,minmax(200px,1fr));gap:10px;overflow-x:auto;padding-bottom:10px}
+.col{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:200px}
+.col h6{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between}
+.lcard{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:8px;font-size:12.5px;line-height:1.5;cursor:pointer}
+.lcard:hover{border-color:var(--acc)}
+.lcard .due{color:var(--gold);font-size:11px}
+.lcard .due.late{color:var(--bad)}
+.subtabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.subtabs button.on{background:var(--acc);border-color:var(--acc)}
+textarea.msg{min-height:190px;line-height:1.7}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">Leads<span>Radar</span></div>
-  <div class="tag">סריקת עסקים לפי רדיוס · Google Maps</div>
+  <div class="tag">איתור לידים · ביקורת דיגיטלית · דוחות ממותגים</div>
+  <div class="tabs">
+    <button id="tabScan" class="on">🔍 סריקה</button>
+    <button id="tabLeads">📋 הלידים שלי <span id="leadsCount"></span></button>
+  </div>
   <div class="spacer"></div>
-  <button class="ghost" id="btnKey">🔑 מפתח API</button>
+  <button class="ghost" id="btnSettings">⚙️ הגדרות</button>
   <button class="ghost" id="btnHelp">❓ עזרה</button>
 </header>
 
-<div class="wrap">
-
-  <!-- ====== SIDE PANEL ====== -->
+<!-- ================= SCAN VIEW ================= -->
+<div class="wrap" id="viewScan">
   <div>
     <div class="panel" style="margin-bottom:14px">
       <h3>1 · אזור הסריקה</h3>
-      <div class="row">
-        <label>כתובת / עיר / אזור</label>
-        <input id="addr" placeholder="לדוגמה: רחוב יפו 97, ירושלים" value="ירושלים">
-      </div>
+      <div class="row"><label>כתובת / עיר / אזור</label>
+        <input id="addr" placeholder="לדוגמה: רחוב יפו 97, ירושלים" value="ירושלים"></div>
       <div class="row row2" style="grid-template-columns:1fr auto">
-        <button id="btnGeo">📍 מצא על המפה</button>
-        <button id="btnMe" title="המיקום שלי">🎯</button>
-      </div>
+        <button id="btnGeo">📍 מצא על המפה</button><button id="btnMe" title="המיקום שלי">🎯</button></div>
       <div class="mapwrap" id="mapWrap"><div id="map"></div><button id="btnBig" type="button">⛶ הגדל מפה</button></div>
-      <div class="hint" style="margin-top:8px">אפשר לגרור את הסיכה על המפה כדי לדייק את המרכז.</div>
-
-      <div class="row" style="margin-top:12px">
-        <label>רדיוס סריקה: <b id="radLbl">5 ק״מ</b></label>
-        <input type="range" id="rad" min="500" max="30000" step="500" value="5000" style="padding:0">
-      </div>
+      <div class="hint" style="margin-top:8px">גוררים את הסיכה או לוחצים על המפה כדי לקבוע מרכז.</div>
+      <div class="row" style="margin-top:12px"><label>רדיוס סריקה: <b id="radLbl">5 ק״מ</b></label>
+        <input type="range" id="rad" min="500" max="30000" step="500" value="5000" style="padding:0"></div>
     </div>
 
     <div class="panel" style="margin-bottom:14px">
       <h3>2 · מה מחפשים</h3>
-      <div class="row">
-        <label>מילת חיפוש חופשית (מומלץ)</label>
-        <input id="kw" placeholder="לדוגמה: מספרה / מוסך / רואה חשבון / מסעדה">
-      </div>
-      <div class="row">
-        <label>או בחירת קטגוריה מוכנה</label>
+      <div class="row"><label>מילת חיפוש חופשית (מומלץ)</label>
+        <input id="kw" placeholder="לדוגמה: מספרה / מוסך / רואה חשבון / מסעדה"></div>
+      <div class="row"><label>או קטגוריה מוכנה</label>
         <select id="cat">
           <option value="">— ללא (השתמש במילת החיפוש) —</option>
-          <option value="restaurant">מסעדות</option>
-          <option value="cafe">בתי קפה</option>
-          <option value="bakery">מאפיות</option>
-          <option value="beauty_salon">מכוני יופי</option>
-          <option value="hair_care">מספרות</option>
-          <option value="gym">חדרי כושר</option>
-          <option value="car_repair">מוסכים</option>
-          <option value="car_dealer">סוכנויות רכב</option>
-          <option value="dentist">רופאי שיניים</option>
-          <option value="doctor">רופאים</option>
-          <option value="veterinary_care">וטרינרים</option>
-          <option value="lawyer">עורכי דין</option>
-          <option value="accounting">רואי חשבון</option>
-          <option value="real_estate_agency">תיווך נדל״ן</option>
-          <option value="insurance_agency">סוכנויות ביטוח</option>
-          <option value="electrician">חשמלאים</option>
-          <option value="plumber">אינסטלטורים</option>
-          <option value="moving_company">חברות הובלה</option>
-          <option value="florist">חנויות פרחים</option>
-          <option value="pet_store">חנויות חיות</option>
-          <option value="clothing_store">חנויות בגדים</option>
-          <option value="furniture_store">חנויות רהיטים</option>
-          <option value="hardware_store">חנויות כלי עבודה</option>
-          <option value="lodging">מלונות / צימרים</option>
-          <option value="travel_agency">סוכנויות נסיעות</option>
-          <option value="school">בתי ספר</option>
-          <option value="storage">מחסנים / אחסנה</option>
-        </select>
-      </div>
+          <option value="restaurant">מסעדות</option><option value="cafe">בתי קפה</option><option value="bakery">מאפיות</option>
+          <option value="beauty_salon">מכוני יופי</option><option value="hair_care">מספרות</option><option value="gym">חדרי כושר</option>
+          <option value="car_repair">מוסכים</option><option value="car_dealer">סוכנויות רכב</option><option value="dentist">רופאי שיניים</option>
+          <option value="doctor">רופאים</option><option value="veterinary_care">וטרינרים</option><option value="lawyer">עורכי דין</option>
+          <option value="accounting">רואי חשבון</option><option value="real_estate_agency">תיווך נדל״ן</option><option value="insurance_agency">סוכנויות ביטוח</option>
+          <option value="electrician">חשמלאים</option><option value="plumber">אינסטלטורים</option><option value="moving_company">חברות הובלה</option>
+          <option value="florist">חנויות פרחים</option><option value="pet_store">חנויות חיות</option><option value="clothing_store">חנויות בגדים</option>
+          <option value="furniture_store">חנויות רהיטים</option><option value="hardware_store">כלי עבודה</option><option value="lodging">מלונות / צימרים</option>
+          <option value="travel_agency">סוכנויות נסיעות</option><option value="school">בתי ספר</option><option value="storage">מחסנים</option>
+        </select></div>
       <div class="row row2">
-        <div>
-          <label>עומק סריקה</label>
-          <select id="depth">
-            <option value="1">מהיר (נקודה אחת)</option>
-            <option value="2" selected>בינוני (7 נקודות)</option>
-            <option value="3">עמוק (19 נקודות)</option>
-          </select>
-        </div>
-        <div>
-          <label>סינון תוצאות</label>
-          <select id="filt">
-            <option value="all">כל העסקים</option>
-            <option value="nosite">בלי אתר אינטרנט</option>
-            <option value="weak">ציון הזדמנות 50+</option>
-            <option value="lowrev">פחות מ-20 ביקורות</option>
-          </select>
-        </div>
+        <div><label>עומק סריקה</label><select id="depth">
+          <option value="1">מהיר (נקודה אחת)</option><option value="2" selected>בינוני (7 נקודות)</option><option value="3">עמוק (19 נקודות)</option></select></div>
+        <div><label>סינון תוצאות</label><select id="filt">
+          <option value="all">כל העסקים</option><option value="nosite">בלי אתר אינטרנט</option>
+          <option value="weak">ציון הזדמנות 50+</option><option value="lowrev">פחות מ-20 ביקורות</option>
+          <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option></select></div>
       </div>
       <button class="primary" id="btnScan" style="width:100%;padding:12px;font-size:15px">🔍 התחל סריקה</button>
-      <div class="log" id="log" style="margin-top:10px">מוכן. הזן מפתח API והתחל.</div>
+      <div class="log" id="log" style="margin-top:10px">מוכן.</div>
     </div>
 
     <div class="panel">
-      <h3>3 · ניתוח מעמיק (אופציונלי)</h3>
-      <div class="hint">
-        ניתוח האתר של כל עסק — מובייל, SEO, רשתות חברתיות, אימייל, וואטסאפ, פיקסלים.
-        מתבצע בלחיצה על <b>🔬 נתח אתר</b> בכרטיס, או על כולם יחד:
-      </div>
-      <button id="btnAnalyzeAll" style="width:100%;margin-top:10px">🔬 נתח את כל האתרים</button>
-      <div class="row" style="margin-top:12px">
-        <label><input type="checkbox" id="usePsi" style="width:auto;vertical-align:-2px"> כלול ציוני מהירות Google PageSpeed (איטי יותר)</label>
-      </div>
+      <h3>3 · ביקורת מעמיקה</h3>
+      <div class="hint">בודק לכל עסק: אתר (מובייל, SEO, SSL, מהירות), פיקסלים ו-Analytics, צ׳אט ומערכת תורים,
+        רשתות חברתיות, מיילים, וואטסאפ, נגישות, ו-5 הביקורות האחרונות בגוגל.</div>
+      <div class="row" style="margin-top:10px"><label><input type="checkbox" id="usePsi" style="width:auto;vertical-align:-2px"> כלול מדידת מהירות Google PageSpeed (מוסיף ~20 שניות לעסק)</label></div>
+      <div class="row"><label><input type="checkbox" id="useReviews" checked style="width:auto;vertical-align:-2px"> כלול ניתוח ביקורות גוגל (עולה קריאת API נוספת לעסק)</label></div>
+      <div class="row row2" style="grid-template-columns:1fr auto">
+        <button id="btnAnalyzeAll">🔬 נתח את כל העסקים</button>
+        <button id="btnStop" class="danger hidden">⏹ עצור</button></div>
+      <div class="progress" id="prog"><i></i></div>
     </div>
   </div>
 
-  <!-- ====== RESULTS ====== -->
   <div>
     <div id="alert"></div>
-
     <div class="stats">
       <div class="stat"><b id="stTotal">0</b><small>עסקים שנמצאו</small></div>
       <div class="stat"><b id="stNoSite">0</b><small>בלי אתר אינטרנט</small></div>
       <div class="stat"><b id="stHot">0</b><small>לידים חמים (70+)</small></div>
       <div class="stat"><b id="stAvg">0</b><small>ציון הזדמנות ממוצע</small></div>
     </div>
-
     <div class="toolbar">
       <select id="sort" style="width:auto">
-        <option value="opp">מיון: ציון הזדמנות (גבוה→נמוך)</option>
-        <option value="rating">מיון: דירוג</option>
-        <option value="reviews">מיון: מספר ביקורות</option>
-        <option value="dist">מיון: מרחק מהמרכז</option>
-        <option value="name">מיון: שם</option>
-      </select>
-      <button id="btnCsv">⬇️ ייצוא CSV לאקסל</button>
-      <button id="btnJson">⬇️ ייצוא JSON</button>
+        <option value="opp">מיון: ציון הזדמנות</option><option value="rating">מיון: דירוג</option>
+        <option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
+      <button id="btnCsv">⬇️ CSV לאקסל</button>
+      <button id="btnJson">⬇️ JSON</button>
+      <button id="btnHookAll">🔗 שלח חמים ל-Webhook</button>
       <button id="btnClear" class="ghost">🗑️ נקה תוצאות</button>
     </div>
-
     <div class="grid" id="grid"></div>
-    <div id="empty" class="panel center" style="color:var(--mut)">
-      עדיין אין תוצאות. בחר אזור, מה מחפשים — ולחץ «התחל סריקה».
-    </div>
+    <div id="empty" class="panel center" style="color:var(--mut)">עדיין אין תוצאות. בחר אזור ומה מחפשים — ולחץ «התחל סריקה».</div>
   </div>
 </div>
 
-<!-- ====== KEY DIALOG ====== -->
-<dialog id="dlgKey">
-  <div class="dlg-h"><b>🔑 מפתח Google Maps API</b><div class="spacer"></div>
-    <button class="ghost" onclick="dlgKey.close()">סגור</button></div>
+<!-- ================= LEADS VIEW ================= -->
+<div id="viewLeads" class="hidden" style="padding:16px">
+  <div class="toolbar">
+    <b style="font-size:17px">📋 משפך הלידים</b>
+    <div class="spacer"></div>
+    <input id="leadSearch" placeholder="חיפוש ליד..." style="width:220px">
+    <button id="btnLeadsCsv">⬇️ ייצוא הלידים ל-CSV</button>
+  </div>
+  <div class="hint" style="margin-bottom:10px">כל עסק שסימנת לו שלב (מעבר ל״חדש״) נשמר כאן לתמיד — גם אחרי סריקות חדשות. לחיצה על כרטיס פותחת אותו.</div>
+  <div class="board" id="board"></div>
+</div>
+
+<!-- ================= DIALOGS ================= -->
+<dialog id="dlgSettings">
+  <div class="dlg-h"><b>⚙️ הגדרות</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
-    <div class="hint" style="margin-bottom:12px">
-      המפתח נשמר <b>רק בדפדפן שלך</b> (localStorage) ולא נשלח לשום מקום חוץ מגוגל.<br>
-      צריך להפעיל בפרויקט: <b>Maps JavaScript API</b> + <b>Places API (New)</b>, ולהפעיל חיוב.
-      לניתוח מהירות גם <b>PageSpeed Insights API</b>.
+    <div class="sec"><h5>🔑 Google</h5>
+      <div class="row"><label>Google Maps API Key</label><input id="setKey" placeholder="AIza..."></div>
+      <div class="hint">נשמר רק בדפדפן שלך. דרוש: Maps JavaScript API, Places API (New), Geocoding API, PageSpeed Insights API.</div>
     </div>
-    <div class="row"><label>API Key</label><input id="apikey" placeholder="AIza..."></div>
-    <div class="row"><label>שרת פרוקסי לקריאת אתרים (לניתוח מעמיק)</label>
-      <input id="proxy" value="https://api.allorigins.win/raw?url="></div>
-    <button class="primary" id="btnSaveKey">שמור והפעל</button>
-    <div class="hint" style="margin-top:12px">
-      קישורים: <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank">מפתחות במפות גוגל</a> ·
-      <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank">הפעלת Places API (New)</a> ·
-      <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank">הפעלת Maps JavaScript API</a> ·
-      <a href="https://console.cloud.google.com/billing" target="_blank">חיוב</a>
+    <div class="sec"><h5>🏷️ המיתוג שלך בדוחות (White-Label)</h5>
+      <div class="row row2">
+        <div><label>שם העסק / הסוכנות</label><input id="setBrand" placeholder="SHAHAR AI PRODUCTIONS"></div>
+        <div><label>שם איש הקשר</label><input id="setPerson" placeholder="שמוליק שחר"></div></div>
+      <div class="row row2">
+        <div><label>טלפון / וואטסאפ</label><input id="setPhone" placeholder="050-0000000"></div>
+        <div><label>אימייל</label><input id="setEmail" placeholder="name@domain.com"></div></div>
+      <div class="row row2">
+        <div><label>קישור לקביעת שיחה / אתר</label><input id="setLink" placeholder="https://..."></div>
+        <div><label>צבע מותג</label><input id="setColor" type="color" value="#4f7cff" style="height:40px;padding:4px"></div></div>
+      <div class="row"><label>כתובת לוגו (URL לתמונה)</label><input id="setLogo" placeholder="https://.../logo.png"></div>
+      <div class="row"><label>תיאור קצר שלך (יופיע בדוח ובפניות)</label><input id="setTagline" placeholder="ייעוץ והטמעת בינה מלאכותית לעסקים ולבעלי מקצוע"></div>
     </div>
+    <div class="sec"><h5>✨ ניסוח פניות ב-AI (אופציונלי)</h5>
+      <div class="row row2">
+        <div><label>Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
+        <div><label>מודל</label><input id="setModel" value="gemini-2.5-flash"></div></div>
+      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. מפתח: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div>
+    </div>
+    <div class="sec"><h5>🔗 אינטגרציות</h5>
+      <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
+      <div class="row"><label>שרת ביקורת האתרים</label><input id="setApi"></div>
+    </div>
+    <button class="primary" id="btnSaveSettings">שמור</button>
   </div>
 </dialog>
 
-<!-- ====== BUSINESS DIALOG ====== -->
 <dialog id="dlgBiz"><div class="dlg-h"><b id="bizTitle"></b><div class="spacer"></div>
-  <button class="ghost" onclick="dlgBiz.close()">סגור</button></div>
-  <div class="dlg-b" id="bizBody"></div></dialog>
+  <button id="bizReport">📄 דוח ביקורת</button><button id="bizOutreach">✉️ פנייה</button>
+  <button class="ghost" data-close>סגור</button></div><div class="dlg-b" id="bizBody"></div></dialog>
 
-<!-- ====== HELP DIALOG ====== -->
-<dialog id="dlgHelp"><div class="dlg-h"><b>❓ איך זה עובד</b><div class="spacer"></div>
-  <button class="ghost" onclick="dlgHelp.close()">סגור</button></div>
+<dialog id="dlgOut"><div class="dlg-h"><b id="outTitle">✉️ פנייה מותאמת</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
-    <div class="sec"><h5>1. מפתח API</h5><div class="hint">
-      לוחצים «🔑 מפתח API» למעלה, מדביקים מפתח Google Maps ושומרים. המפתח נשאר בדפדפן שלך בלבד.</div></div>
-    <div class="sec"><h5>2. אזור</h5><div class="hint">
-      כותבים כתובת → «מצא על המפה» → גוררים את הסיכה לדיוק → בוחרים רדיוס (0.5 עד 30 ק״מ).</div></div>
-    <div class="sec"><h5>3. מה מחפשים</h5><div class="hint">
-      מילת חיפוש חופשית בעברית (מדויק יותר) או קטגוריה מהרשימה.
-      «עומק סריקה» קובע לכמה תת-עיגולים מחלקים את האזור — עמוק יותר = יותר עסקים, יותר קריאות API.</div></div>
-    <div class="sec"><h5>4. ציון הזדמנות</h5><div class="hint">
-      0–100. <b>גבוה = ליד טוב יותר</b> — לעסק חסרים דברים שאתה יכול לתקן (אין אתר, מעט ביקורות,
-      אין שעות פתיחה, אין תמונות, דירוג נמוך). בכרטיס המורחב יש פירוט מלא + רשימת שיפורים מוצעים.</div></div>
-    <div class="sec"><h5>5. ניתוח אתר</h5><div class="hint">
-      «🔬 נתח אתר» קורא את דף הבית של העסק ומחלץ: תאימות מובייל, כותרת ותיאור SEO, H1,
-      קישורי פייסבוק / אינסטגרם / וואטסאפ / טיקטוק / יוטיוב / לינקדאין, כתובות מייל, טופס יצירת קשר,
-      Google Analytics, Meta Pixel, מערכת האתר (WordPress/Wix/Shopify) ו-HTTPS.</div></div>
-    <div class="sec"><h5>6. לידים וייצוא</h5><div class="hint">
-      בכל כרטיס מסמנים: חדש / חם / טופל / לא רלוונטי — והסימון נשמר בדפדפן.
-      «ייצוא CSV» פותח באקסל בעברית תקינה.</div></div>
+    <div class="subtabs" id="outTabs">
+      <button data-ch="wa" class="on">💬 וואטסאפ</button><button data-ch="email">📧 אימייל</button><button data-ch="call">📞 תסריט שיחה</button><button data-ch="dm">📱 הודעה ברשתות</button></div>
+    <div class="row hidden" id="outSubjRow"><label>נושא</label><input id="outSubj"></div>
+    <textarea class="msg" id="outText"></textarea>
+    <div class="toolbar" style="margin-top:10px">
+      <button id="outAi" class="primary">✨ נסח מחדש עם AI</button>
+      <button id="outCopy">📋 העתק</button>
+      <a id="outSend" class="hidden" target="_blank"><button>🚀 פתח לשליחה</button></a>
+      <span id="outStatus" class="hint"></span>
+    </div>
+    <div class="hint">ההודעה נבנתה מהליקויים שנמצאו בביקורת של העסק הזה. אפשר לערוך לפני השליחה. השליחה עצמה נעשית ממך — Leads Radar לא שולח כלום לבד.</div>
+  </div></dialog>
+
+<dialog id="dlgHelp"><div class="dlg-h"><b>❓ איך זה עובד</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
+  <div class="dlg-b">
+    <div class="sec"><h5>1. הגדרות</h5><div class="hint">⚙️ הגדרות → מפתח Google, המיתוג שלך לדוחות, ואופציונלית מפתח Gemini ו-Webhook.</div></div>
+    <div class="sec"><h5>2. סריקה</h5><div class="hint">בוחרים מרכז ורדיוס, מילת חיפוש או קטגוריה → «התחל סריקה». עומק סריקה = לכמה תת-אזורים מחלקים (יותר עסקים, יותר קריאות API).</div></div>
+    <div class="sec"><h5>3. ביקורת מעמיקה</h5><div class="hint">«🔬 נתח» בכרטיס או «נתח את כל העסקים». כל אתר נבדק בשרת ביקורת ייעודי עם מגבלת זמן — אתר שלא עונה מסומן כשגיאה ולא תוקע את התהליך. אפשר לעצור בכל רגע.</div></div>
+    <div class="sec"><h5>4. ציון הזדמנות</h5><div class="hint">0–100. <b>גבוה = ליד טוב יותר</b>. בכרטיס המלא — כל ליקוי עם פוטנציאל השיפור שלו. האחוזים הם משקלות לתעדוף, לא מדידה של גוגל.</div></div>
+    <div class="sec"><h5>5. דוח ביקורת ממותג</h5><div class="hint">«📄 דוח ביקורת» יוצר דוח בעברית עם הלוגו, הצבע ופרטי הקשר שלך — שמירה כ-PDF (הדפסה → שמור כ-PDF) או הורדה כדף HTML חי שאפשר לשלוח ללקוח או להעלות לאתר.</div></div>
+    <div class="sec"><h5>6. פנייה מותאמת</h5><div class="hint">«✉️ פנייה» בונה הודעת וואטסאפ, מייל, תסריט שיחה והודעה ברשתות — לפי הליקויים הספציפיים. עם מפתח Gemini אפשר לנסח מחדש ב-AI.</div></div>
+    <div class="sec"><h5>7. משפך לידים</h5><div class="hint">בכל כרטיס בוחרים שלב (נוצר קשר / פגישה / הצעה / לקוח). הליד נשמר ב«📋 הלידים שלי» עם הערות ותאריך מעקב. Webhook שולח לידים ל-Make / Zapier / n8n.</div></div>
   </div></dialog>
 
 <script>
 /* ============================================================
-   Leads Radar  —  סורק עסקים ברדיוס
+   Leads Radar v2 — סריקה · ביקורת · דוחות · פניות · משפך
    ============================================================ */
 const $ = id => document.getElementById(id);
-const LS = { key:'lr_apikey', proxy:'lr_proxy', leads:'lr_leads', last:'lr_last' };
+const DEFAULT_API = 'https://europe-west1-aiproject-484911.cloudfunctions.net/leads-radar-audit';
+const LS = { key:'lr_apikey', leads:'lr_leads', last:'lr_last', results:'lr_results', set:'lr_settings' };
+const STAGES = [
+  {id:'new',    t:'חדש'},
+  {id:'hot',    t:'🔥 חם — לפנות'},
+  {id:'contact',t:'📞 נוצר קשר'},
+  {id:'meet',   t:'📅 פגישה נקבעה'},
+  {id:'offer',  t:'💼 הצעת מחיר'},
+  {id:'won',    t:'✅ לקוח'},
+  {id:'out',    t:'✕ לא רלוונטי'}
+];
+const stageName = id => (STAGES.find(s=>s.id===id)||STAGES[0]).t;
 
-let map, marker, circle, mapsLoaded=false;
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ log('⚠️ לא ניתן לשמור בדפדפן: '+e.message); } }
+};
+
+let map, marker, circle, mapsLoaded=false, markers=[];
 let center = {lat:31.7683, lng:35.2137};
-let results = [];                       // array of business objects
-let leads = JSON.parse(localStorage.getItem(LS.leads) || '{}');
+let results = store.get(LS.results, []);
+let leads = store.get(LS.leads, {});
+let manualSocial = store.get('lr_social', {});   // {placeId: {facebook:url,...}}
+const NETS = [
+  {k:'facebook', t:'פייסבוק', ico:'📘', site:'facebook.com'},
+  {k:'instagram',t:'אינסטגרם',ico:'📸', site:'instagram.com'},
+  {k:'tiktok',   t:'טיקטוק',  ico:'🎵', site:'tiktok.com'},
+  {k:'youtube',  t:'יוטיוב',  ico:'▶️', site:'youtube.com'},
+  {k:'linkedin', t:'לינקדאין',ico:'💼', site:'linkedin.com'},
+  {k:'twitter',  t:'X / טוויטר',ico:'✖️', site:'x.com'}
+];
+function socialOf(b){ return Object.assign({}, (b.site&&!b.site.error&&b.site.social)||{}, manualSocial[b.id]||{}); }
+function presenceOf(b){
+  const soc=socialOf(b), s=b.site&&!b.site.error?b.site:null;
+  const ch=[
+    {t:'פרופיל גוגל עסקי', ok:true, url:b.maps},
+    {t:'אתר אינטרנט', ok:!!b.website, url:b.website},
+    {t:'וואטסאפ עסקי באתר', ok:!!(s&&s.whatsapp&&s.whatsapp.length), url:s&&s.whatsapp&&s.whatsapp[0]?'https://wa.me/'+s.whatsapp[0]:''}
+  ].concat(NETS.map(n=>({t:n.t, ok:!!soc[n.k], url:soc[n.k]||'', net:n.k})));
+  return {channels:ch, count:ch.filter(c=>c.ok).length, total:ch.length, social:soc};
+}
+let settings = Object.assign({api:DEFAULT_API, model:'gemini-2.5-flash', color:'#4f7cff',
+  brand:'SHAHAR AI PRODUCTIONS', person:'שמוליק שחר', tagline:'ייעוץ והטמעת בינה מלאכותית לעסקים ולבעלי מקצוע'}, store.get(LS.set,{}));
+// migrate old key
+try{ const k=localStorage.getItem(LS.key); if(k && !k.startsWith('"')) settings.key = settings.key || k; }catch(e){}
 
 /* ---------- helpers ---------- */
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function log(msg){ const el=$('log'); el.textContent = msg + "\n" + el.textContent.split("\n").slice(0,12).join("\n"); }
+function log(msg){ const el=$('log'); el.textContent = msg + "\n" + el.textContent.split("\n").slice(0,14).join("\n"); }
 function alertBox(html,type='err'){ $('alert').innerHTML = html ? `<div class="${type}">${html}</div>` : ''; }
-function saveLeads(){ localStorage.setItem(LS.leads, JSON.stringify(leads)); }
-function dist(a,b){ const R=6371000,t=x=>x*Math.PI/180;
-  const dLat=t(b.lat-a.lat), dLng=t(b.lng-a.lng);
-  const h=Math.sin(dLat/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLng/2)**2;
-  return 2*R*Math.asin(Math.sqrt(h)); }
+function dist(a,b){ const R=6371000,t=x=>x*Math.PI/180; const dLat=t(b.lat-a.lat), dLng=t(b.lng-a.lng);
+  const h=Math.sin(dLat/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
+const fmtDist = d => d==null?'':(d>=1000?(d/1000).toFixed(1)+' ק״מ':d+' מ׳');
+const waNum = p => String(p||'').replace(/\D/g,'').replace(/^0/,'972');
+const saveResults = ()=> store.set(LS.results, results.map(b=>Object.assign({},b,{_s:undefined})));
+const saveLeads = ()=> { store.set(LS.leads, leads); updateLeadsCount(); };
+async function fetchT(url, opts={}, ms=25000){
+  const c=new AbortController(); const t=setTimeout(()=>c.abort(), ms);
+  try{ return await fetch(url, Object.assign({}, opts, {signal:c.signal})); }
+  finally{ clearTimeout(t); }
+}
+document.querySelectorAll('dialog').forEach(d=>{
+  d.addEventListener('click',e=>{ if(e.target===d) d.close(); });
+  d.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>d.close());
+});
 
-/* ---------- API key ---------- */
-function getKey(){ return localStorage.getItem(LS.key)||''; }
-function getProxy(){ return localStorage.getItem(LS.proxy)||'https://api.allorigins.win/raw?url='; }
-
-$('btnKey').onclick = ()=>{ $('apikey').value=getKey(); $('proxy').value=getProxy(); dlgKey.showModal(); };
-$('btnHelp').onclick = ()=> dlgHelp.showModal();
-$('btnSaveKey').onclick = async ()=>{
-  const k=$('apikey').value.trim();
-  if(!k){ alert('חסר מפתח'); return; }
-  localStorage.setItem(LS.key,k);
-  localStorage.setItem(LS.proxy,$('proxy').value.trim());
-  dlgKey.close();
-  alertBox('');
-  await boot();
+/* ---------- settings ---------- */
+const SET_FIELDS = {key:'setKey',brand:'setBrand',person:'setPerson',phone:'setPhone',email:'setEmail',link:'setLink',
+  color:'setColor',logo:'setLogo',tagline:'setTagline',gemini:'setGemini',model:'setModel',hook:'setHook',api:'setApi'};
+$('btnSettings').onclick = ()=>{ for(const k in SET_FIELDS) $(SET_FIELDS[k]).value = settings[k]||''; if(!settings.color) $('setColor').value='#4f7cff'; dlgSettings.showModal(); };
+$('btnSaveSettings').onclick = async ()=>{
+  const hadKey = settings.key;
+  for(const k in SET_FIELDS) settings[k] = $(SET_FIELDS[k]).value.trim();
+  if(!settings.api) settings.api = DEFAULT_API;
+  store.set(LS.set, settings);
+  try{ if(settings.key) localStorage.setItem(LS.key, settings.key); }catch(e){}
+  dlgSettings.close(); log('ההגדרות נשמרו.');
+  if(settings.key && (!mapsLoaded || settings.key!==hadKey)){ if(mapsLoaded && settings.key!==hadKey) location.reload(); else await boot(); }
 };
+$('btnHelp').onclick = ()=> dlgHelp.showModal();
 
-/* ---------- Google Maps loader ---------- */
+/* ---------- Google Maps ---------- */
 function loadMaps(key){
   return new Promise((res,rej)=>{
-    if(window.google && window.google.maps) return res();
+    if(window.google && window.google.maps && google.maps.Map) return res();
     window.__mapsReady = ()=>res();
     window.gm_authFailure = ()=>rej(new Error('AUTH'));
-    const s=document.createElement('script');
-    s.async=true;
-    s.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(key)
-        +'&v=weekly&libraries=places,geometry&language=iw&region=IL&loading=async&callback=__mapsReady';
-    s.onerror=()=>rej(new Error('LOAD'));
-    document.head.appendChild(s);
+    const s=document.createElement('script'); s.async=true;
+    s.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(key)+'&v=weekly&libraries=places,geometry&language=iw&region=IL&loading=async&callback=__mapsReady';
+    s.onerror=()=>rej(new Error('LOAD')); document.head.appendChild(s);
     setTimeout(()=>rej(new Error('TIMEOUT')), 20000);
   });
 }
-
 async function boot(){
-  const key=getKey();
-  if(!key){
-    alertBox('כדי להתחיל צריך מפתח Google Maps API — לוחצים על <b>🔑 מפתח API</b> בראש העמוד. '+
-             'המדריך המלא נמצא בכפתור <b>❓ עזרה</b>.');
-    return;
-  }
-  try{
-    await loadMaps(key);
-    mapsLoaded=true;
-    initMap();
-    alertBox('');
-    log('מפות גוגל נטענו בהצלחה.');
-  }catch(e){
-    mapsLoaded=false;
-    alertBox('טעינת Google Maps נכשלה ('+e.message+').<br>'+
-      'בדוק ש: המפתח נכון · <b>Maps JavaScript API</b> ו-<b>Places API (New)</b> מופעלים · החיוב פעיל · '+
-      'ושהגבלת ה-Referrer של המפתח כוללת את הכתובת הזו.');
-  }
+  if(!settings.key){ alertBox('כדי להתחיל צריך מפתח Google Maps — לוחצים <b>⚙️ הגדרות</b> למעלה.'); return; }
+  try{ await loadMaps(settings.key); mapsLoaded=true; initMap(); alertBox(''); log('מפות גוגל נטענו.'); }
+  catch(e){ mapsLoaded=false; alertBox('טעינת Google Maps נכשלה ('+e.message+'). בדוק את המפתח, שה-APIs מופעלים, והגבלת האתר של המפתח.'); }
 }
-
 function initMap(){
   map = new google.maps.Map($('map'), {center, zoom:12, mapTypeControl:false, streetViewControl:false, fullscreenControl:false,
-    styles:[{elementType:'geometry',stylers:[{color:'#16203d'}]},
-            {elementType:'labels.text.fill',stylers:[{color:'#9aa7cf'}]},
-            {elementType:'labels.text.stroke',stylers:[{color:'#0b1020'}]},
-            {featureType:'water',stylers:[{color:'#0d1730'}]},
-            {featureType:'road',elementType:'geometry',stylers:[{color:'#233062'}]},
-            {featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]}]});
+    styles:[{elementType:'geometry',stylers:[{color:'#16203d'}]},{elementType:'labels.text.fill',stylers:[{color:'#9aa7cf'}]},
+      {elementType:'labels.text.stroke',stylers:[{color:'#0b1020'}]},{featureType:'water',stylers:[{color:'#0d1730'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#233062'}]},{featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]}]});
   marker = new google.maps.Marker({map, position:center, draggable:true});
-  circle = new google.maps.Circle({map, center, radius:+$('rad').value,
-    strokeColor:'#4f7cff', strokeOpacity:.9, strokeWeight:2, fillColor:'#4f7cff', fillOpacity:.10});
-  marker.addListener('dragend', e=>{ center={lat:e.latLng.lat(),lng:e.latLng.lng()};
-    circle.setCenter(center); log('מרכז עודכן: '+center.lat.toFixed(5)+', '+center.lng.toFixed(5)); });
-  map.addListener('click', e=>{ center={lat:e.latLng.lat(),lng:e.latLng.lng()};
-    marker.setPosition(center); circle.setCenter(center); });
-  fitCircle();
+  circle = new google.maps.Circle({map, center, radius:+$('rad').value, strokeColor:'#4f7cff', strokeOpacity:.9, strokeWeight:2, fillColor:'#4f7cff', fillOpacity:.10});
+  marker.addListener('dragend', e=>{ center={lat:e.latLng.lat(),lng:e.latLng.lng()}; circle.setCenter(center); });
+  map.addListener('click', e=>{ center={lat:e.latLng.lat(),lng:e.latLng.lng()}; marker.setPosition(center); circle.setCenter(center); });
+  fitCircle(); drawMarkers();
 }
 function fitCircle(){ if(circle&&map) map.fitBounds(circle.getBounds()); }
-
-$('rad').oninput = e=>{
-  const m=+e.target.value;
-  $('radLbl').textContent = m>=1000 ? (m/1000).toFixed(m%1000?1:0)+' ק״מ' : m+' מ׳';
-  if(circle){ circle.setRadius(m); fitCircle(); }
-};
-
+function drawMarkers(){
+  if(!map) return; markers.forEach(m=>m.setMap(null)); markers=[];
+  results.forEach(b=>{ if(!b.loc) return; const o=scoreBiz(b).opp;
+    const m=new google.maps.Marker({map, position:b.loc, title:b.name,
+      icon:{path:google.maps.SymbolPath.CIRCLE, scale:6, fillOpacity:1, strokeWeight:1, strokeColor:'#0b1020',
+        fillColor: o>=70?'#ff6b6b':o>=40?'#ffc24d':'#2fd48f'}});
+    m.addListener('click',()=>openBiz(b.id)); markers.push(m); });
+}
+$('rad').oninput = e=>{ const m=+e.target.value; $('radLbl').textContent = m>=1000 ? (m/1000).toFixed(m%1000?1:0)+' ק״מ' : m+' מ׳';
+  if(circle){ circle.setRadius(m); fitCircle(); } };
 $('btnGeo').onclick = async ()=>{
-  if(!mapsLoaded) return alertBox('קודם שומרים מפתח API (כפתור 🔑 למעלה).');
+  if(!mapsLoaded) return alertBox('קודם שומרים מפתח ב-⚙️ הגדרות.');
   const q=$('addr').value.trim(); if(!q) return;
-  try{
-    const g=new google.maps.Geocoder();
-    const {results:r}=await g.geocode({address:q, region:'IL'});
-    if(!r||!r.length) return log('לא נמצאה כתובת.');
-    const l=r[0].geometry.location;
-    center={lat:l.lat(),lng:l.lng()};
-    marker.setPosition(center); circle.setCenter(center); fitCircle();
-    log('נמצא: '+r[0].formatted_address);
+  try{ const {results:r}=await new google.maps.Geocoder().geocode({address:q, region:'IL'});
+    if(!r||!r.length) return log('לא נמצאה כתובת.'); const l=r[0].geometry.location;
+    center={lat:l.lat(),lng:l.lng()}; marker.setPosition(center); circle.setCenter(center); fitCircle(); log('נמצא: '+r[0].formatted_address);
   }catch(e){ log('שגיאת איתור כתובת: '+e.message); }
 };
-$('btnMe').onclick = ()=>{
-  if(!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(p=>{
-    center={lat:p.coords.latitude,lng:p.coords.longitude};
-    if(marker){marker.setPosition(center);circle.setCenter(center);fitCircle();}
-    log('מיקום נוכחי נקלט.');
-  }, ()=>log('לא ניתן לקבל מיקום מהדפדפן.'));
-};
-
-/* ---------- tiling ---------- */
-function tiles(c, R, levels){
-  const pts=[{lat:c.lat,lng:c.lng}];
-  if(levels<=1) return {pts, r:R};
-  const r = R/(2*levels-1);
-  for(let k=1;k<levels;k++){
-    const d = 2*k*r, n = 6*k;
-    for(let i=0;i<n;i++){
-      const a = 2*Math.PI*i/n;
-      const dy = d*Math.cos(a), dx = d*Math.sin(a);
-      pts.push({ lat: c.lat + dy/111320,
-                 lng: c.lng + dx/(111320*Math.cos(c.lat*Math.PI/180)) });
-    }
-  }
-  return {pts, r};
-}
-
-/* ---------- scoring ---------- */
-const PLACE_FIELDS = ['id','displayName','formattedAddress','location','googleMapsURI',
-  'nationalPhoneNumber','internationalPhoneNumber','websiteURI','rating','userRatingCount',
-  'businessStatus','regularOpeningHours','primaryTypeDisplayName','types','photos','priceLevel'];
-
-function toBiz(p){
-  const loc = p.location ? {lat:p.location.lat(), lng:p.location.lng()} : null;
-  return {
-    id: p.id,
-    name: p.displayName || '',
-    address: p.formattedAddress || '',
-    phone: p.nationalPhoneNumber || p.internationalPhoneNumber || '',
-    website: p.websiteURI || '',
-    rating: p.rating || 0,
-    reviews: p.userRatingCount || 0,
-    status: p.businessStatus || '',
-    hours: (p.regularOpeningHours && p.regularOpeningHours.weekdayDescriptions) || [],
-    type: p.primaryTypeDisplayName || (p.types&&p.types[0]) || '',
-    types: p.types || [],
-    photos: (p.photos||[]).length,
-    photoUrl: (p.photos&&p.photos[0]) ? p.photos[0].getURI({maxWidth:400}) : '',
-    priceLevel: p.priceLevel || '',
-    maps: p.googleMapsURI || '',
-    loc,
-    dist: loc ? Math.round(dist(center,loc)) : null,
-    site: null     // deep analysis result
-  };
-}
-
-function scoreBiz(b){
-  let pres=0; const fix=[];
-  if(b.website){ pres+=20;
-    if(/^https:/i.test(b.website)) pres+=5;
-    else fix.push({t:'האתר לא מאובטח (ללא HTTPS) — גוגל מסמן אותו כ״לא בטוח״', imp:12});
-  } else fix.push({t:'אין אתר אינטרנט כלל — ההזדמנות הגדולה ביותר', imp:35});
-
-  if(b.phone) pres+=10; else fix.push({t:'אין מספר טלפון בכרטיס גוגל', imp:15});
-
-  if(b.rating>=4.5) pres+=15;
-  else if(b.rating>=4.0) pres+=12;
-  else if(b.rating>=3.5){ pres+=7; fix.push({t:'דירוג בינוני ('+b.rating+') — ניהול מוניטין ישפר המרות', imp:15}); }
-  else if(b.rating>0){ pres+=2; fix.push({t:'דירוג נמוך ('+b.rating+') — דורש טיפול מוניטין דחוף', imp:25}); }
-  else fix.push({t:'אין דירוג בכלל — הכרטיס כמעט בלתי נראה בחיפוש', imp:20});
-
-  if(b.reviews>=100) pres+=15;
-  else if(b.reviews>=50) pres+=12;
-  else if(b.reviews>=20) pres+=8;
-  else if(b.reviews>=5){ pres+=4; fix.push({t:'רק '+b.reviews+' ביקורות — מעט מדי לבלוט מול המתחרים', imp:18}); }
-  else fix.push({t:'כמעט אין ביקורות ('+b.reviews+') — נדרש מנגנון איסוף ביקורות', imp:25});
-
-  if(b.hours.length) pres+=10; else fix.push({t:'לא הוגדרו שעות פתיחה בכרטיס גוגל', imp:10});
-
-  if(b.photos>=5) pres+=10;
-  else if(b.photos>=1){ pres+=5; fix.push({t:'רק '+b.photos+' תמונות — כרטיסים עם 10+ תמונות מקבלים יותר קליקים', imp:10}); }
-  else fix.push({t:'אין תמונות בכרטיס גוגל', imp:15});
-
-  if(b.status==='OPERATIONAL') pres+=5;
-  else if(b.status) fix.push({t:'סטטוס העסק בגוגל: '+b.status, imp:5});
-
-  if(b.type) pres+=5;
-
-  // deep site signals
-  if(b.site){
-    if(!b.site.mobile) fix.push({t:'האתר לא מותאם למובייל (אין viewport) — 70% מהגולשים בנייד', imp:25});
-    if(!b.site.title) fix.push({t:'אין כותרת (title) לאתר — פגיעה קשה ב-SEO', imp:20});
-    else if(b.site.title.length<20||b.site.title.length>65) fix.push({t:'כותרת האתר לא באורך אופטימלי ('+b.site.title.length+' תווים)', imp:8});
-    if(!b.site.desc) fix.push({t:'אין תיאור מטא (description) — גוגל בוחר טקסט אקראי', imp:12});
-    if(!b.site.h1) fix.push({t:'אין כותרת H1 בדף הבית', imp:8});
-    if(!b.site.social.length) fix.push({t:'אין קישורים לרשתות חברתיות באתר', imp:10});
-    if(!b.site.whatsapp) fix.push({t:'אין כפתור וואטסאפ — ערוץ ההמרה מספר 1 בישראל', imp:18});
-    if(!b.site.email) fix.push({t:'אין כתובת מייל גלויה באתר', imp:6});
-    if(!b.site.form) fix.push({t:'אין טופס יצירת קשר / השארת פרטים', imp:15});
-    if(!b.site.analytics) fix.push({t:'אין Google Analytics — העסק עובד בעיוורון', imp:12});
-    if(!b.site.pixel) fix.push({t:'אין Meta Pixel — לא ניתן לעשות רימרקטינג', imp:10});
-    if(!b.site.schema) fix.push({t:'אין Schema.org — לא יופיע בתוצאות עשירות בגוגל', imp:7});
-  }
-  pres=Math.max(0,Math.min(100,pres));
-  fix.sort((a,b)=>b.imp-a.imp);
-  return {presence:pres, opp:100-pres, fix};
-}
+$('btnMe').onclick = ()=> navigator.geolocation && navigator.geolocation.getCurrentPosition(p=>{
+  center={lat:p.coords.latitude,lng:p.coords.longitude}; if(marker){marker.setPosition(center);circle.setCenter(center);fitCircle();} }, ()=>log('אין גישה למיקום.'));
+function setBig(on){ $('mapWrap').classList.toggle('big',on); $('btnBig').textContent = on?'✕ סגור מפה מוגדלת (Esc)':'⛶ הגדל מפה';
+  document.body.style.overflow = on?'hidden':''; setTimeout(fitCircle,150); }
+$('btnBig').onclick = ()=> setBig(!$('mapWrap').classList.contains('big'));
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('mapWrap').classList.contains('big')) setBig(false); });
 
 /* ---------- scan ---------- */
+function tiles(c, R, levels){
+  const pts=[{lat:c.lat,lng:c.lng}]; if(levels<=1) return {pts, r:R};
+  const r = R/(2*levels-1);
+  for(let k=1;k<levels;k++){ const d=2*k*r, n=6*k;
+    for(let i=0;i<n;i++){ const a=2*Math.PI*i/n;
+      pts.push({lat:c.lat+d*Math.cos(a)/111320, lng:c.lng+d*Math.sin(a)/(111320*Math.cos(c.lat*Math.PI/180))}); } }
+  return {pts, r};
+}
+const PLACE_FIELDS = ['id','displayName','formattedAddress','location','googleMapsURI','nationalPhoneNumber','internationalPhoneNumber',
+  'websiteURI','rating','userRatingCount','businessStatus','regularOpeningHours','primaryTypeDisplayName','types','photos','priceLevel'];
+function toBiz(p){
+  const loc = p.location ? {lat:p.location.lat(), lng:p.location.lng()} : null;
+  return { id:p.id, name:p.displayName||'', address:p.formattedAddress||'',
+    phone:p.nationalPhoneNumber||p.internationalPhoneNumber||'', website:p.websiteURI||'',
+    rating:p.rating||0, reviews:p.userRatingCount||0, status:p.businessStatus||'',
+    hours:(p.regularOpeningHours&&p.regularOpeningHours.weekdayDescriptions)||[],
+    type:p.primaryTypeDisplayName||(p.types&&p.types[0])||'', types:p.types||[],
+    photos:(p.photos||[]).length, photoUrl:(p.photos&&p.photos[0])?p.photos[0].getURI({maxWidth:600}):'',
+    priceLevel:p.priceLevel||'', maps:p.googleMapsURI||'', loc, dist:loc?Math.round(dist(center,loc)):null,
+    site:null, rev:null, psi:null, astate:'' };
+}
 $('btnScan').onclick = async ()=>{
-  if(!mapsLoaded){ alertBox('קודם שומרים מפתח API (כפתור 🔑 למעלה).'); return; }
-  const btn=$('btnScan'); btn.disabled=true; btn.innerHTML='<span class="sp"></span> סורק...';
-  alertBox('');
+  if(!mapsLoaded){ alertBox('קודם שומרים מפתח ב-⚙️ הגדרות.'); return; }
+  const btn=$('btnScan'); btn.disabled=true; btn.innerHTML='<span class="sp"></span> סורק...'; alertBox('');
   try{
     const {Place, SearchNearbyRankPreference} = await google.maps.importLibrary('places');
-    const R=+$('rad').value, L=+$('depth').value;
-    const {pts,r}=tiles(center,R,L);
-    const kw=$('kw').value.trim(), cat=$('cat').value;
-    const found=new Map();
-    log('מתחיל סריקה: '+pts.length+' נקודות, רדיוס משנה '+Math.round(r)+' מ׳');
-
+    const R=+$('rad').value, L=+$('depth').value, {pts,r}=tiles(center,R,L);
+    const kw=$('kw').value.trim(), cat=$('cat').value, found=new Map();
+    log('סריקה: '+pts.length+' נקודות, רדיוס משנה '+Math.round(r)+' מ׳');
     for(let i=0;i<pts.length;i++){
       const c=pts[i];
       try{
         let res;
-        if(kw){
-          res = await Place.searchByText({ textQuery:kw, fields:PLACE_FIELDS,
-            locationBias:{center:c, radius:Math.min(r,50000)},
-            maxResultCount:20, language:'iw', region:'IL' });
-        }else{
-          const req={ fields:PLACE_FIELDS,
-            locationRestriction:{center:c, radius:Math.min(r,50000)},
-            maxResultCount:20, language:'iw', region:'IL',
-            rankPreference:SearchNearbyRankPreference.POPULARITY };
-          if(cat) req.includedPrimaryTypes=[cat];
-          res = await Place.searchNearby(req);
-        }
-        (res.places||[]).forEach(p=>{
-          const b=toBiz(p);
-          if(!b.loc) return;
-          if(dist(center,b.loc)>R) return;          // keep inside the real radius
-          if(!found.has(b.id)) found.set(b.id,b);
-        });
+        if(kw) res = await Place.searchByText({textQuery:kw, fields:PLACE_FIELDS, locationBias:{center:c, radius:Math.min(r,50000)}, maxResultCount:20, language:'iw', region:'IL'});
+        else { const q={fields:PLACE_FIELDS, locationRestriction:{center:c, radius:Math.min(r,50000)}, maxResultCount:20, language:'iw', region:'IL', rankPreference:SearchNearbyRankPreference.POPULARITY};
+          if(cat) q.includedPrimaryTypes=[cat]; res = await Place.searchNearby(q); }
+        (res.places||[]).forEach(p=>{ const b=toBiz(p); if(!b.loc || dist(center,b.loc)>R) return; if(!found.has(b.id)) found.set(b.id,b); });
       }catch(e){ log('נקודה '+(i+1)+' נכשלה: '+e.message); }
-      log('נקודה '+(i+1)+'/'+pts.length+' — סה״כ '+found.size+' עסקים');
-      btn.innerHTML='<span class="sp"></span> סורק '+(i+1)+'/'+pts.length;
+      btn.innerHTML='<span class="sp"></span> סורק '+(i+1)+'/'+pts.length+' · '+found.size+' עסקים';
     }
-
     results=[...found.values()];
-    if(!results.length){
-      alertBox('לא נמצאו עסקים. נסה מילת חיפוש אחרת, רדיוס גדול יותר או עומק סריקה גבוה יותר.','err');
-    }
-    localStorage.setItem(LS.last, JSON.stringify({center,R,kw,cat,ts:Date.now()}));
-    render();
-    log('✔ הסריקה הסתיימה: '+results.length+' עסקים.');
-  }catch(e){
-    alertBox('הסריקה נכשלה: '+esc(e.message)+'<br>ברוב המקרים הסיבה היא ש-<b>Places API (New)</b> לא מופעל בפרויקט, או שהחיוב לא פעיל.');
-  }
+    if(!results.length) alertBox('לא נמצאו עסקים. נסה מילת חיפוש אחרת, רדיוס גדול יותר או עומק סריקה גבוה יותר.');
+    saveResults(); store.set(LS.last,{center,R,kw,cat,ts:Date.now()});
+    render(); drawMarkers(); log('✔ נמצאו '+results.length+' עסקים.');
+  }catch(e){ alertBox('הסריקה נכשלה: '+esc(e.message)+'<br>בדרך כלל: Places API (New) לא מופעל, או שהחיוב לא פעיל.'); }
   btn.disabled=false; btn.innerHTML='🔍 התחל סריקה';
 };
 
-/* ---------- deep site analysis ---------- */
-async function analyze(b){
-  if(!b.website) return null;
-  const url=b.website;
-  let html='';
+/* ---------- deep audit ---------- */
+async function auditSite(url){
   try{
-    const r=await fetch(getProxy()+encodeURIComponent(url));
-    html=await r.text();
-  }catch(e){
-    try{ const r=await fetch(url,{mode:'cors'}); html=await r.text(); }
-    catch(e2){ return {error:'לא ניתן לקרוא את האתר (חסימה או אתר מושבת)'}; }
-  }
-  if(!html || html.length<50) return {error:'האתר החזיר תוכן ריק'};
-  const H=html;
-  const pick=(re)=>{const m=H.match(re);return m?m[1].trim():'';};
-  const social=[];
-  const socMap={facebook:/https?:\/\/(?:www\.)?facebook\.com\/[^\s"'<>]+/i,
-                instagram:/https?:\/\/(?:www\.)?instagram\.com\/[^\s"'<>]+/i,
-                tiktok:/https?:\/\/(?:www\.)?tiktok\.com\/[^\s"'<>]+/i,
-                youtube:/https?:\/\/(?:www\.)?youtube\.com\/[^\s"'<>]+/i,
-                linkedin:/https?:\/\/(?:[a-z]{2}\.)?linkedin\.com\/[^\s"'<>]+/i,
-                twitter:/https?:\/\/(?:www\.)?(?:twitter|x)\.com\/[^\s"'<>]+/i};
-  for(const k in socMap){ const m=H.match(socMap[k]); if(m) social.push({net:k,url:m[0].replace(/["'<>].*$/,'')}); }
-  const wa = H.match(/(?:wa\.me\/|api\.whatsapp\.com\/send\?phone=)(\+?\d{6,15})/i);
-  const emails=[...new Set((H.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g)||[])
-    .filter(e=>!/\.(png|jpe?g|gif|svg|webp)$/i.test(e)))].slice(0,5);
-  const tels=[...new Set((H.match(/tel:\+?[\d\-\s()]{7,}/gi)||[]).map(t=>t.replace(/^tel:/i,'').trim()))].slice(0,5);
-  let platform='';
-  if(/wp-content|wp-includes/i.test(H)) platform='WordPress';
-  else if(/wix\.com|wixstatic/i.test(H)) platform='Wix';
-  else if(/cdn\.shopify|shopify/i.test(H)) platform='Shopify';
-  else if(/squarespace/i.test(H)) platform='Squarespace';
-  else if(/webflow/i.test(H)) platform='Webflow';
-  else if(/elementor/i.test(H)) platform='WordPress + Elementor';
-  return {
-    https:/^https:/i.test(url),
-    mobile:/name=["']viewport["']/i.test(H),
-    title:pick(/<title[^>]*>([\s\S]{0,300}?)<\/title>/i),
-    desc:pick(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']{0,400})["']/i),
-    h1:pick(/<h1[^>]*>([\s\S]{0,200}?)<\/h1>/i).replace(/<[^>]+>/g,''),
-    og:/property=["']og:/i.test(H),
-    schema:/application\/ld\+json|itemtype=["']https?:\/\/schema\.org/i.test(H),
-    analytics:/googletagmanager\.com|google-analytics\.com|gtag\(/i.test(H),
-    pixel:/connect\.facebook\.net|fbq\(/i.test(H),
-    form:/<form[\s>]/i.test(H),
-    social, whatsapp: wa?wa[1]:'', emails, tels, platform,
-    size: Math.round(H.length/1024)
-  };
+    const r = await fetchT((settings.api||DEFAULT_API)+'?url='+encodeURIComponent(url), {}, 30000);
+    if(!r.ok) return {error:'שרת הביקורת החזיר '+r.status};
+    return await r.json();
+  }catch(e){ return {error: e.name==='AbortError' ? 'פג הזמן (30 שניות) — האתר איטי מאוד או חסום' : 'שגיאת רשת: '+e.message}; }
 }
-
-async function psi(url){
-  const k=getKey();
+async function psiScores(url){
   try{
-    const r=await fetch('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?strategy=mobile'
-      +'&category=performance&category=seo&category=accessibility&category=best-practices'
-      +'&url='+encodeURIComponent(url)+'&key='+encodeURIComponent(k));
-    const j=await r.json();
-    if(j.error) return {error:j.error.message};
-    const c=j.lighthouseResult.categories;
-    return { perf:Math.round((c.performance?.score||0)*100),
-             seo:Math.round((c.seo?.score||0)*100),
-             a11y:Math.round((c.accessibility?.score||0)*100),
-             bp:Math.round((c['best-practices']?.score||0)*100) };
+    const r=await fetchT('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?strategy=mobile&category=performance&category=seo&category=accessibility&category=best-practices&url='
+      +encodeURIComponent(url)+'&key='+encodeURIComponent(settings.key), {}, 70000);
+    const j=await r.json(); if(j.error) return {error:j.error.message};
+    const c=j.lighthouseResult.categories, a=j.lighthouseResult.audits;
+    return { perf:Math.round((c.performance?.score||0)*100), seo:Math.round((c.seo?.score||0)*100),
+      a11y:Math.round((c.accessibility?.score||0)*100), bp:Math.round((c['best-practices']?.score||0)*100),
+      lcp:a['largest-contentful-paint']?.displayValue||'', cls:a['cumulative-layout-shift']?.displayValue||'', tbt:a['total-blocking-time']?.displayValue||'' };
+  }catch(e){ return {error: e.name==='AbortError'?'PageSpeed לא הגיב תוך 70 שניות':e.message}; }
+}
+async function fetchReviews(b){
+  try{
+    const {Place} = await google.maps.importLibrary('places');
+    const p = new Place({id:b.id}); await p.fetchFields({fields:['reviews']});
+    const rv=(p.reviews||[]).map(x=>({rating:x.rating, text:(x.text||'').slice(0,400), when:x.relativePublishTimeDescription||'',
+      time:x.publishTime?new Date(x.publishTime).getTime():0, author:(x.authorAttribution&&x.authorAttribution.displayName)||''}));
+    const latest = rv.reduce((m,x)=>Math.max(m,x.time||0),0);
+    return { list:rv, negative:rv.filter(x=>x.rating<=3).length, latest, daysSince: latest?Math.round((Date.now()-latest)/864e5):null };
   }catch(e){ return {error:e.message}; }
 }
-
+async function analyzeBiz(b){
+  b.astate='run'; renderSoon();
+  const jobs=[];
+  if(b.website) jobs.push(auditSite(b.website).then(s=>b.site=s));
+  if($('useReviews').checked && mapsLoaded) jobs.push(fetchReviews(b).then(r=>b.rev=r));
+  if($('usePsi').checked && b.website) jobs.push(psiScores(b.website).then(p=>b.psi=p));
+  await Promise.all(jobs);
+  b.astate = (b.site&&b.site.error) ? 'err' : 'done'; b.analyzedAt=Date.now();
+  if(leads[b.id]) { leads[b.id].biz = slim(b); saveLeads(); }
+  saveResults(); renderSoon();
+}
+let stopFlag=false;
+$('btnStop').onclick=()=>{ stopFlag=true; log('⏹ עוצר אחרי העסקים שבתהליך...'); };
 $('btnAnalyzeAll').onclick = async ()=>{
-  const list=results.filter(b=>b.website && !b.site);
-  if(!list.length) return log('אין אתרים חדשים לניתוח.');
-  const btn=$('btnAnalyzeAll'); btn.disabled=true;
-  for(let i=0;i<list.length;i++){
-    btn.innerHTML='<span class="sp"></span> מנתח '+(i+1)+'/'+list.length;
-    list[i].site = await analyze(list[i]);
-    if($('usePsi').checked && list[i].site && !list[i].site.error)
-      list[i].site.psi = await psi(list[i].website);
-    render();
-  }
-  btn.disabled=false; btn.innerHTML='🔬 נתח את כל האתרים';
-  log('✔ ניתוח אתרים הסתיים.');
+  const list=results.filter(b=>b.astate!=='done');
+  if(!list.length) return log('כל העסקים כבר נותחו.');
+  stopFlag=false; const btn=$('btnAnalyzeAll'); btn.disabled=true; $('btnStop').classList.remove('hidden');
+  const prog=$('prog'); prog.style.display='block'; let done=0; const CONC=4; let idx=0;
+  const worker = async ()=>{ while(idx<list.length && !stopFlag){ const b=list[idx++]; await analyzeBiz(b); done++;
+    prog.firstElementChild.style.width=(100*done/list.length)+'%'; btn.innerHTML='<span class="sp"></span> מנתח '+done+'/'+list.length; } };
+  await Promise.all(Array.from({length:CONC}, worker));
+  btn.disabled=false; btn.innerHTML='🔬 נתח את כל העסקים'; $('btnStop').classList.add('hidden');
+  setTimeout(()=>prog.style.display='none',1500); drawMarkers();
+  log(stopFlag?'⏹ נעצר. נותחו '+done+' עסקים.':'✔ הביקורת הסתיימה ('+done+' עסקים).');
 };
+window.analyzeOne = async id=>{ const b=results.find(x=>x.id===id); if(b){ await analyzeBiz(b); drawMarkers(); if(dlgBiz.open && curBiz===id) openBiz(id); } };
+
+/* ---------- scoring ---------- */
+function scoreBiz(b){
+  let pres=0; const fix=[]; const add=(t,imp,cat)=>fix.push({t,imp,cat});
+  // Google profile — 45
+  if(b.phone) pres+=5; else add('אין מספר טלפון בכרטיס גוגל',15,'gbp');
+  if(b.hours.length) pres+=5; else add('לא הוגדרו שעות פתיחה בכרטיס גוגל',10,'gbp');
+  if(b.photos>=5) pres+=5; else if(b.photos>=1){ pres+=2; add('רק '+b.photos+' תמונות בכרטיס גוגל — כרטיסים עם 10+ תמונות מקבלים יותר פניות',10,'gbp'); } else add('אין תמונות בכרטיס גוגל',15,'gbp');
+  if(b.rating>=4.5) pres+=12; else if(b.rating>=4.0) pres+=9;
+  else if(b.rating>=3.5){ pres+=5; add('דירוג בינוני ('+b.rating+') — ניהול מוניטין ישפר המרות',15,'rev'); }
+  else if(b.rating>0){ pres+=1; add('דירוג נמוך ('+b.rating+') — דורש טיפול מוניטין דחוף',25,'rev'); }
+  else add('אין דירוג בכלל — הכרטיס כמעט בלתי נראה',20,'rev');
+  if(b.reviews>=100) pres+=13; else if(b.reviews>=50) pres+=10; else if(b.reviews>=20) pres+=6;
+  else if(b.reviews>=5){ pres+=3; add('רק '+b.reviews+' ביקורות — מעט מדי מול המתחרים',18,'rev'); }
+  else add('כמעט אין ביקורות ('+b.reviews+') — נדרש מנגנון איסוף ביקורות',25,'rev');
+  if(b.status==='OPERATIONAL') pres+=5; else if(b.status) add('סטטוס העסק בגוגל: '+b.status,5,'gbp');
+  if(b.rev && !b.rev.error){
+    if(b.rev.daysSince!=null && b.rev.daysSince>90) add('הביקורת האחרונה לפני '+b.rev.daysSince+' ימים — אין זרם ביקורות שוטף',12,'rev');
+    if(b.rev.negative>=2) add(b.rev.negative+' מתוך 5 הביקורות האחרונות שליליות (3 כוכבים ומטה)',15,'rev');
+  }
+  // Website — 35
+  if(!b.website){ add('אין אתר אינטרנט כלל — ההזדמנות הגדולה ביותר',35,'web'); }
+  else {
+    pres+=10;
+    const s=b.site;
+    if(s && !s.error){
+      if(s.https) pres+=3; else add('האתר לא מאובטח (ללא HTTPS) — כרום מסמן אותו כ״לא בטוח״',15,'web');
+      if(s.mobile) pres+=5; else add('האתר לא מותאם למובייל — רוב הגולשים בנייד',25,'web');
+      if(s.title && s.title.length>=15 && s.title.length<=70) pres+=2; else add(s.title?'כותרת האתר לא באורך אופטימלי ('+s.title.length+' תווים)':'אין כותרת (title) לאתר',s.title?6:15,'seo');
+      if(s.desc) pres+=2; else add('אין תיאור מטא (description) לגוגל',10,'seo');
+      if(s.h1) pres+=1; else add('אין כותרת H1 בדף הבית',6,'seo');
+      if(s.schema) pres+=2; else add('אין נתונים מובנים (Schema) — לא יופיע בתוצאות עשירות',7,'seo');
+      if(s.sitemap) pres+=1; else add('אין sitemap.xml — גוגל מתקשה לאנדקס',5,'seo');
+      if(s.accessibility) pres+=3; else add('לא נמצאה הצהרת נגישות / רכיב נגישות — חובה לפי חוק שוויון זכויות, חשיפה לתביעות',20,'legal');
+      if(s.form || (s.whatsapp&&s.whatsapp.length)) pres+=3; else add('אין טופס השארת פרטים ואין כפתור וואטסאפ באתר',15,'conv');
+      if(!(s.whatsapp&&s.whatsapp.length)) add('אין כפתור וואטסאפ — ערוץ ההמרה מספר 1 בישראל',12,'conv');
+      if(s.loadMs>4000) add('דף הבית נטען לאט ('+(s.loadMs/1000).toFixed(1)+' שניות)',10,'web');
+      if(s.copyrightYear && s.copyrightYear < new Date().getFullYear()-2) add('שנת זכויות יוצרים באתר '+s.copyrightYear+' — האתר נראה לא מתוחזק',6,'web');
+      if(s.imagesNoAlt>3) add(s.imagesNoAlt+' תמונות ללא טקסט חלופי (alt) — פוגע בנגישות וב-SEO',5,'seo');
+    } else if(s && s.error) add('האתר לא נגיש לבדיקה: '+s.error,15,'web');
+    if(b.psi && !b.psi.error){ if(b.psi.perf<50) add('ציון מהירות מובייל של גוגל: '+b.psi.perf+'/100',15,'web'); else if(b.psi.perf<80) add('ציון מהירות מובייל בינוני: '+b.psi.perf+'/100',7,'web'); }
+  }
+  // Marketing — 20
+  const s=b.site;
+  if(s && !s.error){
+    const tk=s.tech||{};
+    if(tk.ga4||tk.gtm) pres+=5; else add('אין Google Analytics / Tag Manager — העסק לא יודע מאיפה מגיעים לקוחות',12,'mkt');
+    if(tk.metaPixel) pres+=5; else add('אין Meta Pixel — אין אפשרות לרימרקטינג בפייסבוק ואינסטגרם',12,'mkt');
+    const soc=Object.keys(socialOf(b)).length;
+    if(soc>=2) pres+=5; else if(soc===1){ pres+=2; add('נוכחות ברשת חברתית אחת בלבד',8,'soc'); } else add('לא נמצאה נוכחות ברשתות חברתיות (לא מקושרות מהאתר)',10,'soc');
+    if(!socialOf(b).instagram) add('אין חשבון אינסטגרם מקושר — ערוץ מרכזי לעסקים מקומיים',6,'soc');
+    if((s.chat||[]).length || (s.booking||[]).length) pres+=3; else add('אין צ׳אט או מערכת קביעת תורים אונליין',8,'conv');
+    if(s.emails&&s.emails.length) pres+=2; else add('אין כתובת מייל גלויה באתר',4,'conv');
+  } else if(b.website && !s) { pres+=8; } // not analyzed yet — neutral
+  else if(!b.website){ const soc=Object.keys(socialOf(b)).length; if(soc) pres+=Math.min(6,soc*3); else add('לא נמצאה נוכחות ברשתות חברתיות',10,'soc'); }
+  pres=Math.max(0,Math.min(100,Math.round(pres)));
+  fix.sort((a,c)=>c.imp-a.imp);
+  return {presence:pres, opp:100-pres, fix};
+}
+
+/* ---------- leads / pipeline ---------- */
+const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate});
+function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
+function setStage(id,st){
+  const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
+  leads[id]=Object.assign({created:Date.now()}, leads[id], {stage:st, updated:Date.now(), biz:slim(b)});
+  if(st==='new' && !leads[id].note && !leads[id].due) delete leads[id];
+  saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard();
+}
+window.setStage=setStage;
+function updateLeadsCount(){ const n=Object.values(leads).filter(l=>l.stage&&l.stage!=='new'&&l.stage!=='out').length; $('leadsCount').textContent=n?'('+n+')':''; }
+function findBiz(id){ return results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); }
 
 /* ---------- render ---------- */
-function statusOf(id){ return (leads[id]&&leads[id].status)||'new'; }
-function setStatus(id,s){ leads[id]=Object.assign({},leads[id],{status:s}); saveLeads(); render(); }
-
+let rTimer=null; function renderSoon(){ clearTimeout(rTimer); rTimer=setTimeout(render,120); }
 function render(){
   const f=$('filt').value, s=$('sort').value;
   let list=results.map(b=>Object.assign(b,{_s:scoreBiz(b)}));
   if(f==='nosite') list=list.filter(b=>!b.website);
-  if(f==='weak')   list=list.filter(b=>b._s.opp>=50);
+  if(f==='weak') list=list.filter(b=>b._s.opp>=50);
   if(f==='lowrev') list=list.filter(b=>b.reviews<20);
-  const cmp={opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating,
-    reviews:(a,b)=>b.reviews-a.reviews, dist:(a,b)=>(a.dist||0)-(b.dist||0),
-    name:(a,b)=>a.name.localeCompare(b.name,'he')};
+  if(f==='nopixel') list=list.filter(b=>b.site&&!b.site.error&&!(b.site.tech&&(b.site.tech.metaPixel||b.site.tech.ga4||b.site.tech.gtm)));
+  if(f==='noaccess') list=list.filter(b=>b.site&&!b.site.error&&!b.site.accessibility);
+  if(f==='nosocial') list=list.filter(b=>!Object.keys(socialOf(b)).length);
+  const cmp={opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
+    dist:(a,b)=>(a.dist||0)-(b.dist||0), name:(a,b)=>a.name.localeCompare(b.name,'he')};
   list.sort(cmp[s]);
-
   $('stTotal').textContent=results.length;
   $('stNoSite').textContent=results.filter(b=>!b.website).length;
-  $('stHot').textContent=list.filter(b=>b._s.opp>=70).length;
+  $('stHot').textContent=results.filter(b=>scoreBiz(b).opp>=70).length;
   $('stAvg').textContent=results.length?Math.round(results.reduce((t,b)=>t+scoreBiz(b).opp,0)/results.length):0;
   $('empty').style.display=list.length?'none':'block';
-
-  $('grid').innerHTML=list.map(b=>{
-    const sc=b._s, cls=sc.opp>=70?'s-hi':sc.opp>=40?'s-mid':'s-low', st=statusOf(b.id);
-    const chips=[
-      b.website?'<span class="chip ok">אתר ✓</span>':'<span class="chip no">אין אתר</span>',
-      b.phone?'<span class="chip ok">טלפון ✓</span>':'<span class="chip no">אין טלפון</span>',
-      b.hours.length?'<span class="chip ok">שעות ✓</span>':'<span class="chip w">אין שעות</span>',
-      b.photos?'<span class="chip ok">'+b.photos+' תמונות</span>':'<span class="chip no">אין תמונות</span>',
-      b.site&&b.site.whatsapp?'<span class="chip ok">וואטסאפ ✓</span>':'',
-      b.site&&b.site.social&&b.site.social.length?'<span class="chip ok">'+b.site.social.length+' רשתות</span>':'',
-      b.site&&b.site.platform?'<span class="chip">'+esc(b.site.platform)+'</span>':''
-    ].join('');
-    return `<div class="biz">
-      <div class="score ${cls}">${sc.opp}<small>הזדמנות</small></div>
-      <h4>${esc(b.name)}</h4>
-      <div class="meta">
-        ${esc(b.type)}${b.dist!=null?' · '+(b.dist>=1000?(b.dist/1000).toFixed(1)+' ק״מ':b.dist+' מ׳'):''}<br>
-        ${esc(b.address)}<br>
-        ${b.phone?'📞 <b>'+esc(b.phone)+'</b><br>':''}
-        ⭐ ${b.rating||'—'} (${b.reviews} ביקורות)
-      </div>
-      <div class="chips">${chips}</div>
-      <div class="acts">
-        <button onclick="openBiz('${b.id}')">📋 כרטיס מלא</button>
-        ${b.website?`<a href="${esc(b.website)}" target="_blank">🌐 אתר</a>`:''}
-        ${b.maps?`<a href="${esc(b.maps)}" target="_blank">🗺️ מפות</a>`:''}
-        ${b.phone?`<a href="tel:${esc(b.phone.replace(/\s/g,''))}">📞 חייג</a>`:''}
-        ${b.website?`<button onclick="analyzeOne('${b.id}',this)">🔬 נתח אתר</button>`:''}
-      </div>
-      <div class="status-bar">
-        <button class="${st==='new'?'st-new':''}" onclick="setStatus('${b.id}','new')">חדש</button>
-        <button class="${st==='hot'?'st-hot':''}" onclick="setStatus('${b.id}','hot')">🔥 חם</button>
-        <button class="${st==='done'?'st-done':''}" onclick="setStatus('${b.id}','done')">✓ טופל</button>
-        <button class="${st==='out'?'st-out':''}" onclick="setStatus('${b.id}','out')">✕ לא רלוונטי</button>
-      </div>
-    </div>`;
-  }).join('');
+  $('grid').innerHTML=list.map(cardHtml).join('');
+}
+function cardHtml(b){
+  const sc=b._s||scoreBiz(b), cls=sc.opp>=70?'s-hi':sc.opp>=40?'s-mid':'s-low', st=stageOf(b.id), s=b.site;
+  const chip=(ok,t,warn)=>`<span class="chip ${ok?'ok':(warn?'w':'no')}">${ok?'✓ ':''}${t}</span>`;
+  let chips=[ b.website?chip(1,'אתר'):chip(0,'אין אתר'), b.phone?chip(1,'טלפון'):chip(0,'אין טלפון'),
+    b.hours.length?chip(1,'שעות'):chip(0,'אין שעות',1), b.photos?chip(1,b.photos+' תמונות'):chip(0,'אין תמונות') ];
+  if(b.astate==='run') chips.push('<span class="chip run"><span class="sp" style="width:10px;height:10px"></span> מנתח...</span>');
+  else if(s && s.error) chips.push('<span class="chip w">⚠️ האתר לא נבדק</span>');
+  else if(s){ const t=s.tech||{};
+    chips.push(chip(s.mobile,'מובייל'), chip(t.metaPixel,'Pixel'), chip(t.ga4||t.gtm,'Analytics'),
+      chip(s.whatsapp&&s.whatsapp.length,'וואטסאפ'), chip(s.accessibility,'נגישות'));
+    const n=Object.keys(s.social||{}).length; if(n) chips.push(chip(1,n+' רשתות'));
+    if(s.platform) chips.push(`<span class="chip">${esc(s.platform)}</span>`); }
+  { const pr=presenceOf(b); chips.push(`<span class="chip ${pr.count>=5?'ok':pr.count>=3?'w':'no'}">📡 ${pr.count}/${pr.total} ערוצים</span>`); }
+  if(b.rev && !b.rev.error && b.rev.negative>=2) chips.push(`<span class="chip no">${b.rev.negative} ביקורות שליליות</span>`);
+  return `<div class="biz">
+    <div class="score ${cls}">${sc.opp}<small>הזדמנות</small></div>
+    <h4>${esc(b.name)}</h4>
+    <div class="meta">${esc(b.type)}${b.dist!=null?' · '+fmtDist(b.dist):''}<br>${esc(b.address)}<br>
+      ${b.phone?'📞 <b>'+esc(b.phone)+'</b><br>':''}⭐ ${b.rating||'—'} (${b.reviews} ביקורות)</div>
+    <div class="chips">${chips.join('')}</div>
+    ${sc.fix[0]?`<div class="hint">🎯 <b style="color:var(--gold)">${esc(sc.fix[0].t)}</b></div>`:''}
+    <div class="acts">
+      <button onclick="openBiz('${b.id}')">📋 כרטיס מלא</button>
+      <button onclick="analyzeOne('${b.id}')" ${b.astate==='run'?'disabled':''}>🔬 ${b.astate==='done'?'נתח שוב':'נתח'}</button>
+      <button onclick="openReport('${b.id}')">📄 דוח</button>
+      <button onclick="openOutreach('${b.id}')">✉️ פנייה</button>
+      ${b.maps?`<a href="${esc(b.maps)}" target="_blank">🗺️</a>`:''}
+      ${b.website?`<a href="${esc(b.website)}" target="_blank">🌐</a>`:''}
+      <select class="stage-sel" onchange="setStage('${b.id}',this.value)">${STAGES.map(x=>`<option value="${x.id}" ${x.id===st?'selected':''}>${x.t}</option>`).join('')}</select>
+    </div></div>`;
 }
 $('filt').onchange=render; $('sort').onchange=render;
 
-window.analyzeOne = async (id,btn)=>{
-  const b=results.find(x=>x.id===id); if(!b) return;
-  btn.innerHTML='<span class="sp"></span>'; btn.disabled=true;
-  b.site=await analyze(b);
-  if($('usePsi').checked && b.site && !b.site.error) b.site.psi=await psi(b.website);
+/* ---------- business dialog ---------- */
+let curBiz=null;
+window.openBiz = id=>{
+  const b=findBiz(id); if(!b) return; curBiz=id;
+  const sc=scoreBiz(b), L=leads[id]||{}, s=b.site, yn=(v,t)=>`<span class="chip ${v?'ok':'no'}">${v?'✓':'✕'} ${t}</span>`;
+  $('bizTitle').textContent=b.name;
+  let site='';
+  if(s && s.error) site=`<div class="sec"><h5>🌐 ביקורת האתר</h5><div class="hint">⚠️ ${esc(s.error)}</div></div>`;
+  else if(s){ const t=s.tech||{};
+    site=`<div class="sec"><h5>🌐 ביקורת האתר</h5>
+      <div class="chips" style="margin-bottom:10px">${yn(s.https,'HTTPS')} ${yn(s.httpRedirectsToHttps!==false,'הפניה ל-HTTPS')} ${yn(s.mobile,'מובייל')} ${yn(s.title,'כותרת')} ${yn(s.desc,'תיאור מטא')} ${yn(s.h1,'H1')} ${yn(s.og,'תצוגה ברשתות')} ${yn(s.schema,'Schema')} ${yn(s.sitemap,'Sitemap')} ${yn(s.robots,'robots.txt')} ${yn(s.favicon,'Favicon')} ${yn(s.accessibility,'נגישות')} ${yn(s.privacy,'מדיניות פרטיות')}</div>
+      <div class="kv">
+        <div>כותרת</div><div>${esc(s.title)||'—'}</div><div>תיאור</div><div>${esc(s.desc)||'—'}</div><div>H1</div><div>${esc(s.h1)||'—'}</div>
+        <div>פלטפורמה</div><div>${esc(s.platform)||'לא זוהתה'}</div><div>זמן טעינה</div><div>${s.loadMs?(s.loadMs/1000).toFixed(1)+' שניות':'—'} · ${s.kb||'?'} KB</div>
+        <div>© שנה באתר</div><div>${s.copyrightYear||'—'}</div><div>תמונות</div><div>${s.images||0} (${s.imagesNoAlt||0} בלי alt)</div>
+      </div></div>
+      <div class="sec"><h5>📈 שיווק ומעקב</h5>
+        <div class="chips">${yn(t.ga4,'Google Analytics 4')} ${yn(t.gtm,'Tag Manager')} ${yn(t.metaPixel,'Meta Pixel')} ${yn(t.tiktokPixel,'TikTok Pixel')} ${yn(t.googleAds,'Google Ads')} ${yn(t.linkedinInsight,'LinkedIn Insight')} ${yn(t.hotjar||t.clarity,'Heatmap')} ${yn(s.newsletter,'ניוזלטר')} ${yn(s.reviewsWidget,'ווידג׳ט ביקורות')} ${yn(s.video,'וידאו')}</div>
+        <div class="kv" style="margin-top:10px"><div>צ׳אט</div><div>${(s.chat||[]).join(', ')||'— אין —'}</div><div>קביעת תורים</div><div>${(s.booking||[]).join(', ')||'— אין —'}</div><div>טופס</div><div>${s.form?'יש':'אין'}</div></div></div>
+      <div class="sec"><h5>📇 פרטי קשר שנמצאו באתר</h5><div class="kv">
+        <div>וואטסאפ</div><div>${(s.whatsapp||[]).map(w=>`<a href="https://wa.me/${esc(w)}" target="_blank">${esc(w)}</a>`).join(', ')||'—'}</div>
+        <div>מיילים</div><div>${(s.emails||[]).map(e=>`<a href="mailto:${esc(e)}">${esc(e)}</a>`).join('<br>')||'— לא נמצאו —'}</div>
+        <div>טלפונים</div><div>${(s.tels||[]).map(esc).join(', ')||'—'}</div></div></div>`;
+  }
+  let psiH='';
+  if(b.psi) psiH = b.psi.error?`<div class="sec"><h5>⚡ PageSpeed</h5><div class="hint">${esc(b.psi.error)}</div></div>`:
+    `<div class="sec"><h5>⚡ Google PageSpeed (מובייל)</h5><div class="chips">
+      <span class="chip ${b.psi.perf>=80?'ok':b.psi.perf>=50?'w':'no'}">מהירות ${b.psi.perf}</span><span class="chip ${b.psi.seo>=80?'ok':'w'}">SEO ${b.psi.seo}</span>
+      <span class="chip ${b.psi.a11y>=80?'ok':'w'}">נגישות ${b.psi.a11y}</span><span class="chip ${b.psi.bp>=80?'ok':'w'}">תקינות ${b.psi.bp}</span></div>
+      <div class="hint" style="margin-top:6px">LCP ${esc(b.psi.lcp)} · CLS ${esc(b.psi.cls)} · TBT ${esc(b.psi.tbt)}</div></div>`;
+  let revH='';
+  if(b.rev && !b.rev.error) revH=`<div class="sec"><h5>⭐ ביקורות אחרונות בגוגל</h5>
+    <div class="hint" style="margin-bottom:8px">${b.rev.list.length} אחרונות · ${b.rev.negative} שליליות · האחרונה: ${b.rev.daysSince!=null?'לפני '+b.rev.daysSince+' ימים':'—'}</div>
+    ${b.rev.list.map(r=>`<div style="border-top:1px solid var(--line);padding:7px 0;font-size:13px"><b style="color:${r.rating<=3?'var(--bad)':'var(--good)'}">${'★'.repeat(r.rating||0)}</b> <span class="hint">${esc(r.when)} · ${esc(r.author)}</span><br>${esc(r.text)}</div>`).join('')}</div>`;
+  $('bizBody').innerHTML=`
+    ${b.photoUrl?`<img src="${esc(b.photoUrl)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px">`:''}
+    <div class="sec"><h5>🎯 ציון הזדמנות</h5>
+      <div style="display:flex;align-items:center;gap:14px"><div style="font-size:40px;font-weight:800">${sc.opp}</div>
+      <div style="flex:1"><div class="bar"><i style="width:${sc.opp}%"></i></div>
+      <div class="hint">נוכחות דיגיטלית: <b>${sc.presence}/100</b>${b.astate!=='done'?' · <b style="color:var(--warn)">עוד לא בוצעה ביקורת מעמיקה</b> — <a href="#" onclick="analyzeOne(\'${b.id}\');return false">נתח עכשיו</a>':''}</div></div></div>
+      ${sc.fix.length?`<ul class="fix">${sc.fix.map(f=>`<li>${esc(f.t)} — <b>פוטנציאל ${f.imp}%</b></li>`).join('')}</ul>`:'<div class="hint">נוכחות דיגיטלית חזקה — פחות מתאים כליד.</div>'}
+    </div>
+    <div class="sec"><h5>📍 פרופיל גוגל</h5><div class="kv">
+      <div>קטגוריה</div><div>${esc(b.type)}</div><div>כתובת</div><div>${esc(b.address)}</div>
+      <div>טלפון</div><div>${b.phone?`<a href="tel:${esc(b.phone.replace(/\s/g,''))}">${esc(b.phone)}</a> · <a href="https://wa.me/${waNum(b.phone)}" target="_blank">וואטסאפ</a>`:'— אין —'}</div>
+      <div>אתר</div><div>${b.website?`<a href="${esc(b.website)}" target="_blank">${esc(b.website)}</a>`:'— אין —'}</div>
+      <div>דירוג</div><div>⭐ ${b.rating||'—'} · ${b.reviews} ביקורות</div><div>תמונות</div><div>${b.photos}</div>
+      <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
+      <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
+    ${presenceHtml(b)}${revH}${site}${psiH}
+    <div class="sec"><h5>📋 ניהול הליד</h5>
+      <div class="row row2"><div><label>שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
+        <div><label>תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
+      <div class="row"><label>הערות</label><textarea id="ldNote" rows="3">${esc(L.note||'')}</textarea></div>
+      <div class="toolbar"><button class="primary" onclick="saveLead('${id}')">שמור ליד</button>
+        ${settings.hook?`<button onclick="sendHook(['${id}'])">🔗 שלח ל-Webhook</button>`:''}
+        <button onclick="analyzeOne('${id}')">🔬 ${b.astate==='done'?'נתח שוב':'נתח עכשיו'}</button></div></div>`;
+  if(!dlgBiz.open) dlgBiz.showModal();
+};
+function gSearch(q){ return 'https://www.google.com/search?q='+encodeURIComponent(q); }
+function presenceHtml(b){
+  const pr=presenceOf(b), city=(b.address||'').split(',').slice(-2,-1)[0]||'';
+  const rows=pr.channels.map(c=>{
+    const n=NETS.find(x=>x.k===c.net);
+    const auto = n && b.site && !b.site.error && b.site.social && b.site.social[n.k];
+    return `<tr><td style="width:28px;font-weight:800;color:${c.ok?'var(--good)':'var(--bad)'}">${c.ok?'✓':'✕'}</td>
+      <td>${n?n.ico+' ':''}${c.t}</td>
+      <td>${c.url?`<a href="${esc(c.url)}" target="_blank">${esc(c.url.replace(/^https?:\/\/(www\.)?/,'').slice(0,45))}</a>${n&&!auto?' <span class="hint">(ידני)</span>':''}`:'<span class="hint">לא נמצא</span>'}</td>
+      <td style="white-space:nowrap">${n?`<a href="${gSearch('"'+b.name+'" '+city+' site:'+n.site)}" target="_blank" title="חפש בגוגל">🔎</a>
+        <a href="#" onclick="editSocial('${b.id}','${n.k}');return false" title="הזן קישור ידנית">✏️</a>`:''}</td></tr>`; }).join('');
+  return `<div class="sec"><h5>📡 נוכחות דיגיטלית ורשתות חברתיות — ${pr.count} מתוך ${pr.total} ערוצים</h5>
+    <div class="bar"><i style="width:${Math.round(100*pr.count/pr.total)}%"></i></div>
+    <table style="width:100%;font-size:13.5px;border-collapse:collapse;margin-top:8px">${rows}</table>
+    <div class="hint" style="margin-top:8px">חשבונות שמקושרים מהאתר מזוהים אוטומטית בביקורת. לחשבונות שלא מקושרים: 🔎 פותח חיפוש גוגל ממוקד, ✏️ שומר את הקישור שמצאת — והציון מתעדכן.
+    ${!b.website||b.astate!=='done'?'<br><b>טיפ:</b> הרץ «🔬 נתח» כדי לזהות אוטומטית את הרשתות שמקושרות מהאתר.':''}</div></div>`;
+}
+window.editSocial = (id,k)=>{
+  const b=findBiz(id); const cur=(manualSocial[id]||{})[k] || (socialOf(b)[k]||'');
+  const v=prompt('הדבק קישור ל-'+NETS.find(n=>n.k===k).t+' של '+b.name+' (ריק = מחיקה):', cur);
+  if(v===null) return;
+  manualSocial[id]=manualSocial[id]||{};
+  if(v.trim()) manualSocial[id][k]=v.trim(); else delete manualSocial[id][k];
+  store.set('lr_social', manualSocial);
+  if(leads[id]) { leads[id].biz=slim(b); saveLeads(); }
   render(); openBiz(id);
 };
+window.saveLead = id=>{ const b=findBiz(id);
+  leads[id]=Object.assign({created:Date.now()}, leads[id], {stage:$('ldStage').value, due:$('ldDue').value, note:$('ldNote').value, updated:Date.now(), biz:slim(b)});
+  if(leads[id].stage==='new' && !leads[id].note && !leads[id].due) delete leads[id];
+  saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard(); log('הליד נשמר.'); };
+$('bizReport').onclick=()=>curBiz&&openReport(curBiz);
+$('bizOutreach').onclick=()=>curBiz&&openOutreach(curBiz);
 
-window.openBiz = id=>{
-  const b=results.find(x=>x.id===id); if(!b) return;
-  const sc=scoreBiz(b);
-  const note=(leads[id]&&leads[id].note)||'';
-  const s=b.site;
-  const yn=(v,t)=> v?`<span class="chip ok">✓ ${t}</span>`:`<span class="chip no">✕ ${t}</span>`;
-  $('bizTitle').textContent=b.name;
-  $('bizBody').innerHTML=`
-  ${b.photoUrl?`<img src="${esc(b.photoUrl)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px">`:''}
-  <div class="sec">
-    <h5>ציון הזדמנות עסקית</h5>
-    <div style="display:flex;align-items:center;gap:14px">
-      <div style="font-size:40px;font-weight:800">${sc.opp}</div>
-      <div style="flex:1">
-        <div class="bar"><i style="width:${sc.opp}%"></i></div>
-        <div class="hint">נוכחות דיגיטלית קיימת: <b>${sc.presence}/100</b> · ככל שהציון גבוה יותר — יש לך יותר מה למכור לעסק הזה.</div>
-      </div>
-    </div>
-    ${sc.fix.length?`<ul class="fix">${sc.fix.map(f=>`<li>${esc(f.t)} — <b>פוטנציאל שיפור ${f.imp}%</b></li>`).join('')}</ul>`
-      :'<div class="hint" style="margin-top:8px">הנוכחות הדיגיטלית של העסק הזה חזקה. פחות מתאים כליד.</div>'}
-  </div>
+/* ---------- white-label audit report ---------- */
+function reportHtml(b){
+  const sc=scoreBiz(b), s=b.site||{}, t=s.tech||{}, c=settings.color||'#4f7cff', today=new Date().toLocaleDateString('he-IL'), pr=presenceOf(b);
+  const grade = sc.presence>=80?'מצוין':sc.presence>=60?'טוב':sc.presence>=40?'בינוני':'חלש';
+  const row=(ok,label,note)=>`<tr><td class="st ${ok===null?'na':ok?'ok':'bad'}">${ok===null?'—':ok?'✓':'✕'}</td><td>${label}</td><td class="n">${note||''}</td></tr>`;
+  const analyzed = b.site && !b.site.error;
+  const cats={gbp:'פרופיל גוגל',rev:'ביקורות ומוניטין',web:'אתר',seo:'קידום בגוגל (SEO)',legal:'נגישות וחוק',conv:'המרת גולשים ללקוחות',mkt:'שיווק ומעקב',soc:'רשתות חברתיות'};
+  const sections = Object.keys(cats).map(k=>{ const items=sc.fix.filter(f=>f.cat===k); if(!items.length) return '';
+    return `<h3>${cats[k]}</h3><ul>${items.map(f=>`<li>${esc(f.t)} <span class="imp">פוטנציאל ${f.imp}%</span></li>`).join('')}</ul>`; }).join('');
+  const contact=[settings.person, settings.phone, settings.email].filter(Boolean).map(esc).join(' · ');
+  const cta = settings.link ? `<a class="cta" href="${esc(settings.link)}">לתיאום שיחת ייעוץ חינם ←</a>` :
+    (settings.phone?`<a class="cta" href="https://wa.me/${waNum(settings.phone)}?text=${encodeURIComponent('היי, קיבלתי את דוח הביקורת של '+b.name+' ואשמח לשמוע עוד')}">לשיחה בוואטסאפ ←</a>`:'');
+  return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>דוח נוכחות דיגיטלית — ${esc(b.name)}</title>
+<style>
+body{margin:0;font-family:"Segoe UI",Rubik,Arial,sans-serif;background:#f4f6fb;color:#1b2440;line-height:1.7}
+.page{max-width:860px;margin:0 auto;background:#fff;padding:36px 40px 50px}
+.top{display:flex;align-items:center;gap:16px;border-bottom:4px solid ${c};padding-bottom:16px;margin-bottom:24px}
+.top img{max-height:56px;max-width:180px}.brand{font-weight:800;font-size:18px;color:${c}}.tagline{font-size:13px;color:#667}
+.sp{flex:1}.date{font-size:12px;color:#889;text-align:left}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;color:${c};margin:30px 0 10px;border-right:4px solid ${c};padding-right:10px}
+h3{font-size:15px;margin:18px 0 6px}
+.hero{display:flex;gap:24px;align-items:center;background:#f7f8fd;border:1px solid #e3e7f3;border-radius:14px;padding:20px;margin:18px 0}
+.gauge{width:120px;height:120px;border-radius:50%;background:conic-gradient(${c} ${sc.presence*3.6}deg,#e5e8f3 0);display:flex;align-items:center;justify-content:center;flex:0 0 120px}
+.gauge div{width:92px;height:92px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:28px}
+.gauge small{font-size:11px;color:#778;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}td{border-bottom:1px solid #edf0f7;padding:8px 6px;vertical-align:top}
+td.st{width:32px;text-align:center;font-weight:800}.ok{color:#15a86b}.bad{color:#e04848}.na{color:#aab}td.n{color:#667;font-size:13px}
+ul{padding-right:20px;margin:6px 0}li{margin:5px 0}.imp{background:#fff4d6;color:#8a6100;font-size:11px;padding:2px 8px;border-radius:99px;margin-right:6px;white-space:nowrap}
+.cta{display:inline-block;background:${c};color:#fff;text-decoration:none;padding:14px 26px;border-radius:12px;font-weight:700;font-size:17px;margin-top:10px}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid #e3e7f3;font-size:13px;color:#667}
+.note{font-size:12px;color:#889}
+.toolbar{position:fixed;bottom:16px;left:16px;display:flex;gap:8px;z-index:9}.toolbar button{font:inherit;padding:8px 14px;border-radius:10px;border:1px solid #ccd;background:#fff;cursor:pointer}
+@media print{.toolbar{display:none}body{background:#fff}.page{padding:0}}
+</style></head><body>
+<div class="toolbar"><button onclick="window.print()">🖨️ שמור כ-PDF</button></div>
+<div class="page">
+ <div class="top">${settings.logo?`<img src="${esc(settings.logo)}" alt="">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="tagline">${esc(settings.tagline||'')}</div></div><div class="sp"></div><div class="date">הופק: ${today}</div></div>
+ <h1>דוח נוכחות דיגיטלית</h1><div style="font-size:18px;color:#445">${esc(b.name)} · ${esc(b.address)}</div>
+ <div class="hero"><div class="gauge"><div>${sc.presence}<small>מתוך 100</small></div></div>
+  <div><b style="font-size:18px">הנוכחות הדיגיטלית של העסק: ${grade}</b><br>
+  מצאנו <b>${sc.fix.length}</b> נקודות לשיפור. הבולטות: ${sc.fix.slice(0,3).map(f=>esc(f.t)).join(' · ')||'—'}.</div></div>
 
-  <div class="sec"><h5>פרטי העסק</h5>
-    <div class="kv">
-      <div>שם</div><div>${esc(b.name)}</div>
-      <div>קטגוריה</div><div>${esc(b.type)}</div>
-      <div>כתובת</div><div>${esc(b.address)}</div>
-      <div>מרחק מהמרכז</div><div>${b.dist!=null?(b.dist>=1000?(b.dist/1000).toFixed(2)+' ק״מ':b.dist+' מ׳'):'—'}</div>
-      <div>טלפון</div><div>${b.phone?`<a href="tel:${esc(b.phone.replace(/\s/g,''))}">${esc(b.phone)}</a> · <a href="https://wa.me/${esc(b.phone.replace(/\D/g,'').replace(/^0/,'972'))}" target="_blank">וואטסאפ</a>`:'— אין —'}</div>
-      <div>אתר</div><div>${b.website?`<a href="${esc(b.website)}" target="_blank">${esc(b.website)}</a>`:'— אין —'}</div>
-      <div>דירוג</div><div>⭐ ${b.rating||'—'} מתוך ${b.reviews} ביקורות</div>
-      <div>סטטוס</div><div>${esc(b.status||'—')}</div>
-      <div>תמונות בגוגל</div><div>${b.photos}</div>
-      <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
-      <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח כרטיס בגוגל</a>`:'—'}</div>
-      <div>תגיות</div><div>${b.types.slice(0,8).map(esc).join(', ')}</div>
-    </div>
-  </div>
-
-  ${s? (s.error?`<div class="sec"><h5>ניתוח אתר</h5><div class="hint">${esc(s.error)}</div></div>`:`
-  <div class="sec"><h5>ניתוח האתר</h5>
-    <div class="chips" style="margin-bottom:10px">
-      ${yn(s.https,'HTTPS')} ${yn(s.mobile,'מותאם מובייל')} ${yn(s.title,'כותרת SEO')}
-      ${yn(s.desc,'תיאור מטא')} ${yn(s.h1,'כותרת H1')} ${yn(s.og,'תצוגה ברשתות')}
-      ${yn(s.schema,'Schema.org')} ${yn(s.analytics,'Analytics')} ${yn(s.pixel,'Meta Pixel')}
-      ${yn(s.form,'טופס יצירת קשר')} ${yn(s.whatsapp,'כפתור וואטסאפ')}
-      ${s.platform?`<span class="chip">${esc(s.platform)}</span>`:''}
-    </div>
-    <div class="kv">
-      <div>כותרת</div><div>${esc(s.title)||'—'}</div>
-      <div>תיאור</div><div>${esc(s.desc)||'—'}</div>
-      <div>H1</div><div>${esc(s.h1)||'—'}</div>
-      <div>רשתות חברתיות</div><div>${s.social.length?s.social.map(x=>`<a href="${esc(x.url)}" target="_blank">${x.net}</a>`).join(' · '):'— לא נמצאו —'}</div>
-      <div>וואטסאפ באתר</div><div>${s.whatsapp?esc(s.whatsapp):'—'}</div>
-      <div>כתובות מייל</div><div>${s.emails.length?s.emails.map(e=>`<a href="mailto:${esc(e)}">${esc(e)}</a>`).join('<br>'):'— לא נמצאו —'}</div>
-      <div>טלפונים באתר</div><div>${s.tels.length?s.tels.map(esc).join('<br>'):'—'}</div>
-      <div>משקל דף הבית</div><div>${s.size} KB</div>
-    </div>
-    ${s.psi? (s.psi.error?`<div class="hint">PageSpeed: ${esc(s.psi.error)}</div>`:`
-      <div class="chips">
-        <span class="chip ${s.psi.perf>=70?'ok':s.psi.perf>=50?'w':'no'}">מהירות ${s.psi.perf}</span>
-        <span class="chip ${s.psi.seo>=70?'ok':'w'}">SEO ${s.psi.seo}</span>
-        <span class="chip ${s.psi.a11y>=70?'ok':'w'}">נגישות ${s.psi.a11y}</span>
-        <span class="chip ${s.psi.bp>=70?'ok':'w'}">תקינות ${s.psi.bp}</span>
-      </div>`):''}
-  </div>`) : (b.website?`<div class="sec"><h5>ניתוח האתר</h5>
-      <button onclick="dlgBiz.close();analyzeOne('${b.id}',this)">🔬 הרץ ניתוח עכשיו</button></div>`:'')}
-
-  <div class="sec"><h5>הערות לליד</h5>
-    <textarea id="noteBox" rows="3" placeholder="מה סוכם, מתי לחזור, נקודת כניסה...">${esc(note)}</textarea>
-    <button style="margin-top:8px" onclick="saveNote('${b.id}')">שמור הערה</button>
-  </div>`;
-  dlgBiz.showModal();
+ <h2>1. פרופיל העסק בגוגל</h2><table>
+  ${row(!!b.phone,'מספר טלפון בכרטיס',esc(b.phone))}${row(b.hours.length>0,'שעות פתיחה מוגדרות','')}
+  ${row(b.photos>=5,'תמונות בכרטיס',b.photos+' תמונות')}${row(b.rating>=4,'דירוג ממוצע','⭐ '+(b.rating||'אין'))}
+  ${row(b.reviews>=20,'כמות ביקורות',b.reviews+' ביקורות')}${row(!!b.website,'אתר מקושר לכרטיס',esc(b.website||'אין'))}
+  ${b.rev&&!b.rev.error?row(b.rev.daysSince!=null&&b.rev.daysSince<=90,'ביקורות טריות',b.rev.daysSince!=null?'האחרונה לפני '+b.rev.daysSince+' ימים':'')+row(b.rev.negative<2,'ביקורות שליליות אחרונות',b.rev.negative+' מתוך '+b.rev.list.length):''}
+ </table>
+ ${b.website?`<h2>2. האתר</h2>${analyzed?`<table>
+  ${row(s.https,'אבטחה (HTTPS)','')}${row(s.mobile,'התאמה למובייל','')}${row(s.loadMs?s.loadMs<=4000:null,'מהירות טעינה',s.loadMs?(s.loadMs/1000).toFixed(1)+' שניות':'')}
+  ${b.psi&&!b.psi.error?row(b.psi.perf>=50,'ציון מהירות גוגל (מובייל)',b.psi.perf+'/100'):''}
+  ${row(!!s.title,'כותרת לגוגל',esc(s.title))}${row(!!s.desc,'תיאור לגוגל',esc((s.desc||'').slice(0,90)))}${row(!!s.h1,'כותרת ראשית (H1)','')}
+  ${row(s.schema,'נתונים מובנים (Schema)','')}${row(s.sitemap,'מפת אתר (sitemap)','')}${row(s.accessibility,'הצהרת נגישות / רכיב נגישות','חובה לפי החוק בישראל')}
+  ${row(s.form,'טופס השארת פרטים','')}${row(s.whatsapp&&s.whatsapp.length>0,'כפתור וואטסאפ','')}${row((s.chat||[]).length>0||(s.booking||[]).length>0,'צ׳אט / קביעת תורים',[...(s.chat||[]),...(s.booking||[])].join(', '))}
+ </table>`:`<p class="note">${b.site&&b.site.error?'האתר לא היה נגיש לבדיקה: '+esc(b.site.error):'האתר טרם נבדק לעומק.'}</p>`}`:`<h2>2. האתר</h2><p><b>לעסק אין אתר אינטרנט.</b> לקוחות שמחפשים בגוגל לא מוצאים מידע, מחירים או דרך נוחה ליצור קשר — ופונים למתחרים.</p>`}
+ <h2>3. נוכחות דיגיטלית ורשתות חברתיות — ${pr.count} מתוך ${pr.total} ערוצים</h2><table>
+  ${pr.channels.map(ch=>row(ch.ok, ch.t, ch.url?`<a href="${esc(ch.url)}">${esc(ch.url.replace(/^https?:\/\/(www\.)?/,'').slice(0,50))}</a>`:'לא נמצא')).join('')}
+ </table>
+ ${analyzed?`<h2>4. שיווק ומדידה</h2><table>
+  ${row(t.ga4||t.gtm,'Google Analytics / Tag Manager','מדידת מקורות הלקוחות')}${row(t.metaPixel,'Meta Pixel','רימרקטינג בפייסבוק ואינסטגרם')}
+  ${row(t.tiktokPixel,'TikTok Pixel','')}${row(t.googleAds,'Google Ads','')}
+ </table>`:''}
+ <h2>${analyzed?'5':'4'}. מה מומלץ לשפר</h2>${sections||'<p>הנוכחות הדיגיטלית חזקה.</p>'}
+ <div class="foot"><b>${esc(settings.brand||'')}</b>${contact?' · '+contact:''}<br>${cta}
+ <p class="note">הדוח מבוסס על נתונים ציבוריים מגוגל ומהאתר של העסק, נכון לתאריך ההפקה. אחוזי הפוטנציאל הם הערכה מקצועית לתעדוף ולא מדידה.</p></div>
+</div></body></html>`;
+}
+window.openReport = id=>{
+  const b=findBiz(id); if(!b) return;
+  if(b.website && b.astate!=='done' && !confirm('העסק עוד לא נותח לעומק — הדוח יהיה חלקי. להמשיך? (אפשר ללחוץ ביטול ואז «נתח»)')) return;
+  const html=reportHtml(b);
+  const w=window.open('','_blank');
+  if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+  dl('דוח-'+b.name.replace(/[\\/:*?"<>|]/g,'').slice(0,40)+'.html', html, 'text/html;charset=utf-8');
+  log('📄 הדוח נפתח בלשונית חדשה והורד כקובץ HTML.');
 };
-window.saveNote = id=>{ leads[id]=Object.assign({},leads[id],{note:$('noteBox').value}); saveLeads(); log('ההערה נשמרה.'); };
-window.setStatus=setStatus;
+
+/* ---------- outreach ---------- */
+let outCh='wa', outBizId=null;
+function firstName(){ return (settings.person||'').split(' ')[0]||''; }
+function outreachText(b, ch){
+  const sc=scoreBiz(b), top=sc.fix.slice(0,3).map(f=>f.t), me=settings.person||'', brand=settings.brand||'';
+  const pts = top.map((t,i)=>(i+1)+'. '+t).join('\n');
+  const link = settings.link ? '\n'+settings.link : '';
+  if(ch==='wa') return `היי, כאן ${me}${brand?' מ-'+brand:''} 👋\nעברתי על הנוכחות הדיגיטלית של ${b.name} ומצאתי ${sc.fix.length} דברים שכנראה עולים לכם בלקוחות. שלושת הבולטים:\n${pts}\n\nהכנתי דוח קצר עם כל הממצאים — לשלוח לך? בלי התחייבות.${link}`;
+  if(ch==='email') return `שלום רב,\n\nשמי ${me}${settings.tagline?', '+settings.tagline:''}.\nבדקתי את הנוכחות הדיגיטלית של ${b.name} בגוגל ובאתר, ומצאתי כמה נקודות שמשפיעות ישירות על כמות הפניות שאתם מקבלים:\n\n${pts}\n\nציון הנוכחות הדיגיטלית של העסק כרגע: ${sc.presence}/100.\nצירפתי/אשמח לשלוח דוח ביקורת מלא עם כל הממצאים וההמלצות — ללא עלות.\n\nאפשר לתאם שיחה קצרה של 15 דקות?${link}\n\nבברכה,\n${me}\n${brand}${settings.phone?'\n'+settings.phone:''}`;
+  if(ch==='call') return `🎯 פתיחה:\n"שלום, מדבר ${firstName()}${brand?' מ-'+brand:''}. אני מתקשר לגבי ${b.name} — יש לך דקה? עשיתי בדיקה קצרה לנוכחות שלכם בגוגל ורציתי לשתף משהו שמצאתי."\n\n🔍 הממצא המרכזי:\n"${top[0]||'יש כמה דברים שאפשר לשפר'}."\n\n❓ שאלת חיבור:\n"כמה פניות חדשות מגיעות אליכם היום דרך גוגל או האתר בשבוע?"\n\n💡 ערך:\n"עסקים דומים שתיקנו את זה ראו עלייה בפניות. יש עוד ${Math.max(sc.fix.length-1,0)} נקודות בדוח."\n\n📅 סגירה:\n"אני יכול לשלוח לך את הדוח המלא בוואטסאפ ולקבוע 15 דקות לעבור עליו יחד — מתי נוח לך?"\n\n🛡️ התנגדות "אין זמן / יש לנו מישהו":\n"לגמרי. הדוח חינמי וזה 15 דקות — גם אם תחליטו לעשות את זה עם מישהו אחר, תדעו בדיוק מה לבקש."`;
+  if(ch==='dm') return `היי ${b.name} 👋 ראיתי את העסק שלכם בגוגל מפות. שמתי לב ש${(top[0]||'יש כמה דברים לשפר').replace(/^[אב]ין /,'אין ')} — זה משהו שאפשר לתקן די מהר. הכנתי ממצאים קצרים, אשמח לשלוח אם רלוונטי 🙂`;
+  return '';
+}
+window.openOutreach = id=>{
+  const b=findBiz(id); if(!b) return; outBizId=id; $('outTitle').textContent='✉️ פנייה ל'+b.name;
+  setOutCh('wa'); dlgOut.showModal();
+};
+function setOutCh(ch){
+  outCh=ch; const b=findBiz(outBizId);
+  document.querySelectorAll('#outTabs button').forEach(x=>x.classList.toggle('on',x.dataset.ch===ch));
+  $('outSubjRow').classList.toggle('hidden', ch!=='email');
+  $('outSubj').value='ממצאי בדיקת נוכחות דיגיטלית — '+b.name;
+  $('outText').value=outreachText(b,ch); $('outStatus').textContent=''; updateSend();
+}
+function updateSend(){
+  const b=findBiz(outBizId), a=$('outSend'), txt=$('outText').value; let href='';
+  const wa = (b.site&&b.site.whatsapp&&b.site.whatsapp[0]) || waNum(b.phone);
+  if(outCh==='wa' && wa) href='https://wa.me/'+wa+'?text='+encodeURIComponent(txt);
+  if(outCh==='email'){ const em=b.site&&b.site.emails&&b.site.emails[0]; href='mailto:'+(em||'')+'?subject='+encodeURIComponent($('outSubj').value)+'&body='+encodeURIComponent(txt); }
+  if(outCh==='call' && b.phone) href='tel:'+b.phone.replace(/\s/g,'');
+  a.classList.toggle('hidden',!href); if(href) a.href=href;
+}
+document.querySelectorAll('#outTabs button').forEach(x=>x.onclick=()=>setOutCh(x.dataset.ch));
+$('outText').oninput=updateSend; $('outSubj').oninput=updateSend;
+$('outCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText($('outText').value); $('outStatus').textContent='✓ הועתק'; }catch(e){ $('outText').select(); document.execCommand('copy'); $('outStatus').textContent='✓ הועתק'; } };
+$('outAi').onclick=async()=>{
+  if(!settings.gemini){ $('outStatus').innerHTML='צריך מפתח Gemini ב-<a href="#" onclick="dlgOut.close();$(\'btnSettings\').click();return false">⚙️ הגדרות</a>'; return; }
+  const b=findBiz(outBizId), sc=scoreBiz(b);
+  const kind={wa:'הודעת וואטסאפ קצרה (עד 70 מילים)',email:'מייל פנייה קרה (עד 150 מילים) — בלי שורת נושא',call:'תסריט שיחת טלפון קרה עם פתיחה, ממצא, שאלה, ערך, סגירה וטיפול בהתנגדות',dm:'הודעה קצרה ברשת חברתית (עד 50 מילים)'}[outCh];
+  const prompt=`כתוב בעברית ${kind} מ${settings.person||'יועץ'} (${settings.tagline||''}, ${settings.brand||''}) אל בעל העסק "${b.name}" (${b.type}, ${b.address}).
+הבסיס: ביקורת נוכחות דיגיטלית שמצאה את הליקויים הבאים (מהחשוב לפחות חשוב):
+${sc.fix.slice(0,6).map(f=>'- '+f.t).join('\n')}
+ציון נוכחות: ${sc.presence}/100. דירוג בגוגל: ${b.rating||'אין'} (${b.reviews} ביקורות).
+דרישות: טון אישי, מכבד ולא מתלהם; התייחסות ספציפית לממצא אחד או שניים (לא רשימה ארוכה); ללא הבטחות מספריות; הנעה לפעולה רכה — להציע לשלוח דוח ביקורת חינמי או שיחה של 15 דקות${settings.link?' ('+settings.link+')':''}. אל תשתמש במילה "מומחה". החזר רק את הטקסט עצמו.`;
+  $('outStatus').innerHTML='<span class="sp"></span> מנסח...'; $('outAi').disabled=true;
+  try{
+    const r=await fetchT('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(settings.model||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(settings.gemini),
+      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.8}})}, 45000);
+    const j=await r.json(); if(j.error) throw new Error(j.error.message);
+    const txt=(j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text).join(''))||'';
+    if(!txt) throw new Error('תשובה ריקה');
+    $('outText').value=txt.trim(); updateSend(); $('outStatus').textContent='✓ נוסח ב-AI';
+  }catch(e){ $('outStatus').textContent='שגיאת AI: '+e.message; }
+  $('outAi').disabled=false;
+};
+
+/* ---------- webhook ---------- */
+window.sendHook = async ids=>{
+  if(!settings.hook){ alert('אין Webhook מוגדר — ⚙️ הגדרות → אינטגרציות'); return; }
+  const payload = ids.map(id=>{ const b=findBiz(id); const sc=scoreBiz(b); const L=leads[id]||{};
+    return {id, name:b.name, phone:b.phone, website:b.website, address:b.address, type:b.type, rating:b.rating, reviews:b.reviews,
+      opportunity:sc.opp, presence:sc.presence, issues:sc.fix.map(f=>f.t), stage:stageName(stageOf(id)), note:L.note||'', due:L.due||'',
+      emails:(b.site&&b.site.emails)||[], whatsapp:(b.site&&b.site.whatsapp)||[], social:socialOf(b), channels:presenceOf(b).count, maps:b.maps}; });
+  try{ await fetchT(settings.hook,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({source:'leads-radar',sent:new Date().toISOString(),leads:payload})},20000);
+    log('🔗 נשלחו '+payload.length+' לידים ל-Webhook.'); }
+  catch(e){ log('שגיאת Webhook: '+e.message); }
+};
+$('btnHookAll').onclick=()=>{ const ids=results.filter(b=>scoreBiz(b).opp>=70).map(b=>b.id); if(!ids.length) return log('אין לידים חמים (70+).'); sendHook(ids); };
+
+/* ---------- leads board ---------- */
+function renderBoard(){
+  const q=$('leadSearch').value.trim(); const today=new Date().toISOString().slice(0,10);
+  const all=Object.entries(leads).filter(([id,l])=>l.biz && (!q || (l.biz.name+' '+(l.note||'')).includes(q)));
+  $('board').innerHTML=STAGES.filter(s=>s.id!=='new').map(s=>{
+    const items=all.filter(([id,l])=>l.stage===s.id).sort((a,b)=>(a[1].due||'9')>(b[1].due||'9')?1:-1);
+    return `<div class="col"><h6><span>${s.t}</span><span class="hint">${items.length}</span></h6>
+      ${items.map(([id,l])=>`<div class="lcard" onclick="openBiz('${id}')"><b>${esc(l.biz.name)}</b><br>
+        <span class="hint">${esc(l.biz.phone||'')} · ציון ${scoreBiz(l.biz).opp}</span>
+        ${l.due?`<div class="due ${l.due<today?'late':''}">📅 מעקב: ${esc(l.due)}</div>`:''}
+        ${l.note?`<div class="hint">${esc(l.note.slice(0,80))}</div>`:''}</div>`).join('')||'<div class="hint">—</div>'}</div>`; }).join('');
+}
+$('leadSearch').oninput=renderBoard;
+function showView(v){ $('viewScan').classList.toggle('hidden',v!=='scan'); $('viewLeads').classList.toggle('hidden',v!=='leads');
+  $('tabScan').classList.toggle('on',v==='scan'); $('tabLeads').classList.toggle('on',v==='leads'); if(v==='leads') renderBoard(); }
+$('tabScan').onclick=()=>showView('scan'); $('tabLeads').onclick=()=>showView('leads');
 
 /* ---------- export ---------- */
-function rows(){
-  return results.map(b=>{
-    const s=scoreBiz(b), w=b.site||{};
-    return {
-      'שם העסק':b.name,'קטגוריה':b.type,'כתובת':b.address,'טלפון':b.phone,
-      'אתר':b.website,'דירוג':b.rating,'ביקורות':b.reviews,'תמונות':b.photos,
-      'שעות פתיחה':b.hours.join(' | '),'סטטוס גוגל':b.status,
-      'מרחק (מ׳)':b.dist,'ציון הזדמנות':s.opp,'נוכחות דיגיטלית':s.presence,
-      'שיפור מוביל':s.fix[0]?s.fix[0].t:'',
-      'HTTPS':w.https?'כן':'', 'מובייל':w.mobile?'כן':'', 'Analytics':w.analytics?'כן':'',
-      'Pixel':w.pixel?'כן':'', 'טופס':w.form?'כן':'', 'וואטסאפ':w.whatsapp||'',
-      'מייל':(w.emails||[]).join(' '),'רשתות':(w.social||[]).map(x=>x.url).join(' '),
-      'פלטפורמה':w.platform||'',
-      'סטטוס ליד':({new:'חדש',hot:'חם',done:'טופל',out:'לא רלוונטי'})[statusOf(b.id)],
-      'הערות':(leads[b.id]&&leads[b.id].note)||'',
-      'קישור לגוגל מפות':b.maps
-    };
+function rowsOf(list){
+  return list.map(b=>{ const s=scoreBiz(b), w=b.site||{}, t=w.tech||{}, L=leads[b.id]||{};
+    return {'שם העסק':b.name,'קטגוריה':b.type,'כתובת':b.address,'טלפון':b.phone,'אתר':b.website,'דירוג':b.rating,'ביקורות':b.reviews,
+      'תמונות':b.photos,'מרחק (מ׳)':b.dist,'ציון הזדמנות':s.opp,'נוכחות דיגיטלית':s.presence,'ליקוי מוביל':s.fix[0]?s.fix[0].t:'',
+      'כל הליקויים':s.fix.map(f=>f.t).join(' | '),'HTTPS':w.https?'כן':'','מובייל':w.mobile?'כן':'','Analytics':(t.ga4||t.gtm)?'כן':'',
+      'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
+      'ערוצים דיגיטליים':presenceOf(b).count+'/'+presenceOf(b).total,
+      'פייסבוק':socialOf(b).facebook||'','אינסטגרם':socialOf(b).instagram||'','טיקטוק':socialOf(b).tiktok||'','יוטיוב':socialOf(b).youtube||'','לינקדאין':socialOf(b).linkedin||'','פלטפורמה':w.platform||'',
+      'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
   });
 }
-function dl(name,content,type){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([content],{type}));
-  a.download=name; a.click();
-}
-$('btnCsv').onclick=()=>{
-  const r=rows(); if(!r.length) return;
-  const head=Object.keys(r[0]);
-  const csv=[head.join(',')].concat(r.map(o=>head.map(h=>{
-    const v=String(o[h]??'').replace(/"/g,'""'); return '"'+v+'"';}).join(','))).join('\r\n');
-  dl('leads-radar-'+new Date().toISOString().slice(0,10)+'.csv','﻿'+csv,'text/csv;charset=utf-8');
-};
-$('btnJson').onclick=()=>{ if(!results.length)return;
-  dl('leads-radar-'+new Date().toISOString().slice(0,10)+'.json',
-     JSON.stringify(rows(),null,2),'application/json'); };
-$('btnClear').onclick=()=>{ if(confirm('לנקות את כל התוצאות מהמסך? (סימוני הלידים יישמרו)')){ results=[]; render(); } };
+function dl(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+function csv(rows){ if(!rows.length) return ''; const h=Object.keys(rows[0]);
+  return '﻿'+[h.join(',')].concat(rows.map(o=>h.map(k=>'"'+String(o[k]??'').replace(/"/g,'""')+'"').join(','))).join('\r\n'); }
+const stamp=()=>new Date().toISOString().slice(0,10);
+$('btnCsv').onclick=()=>{ if(results.length) dl('leads-radar-'+stamp()+'.csv',csv(rowsOf(results)),'text/csv;charset=utf-8'); };
+$('btnJson').onclick=()=>{ if(results.length) dl('leads-radar-'+stamp()+'.json',JSON.stringify(rowsOf(results),null,2),'application/json'); };
+$('btnLeadsCsv').onclick=()=>{ const l=Object.values(leads).filter(x=>x.biz).map(x=>x.biz); if(l.length) dl('my-leads-'+stamp()+'.csv',csv(rowsOf(l)),'text/csv;charset=utf-8'); };
+$('btnClear').onclick=()=>{ if(confirm('לנקות את תוצאות הסריקה מהמסך? (הלידים השמורים נשארים)')){ results=[]; saveResults(); render(); drawMarkers(); } };
 
-
-/* ---------- enlarged map toggle ---------- */
-function setBig(on){
-  const w=$('mapWrap'); w.classList.toggle('big',on);
-  $('btnBig').textContent = on ? '✕ סגור מפה מוגדלת (Esc)' : '⛶ הגדל מפה';
-  document.body.style.overflow = on ? 'hidden' : '';
-  setTimeout(fitCircle,150);
-}
-$('btnBig').onclick = ()=> setBig(!$('mapWrap').classList.contains('big'));
-document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){
-    if($('mapWrap').classList.contains('big')) setBig(false);
-    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-  }
-});
-// click outside a dialog closes it
-document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{ if(e.target===d) d.close(); }));
 /* ---------- start ---------- */
 $('rad').dispatchEvent(new Event('input'));
-render();
-boot();
+results.forEach(b=>{ if(b.astate==='run') b.astate=''; });
+render(); updateLeadsCount(); boot();
+if(results.length) log('נטענו '+results.length+' תוצאות מהסריקה הקודמת.');
 </script>
 </body>
 </html>
