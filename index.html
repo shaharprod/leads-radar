@@ -642,9 +642,9 @@ async function fetchReviews(b){
     const pay=obj(p.paymentOptions), acc=obj(p.accessibilityOptions), park=obj(p.parkingOptions);
     b.gextra={ summary:(p.editorialSummary&&(p.editorialSummary.text||p.editorialSummary))||'',
       attrs:[yes(p.isReservable,'מקבל הזמנות'),yes(p.hasDelivery,'משלוחים'),yes(p.hasTakeout,'טייק-אווי'),yes(p.hasDineIn,'ישיבה במקום'),yes(p.allowsDogs,'ידידותי לכלבים'),yes(p.isGoodForChildren,'מתאים לילדים'),yes(p.hasWiFi,'WiFi'),yes(p.hasRestroom,'שירותים')].filter(Boolean),
-      pay:[yes(pay.acceptsCreditCards,'כרטיסי אשראי'),yes(pay.acceptsNfc,'תשלום בנייד (NFC)'),yes(pay.acceptsCashOnly,'מזומן בלבד')].filter(Boolean),
-      access:[yes(acc.wheelchairAccessibleEntrance,'כניסה נגישה'),yes(acc.wheelchairAccessibleParking,'חניה נגישה'),yes(acc.wheelchairAccessibleRestroom,'שירותים נגישים')].filter(Boolean),
-      parking:[yes(park.freeParkingLot,'חניון חינם'),yes(park.paidParkingLot,'חניון בתשלום'),yes(park.freeStreetParking,'חניה ברחוב'),yes(park.valetParking,'ואלה')].filter(Boolean) };
+      pay:[yes(pay.acceptsCreditCards,'כרטיסי אשראי'),yes(pay.acceptsDebitCards,'כרטיס חיוב'),yes(pay.acceptsNFC,'תשלום בנייד (NFC)'),yes(pay.acceptsCashOnly,'מזומן בלבד')].filter(Boolean),
+      access:[yes(acc.hasWheelchairAccessibleEntrance,'כניסה נגישה'),yes(acc.hasWheelchairAccessibleParking,'חניה נגישה'),yes(acc.hasWheelchairAccessibleRestroom,'שירותים נגישים'),yes(acc.hasWheelchairAccessibleSeating,'ישיבה נגישה')].filter(Boolean),
+      parking:[yes(park.hasFreeParkingLot,'חניון חינם'),yes(park.hasPaidParkingLot,'חניון בתשלום'),yes(park.hasFreeStreetParking,'חניה ברחוב'),yes(park.hasFreeGarageParking,'חניון מקורה חינם'),yes(park.hasPaidGarageParking,'חניון מקורה בתשלום'),yes(park.hasValetParking,'ואלה')].filter(Boolean) };
     const rv=(p.reviews||[]).map(x=>({rating:x.rating, text:(x.text||'').slice(0,400), when:x.relativePublishTimeDescription||'',
       time:x.publishTime?new Date(x.publishTime).getTime():0, author:(x.authorAttribution&&x.authorAttribution.displayName)||''}));
     const latest = rv.reduce((m,x)=>Math.max(m,x.time||0),0);
