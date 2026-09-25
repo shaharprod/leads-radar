@@ -121,6 +121,13 @@ ul.fix li b{color:var(--gold)}
 .subtabs button.on{background:var(--acc);border-color:var(--acc)}
 textarea.msg{min-height:190px;line-height:1.7}
 .hidden{display:none!important}
+.rgrid{display:grid;gap:4px;direction:ltr;max-width:340px;margin:8px 0}
+.rgrid div{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#0b1020}
+.rg1{background:#2fd48f}.rg2{background:#b8e05a}.rg3{background:#ffc24d}.rg4{background:#ff8f5a}.rg5{background:#ff6b6b;color:#fff!important}
+.rgc{outline:3px solid #fff;outline-offset:-3px}
+table.cmp{width:100%;border-collapse:collapse;font-size:13px}table.cmp td,table.cmp th{border-bottom:1px solid var(--line);padding:6px 5px;text-align:right}
+table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);font-weight:600}
+.busy{position:fixed;inset:0;background:rgba(3,6,18,.6);z-index:2000;display:flex;align-items:center;justify-content:center;font-size:17px}
 </style>
 </head>
 <body>
@@ -130,7 +137,7 @@ textarea.msg{min-height:190px;line-height:1.7}
   <div class="tag">איתור לידים · ביקורת דיגיטלית · דוחות ממותגים</div>
   <div class="tabs">
     <button id="tabScan" class="on">🔍 סריקה</button>
-    <button id="tabLeads">📋 הלידים שלי <span id="leadsCount"></span></button>
+    <button id="tabLeads">📋 הלידים שלי <span id="leadsCount"></span> <span id="newBadge" class="chip ok hidden" style="padding:1px 7px"></span></button>
   </div>
   <div class="spacer"></div>
   <button class="ghost" id="btnSettings">⚙️ הגדרות</button>
@@ -179,6 +186,7 @@ textarea.msg{min-height:190px;line-height:1.7}
           <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option></select></div>
       </div>
       <button class="primary" id="btnScan" style="width:100%;padding:12px;font-size:15px">🔍 התחל סריקה</button>
+      <button id="btnWatch" style="width:100%;margin-top:8px">⭐ מעקב שבועי על האזור הזה — התראה על עסקים חדשים</button>
       <div class="log" id="log" style="margin-top:10px">מוכן.</div>
     </div>
 
@@ -211,6 +219,7 @@ textarea.msg{min-height:190px;line-height:1.7}
         <option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
       <button id="btnCsv">⬇️ CSV לאקסל</button>
       <button id="btnJson">⬇️ JSON</button>
+      <button id="btnQueue">📲 תור וואטסאפ</button>
       <button id="btnHookAll">🔗 שלח חמים ל-Webhook</button>
       <button id="btnClear" class="ghost">🗑️ נקה תוצאות</button>
     </div>
@@ -229,6 +238,13 @@ textarea.msg{min-height:190px;line-height:1.7}
   </div>
   <div class="hint" style="margin-bottom:10px">כל עסק שסימנת לו שלב (מעבר ל״חדש״) נשמר כאן לתמיד — גם אחרי סריקות חדשות. לחיצה על כרטיס פותחת אותו.</div>
   <div class="board" id="board"></div>
+  <div class="panel" style="margin-top:16px" id="watchPanel">
+    <div class="toolbar" style="margin-bottom:8px"><b style="font-size:16px">🛰️ מעקב אזורים ועסקים חדשים</b><div class="spacer"></div>
+      <button id="btnCronNow">▶️ בדוק עכשיו</button><button id="btnAckAll" class="ghost">✓ סמן הכול כנקרא</button></div>
+    <div class="hint" style="margin-bottom:10px">כל יום ראשון בבוקר השרת שלך סורק את האזורים ששמרת (כפתור ⭐ בפאנל הסריקה) ומזהה עסקים שלא היו שם בשבוע שעבר — עסק חדש הוא הליד הכי חם.</div>
+    <div id="areasList" class="hint">טוען...</div>
+    <div id="newLeadsList" style="margin-top:12px"></div>
+  </div>
 </div>
 
 <!-- ================= DIALOGS ================= -->
@@ -261,13 +277,22 @@ textarea.msg{min-height:190px;line-height:1.7}
     <div class="sec"><h5>🔗 אינטגרציות</h5>
       <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
       <div class="row"><label>שרת ביקורת האתרים</label><input id="setApi"></div>
+      <div class="row"><label>טוקן שרת (לקישורים חיים, מעקב צפיות ומעקב אזורים)</label><input id="setToken" placeholder="—"></div>
+    </div>
+    <div class="sec"><h5>💰 הצעות מחיר והערכת הפסד</h5>
+      <div class="row row2">
+        <div><label>שווי לקוח ממוצע לעסק (₪)</label><input id="setVal" type="number" placeholder="300"></div>
+        <div><label>פניות חודשיות משוערות מגוגל</label><input id="setMonthly" type="number" placeholder="20"></div></div>
+      <div class="row"><label>חבילות שירות — שורה לכל חבילה: קטגוריה|שם השירות|מחיר (קטגוריות: web, seo, legal, rev, gbp, mkt, soc, conv)</label>
+        <textarea id="setPkgs" rows="8" style="direction:rtl;font-size:13px"></textarea></div>
+      <div class="hint">המחירים כאן הם דוגמה — עדכן לפי המחירון שלך. הצעת המחיר בוחרת אוטומטית חבילות לפי הליקויים שנמצאו בעסק.</div>
     </div>
     <button class="primary" id="btnSaveSettings">שמור</button>
   </div>
 </dialog>
 
 <dialog id="dlgBiz"><div class="dlg-h"><b id="bizTitle"></b><div class="spacer"></div>
-  <button id="bizReport">📄 דוח ביקורת</button><button id="bizOutreach">✉️ פנייה</button>
+  <button id="bizReport">📄 דוח</button><button id="bizLive">🔗 קישור חי</button><button id="bizQuote">💰 הצעת מחיר</button><button id="bizOutreach">✉️ פנייה</button>
   <button class="ghost" data-close>סגור</button></div><div class="dlg-b" id="bizBody"></div></dialog>
 
 <dialog id="dlgOut"><div class="dlg-h"><b id="outTitle">✉️ פנייה מותאמת</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
@@ -285,6 +310,16 @@ textarea.msg{min-height:190px;line-height:1.7}
     <div class="hint">ההודעה נבנתה מהליקויים שנמצאו בביקורת של העסק הזה. אפשר לערוך לפני השליחה. השליחה עצמה נעשית ממך — Leads Radar לא שולח כלום לבד.</div>
   </div></dialog>
 
+<dialog id="dlgQueue"><div class="dlg-h"><b id="qTitle">📲 תור וואטסאפ</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
+  <div class="dlg-b">
+    <div class="hint" id="qInfo"></div>
+    <div class="sec" style="margin-top:10px"><h5 id="qName"></h5><div class="hint" id="qMeta"></div></div>
+    <textarea class="msg" id="qText"></textarea>
+    <div class="toolbar" style="margin-top:10px">
+      <button class="primary" id="qSend">📲 פתח וואטסאפ ← הבא</button><button id="qSkip">⏭ דלג</button>
+      <span class="hint">לחיצה פותחת את וואטסאפ עם ההודעה מוכנה, מעבירה את הליד לשלב «📞 נוצר קשר» ועוברת לבא. השליחה עצמה — בוואטסאפ, ממך.</span></div>
+  </div></dialog>
+
 <dialog id="dlgHelp"><div class="dlg-h"><b>❓ איך זה עובד</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
     <div class="sec"><h5>1. הגדרות</h5><div class="hint">⚙️ הגדרות → מפתח Google, המיתוג שלך לדוחות, ואופציונלית מפתח Gemini ו-Webhook.</div></div>
@@ -293,6 +328,9 @@ textarea.msg{min-height:190px;line-height:1.7}
     <div class="sec"><h5>4. ציון הזדמנות</h5><div class="hint">0–100. <b>גבוה = ליד טוב יותר</b>. בכרטיס המלא — כל ליקוי עם פוטנציאל השיפור שלו. האחוזים הם משקלות לתעדוף, לא מדידה של גוגל.</div></div>
     <div class="sec"><h5>5. דוח ביקורת ממותג</h5><div class="hint">«📄 דוח ביקורת» יוצר דוח בעברית עם הלוגו, הצבע ופרטי הקשר שלך — שמירה כ-PDF (הדפסה → שמור כ-PDF) או הורדה כדף HTML חי שאפשר לשלוח ללקוח או להעלות לאתר.</div></div>
     <div class="sec"><h5>6. פנייה מותאמת</h5><div class="hint">«✉️ פנייה» בונה הודעת וואטסאפ, מייל, תסריט שיחה והודעה ברשתות — לפי הליקויים הספציפיים. עם מפתח Gemini אפשר לנסח מחדש ב-AI.</div></div>
+    <div class="sec"><h5>⚔️ מתחרים ו📍 דירוג מקומי</h5><div class="hint">בכרטיס המלא: השוואה ל-3 המתחרים החזקים באותה קטגוריה עד 3 ק״מ, ו«בדוק דירוג מקומי» — מפת חום של המקום של העסק בגוגל מפות מ-9 או 25 נקודות סביבו.</div></div>
+    <div class="sec"><h5>🔗 קישור חי, 💰 הצעת מחיר, 🏢 רשם החברות</h5><div class="hint">«קישור חי» מעלה את הדוח לשרת שלך ומראה כמה פעמים ומתי הלקוח פתח אותו. «הצעת מחיר» בונה הצעה לפי הליקויים והחבילות שהגדרת. «רשם החברות» מביא ח.פ., סטטוס ותאריך הקמה.</div></div>
+    <div class="sec"><h5>📲 תור וואטסאפ ו🛰️ מעקב אזורים</h5><div class="hint">«תור וואטסאפ» עובר ליד אחרי ליד עם הודעה מוכנה. «⭐ מעקב שבועי» שומר אזור — כל יום ראשון השרת מזהה עסקים חדשים שנפתחו בו (לשונית 📋 הלידים שלי).</div></div>
     <div class="sec"><h5>7. משפך לידים</h5><div class="hint">בכל כרטיס בוחרים שלב (נוצר קשר / פגישה / הצעה / לקוח). הליד נשמר ב«📋 הלידים שלי» עם הערות ותאריך מעקב. Webhook שולח לידים ל-Make / Zapier / n8n.</div></div>
   </div></dialog>
 
@@ -343,7 +381,10 @@ function presenceOf(b){
   return {channels:ch, count:ch.filter(c=>c.ok).length, total:ch.length, social:soc};
 }
 let settings = Object.assign({api:DEFAULT_API, model:'gemini-2.5-flash', color:'#4f7cff',
-  brand:'SHAHAR AI PRODUCTIONS', person:'שמוליק שחר', tagline:'ייעוץ והטמעת בינה מלאכותית לעסקים ולבעלי מקצוע'}, store.get(LS.set,{}));
+  brand:'SHAHAR AI PRODUCTIONS', person:'שמוליק שחר', tagline:'ייעוץ והטמעת בינה מלאכותית לעסקים ולבעלי מקצוע',
+  val:'300', monthly:'20', pkgs:['web|בניית אתר / דף נחיתה ממיר|3500','seo|קידום אורגני בסיסי (SEO) — הקמה|1800','legal|התאמת נגישות לאתר + הצהרת נגישות|1500',
+  'rev|מערכת איסוף ביקורות וניהול מוניטין (חודשי)|450','gbp|אופטימיזציה לפרופיל גוגל העסקי|900','mkt|הטמעת Analytics, Pixel ומדידת המרות|1200',
+  'soc|הקמה ומיתוג רשתות חברתיות|1500','conv|כפתור וואטסאפ, טופס לידים ובוט מענה|1200'].join('\n')}, store.get(LS.set,{}));
 // migrate old key
 try{ const k=localStorage.getItem(LS.key); if(k && !k.startsWith('"')) settings.key = settings.key || k; }catch(e){}
 
@@ -369,7 +410,8 @@ document.querySelectorAll('dialog').forEach(d=>{
 
 /* ---------- settings ---------- */
 const SET_FIELDS = {key:'setKey',brand:'setBrand',person:'setPerson',phone:'setPhone',email:'setEmail',link:'setLink',
-  color:'setColor',logo:'setLogo',tagline:'setTagline',gemini:'setGemini',model:'setModel',hook:'setHook',api:'setApi'};
+  color:'setColor',logo:'setLogo',tagline:'setTagline',gemini:'setGemini',model:'setModel',hook:'setHook',api:'setApi',
+  token:'setToken',val:'setVal',monthly:'setMonthly',pkgs:'setPkgs'};
 $('btnSettings').onclick = ()=>{ for(const k in SET_FIELDS) $(SET_FIELDS[k]).value = settings[k]||''; if(!settings.color) $('setColor').value='#4f7cff'; dlgSettings.showModal(); };
 $('btnSaveSettings').onclick = async ()=>{
   const hadKey = settings.key;
@@ -560,7 +602,8 @@ async function psiScores(url){
     const c=j.lighthouseResult.categories, a=j.lighthouseResult.audits;
     return { perf:Math.round((c.performance?.score||0)*100), seo:Math.round((c.seo?.score||0)*100),
       a11y:Math.round((c.accessibility?.score||0)*100), bp:Math.round((c['best-practices']?.score||0)*100),
-      lcp:a['largest-contentful-paint']?.displayValue||'', cls:a['cumulative-layout-shift']?.displayValue||'', tbt:a['total-blocking-time']?.displayValue||'' };
+      lcp:a['largest-contentful-paint']?.displayValue||'', cls:a['cumulative-layout-shift']?.displayValue||'', tbt:a['total-blocking-time']?.displayValue||'',
+      _shot:(a['final-screenshot']&&a['final-screenshot'].details&&a['final-screenshot'].details.data)||'' };
   }catch(e){ return {error: e.name==='AbortError'?'PageSpeed לא הגיב תוך 70 שניות':e.message}; }
 }
 async function fetchReviews(b){
@@ -578,7 +621,7 @@ async function analyzeBiz(b){
   const jobs=[];
   if(b.website) jobs.push(auditSite(b.website).then(s=>b.site=s));
   if($('useReviews').checked && mapsLoaded) jobs.push(fetchReviews(b).then(r=>b.rev=r));
-  if($('usePsi').checked && b.website) jobs.push(psiScores(b.website).then(p=>b.psi=p));
+  if($('usePsi').checked && b.website) jobs.push(psiScores(b.website).then(p=>{ if(p._shot) shots[b.id]=p._shot; delete p._shot; b.psi=p; }));
   await Promise.all(jobs);
   b.astate = (b.site&&b.site.error) ? 'err' : 'done'; b.analyzedAt=Date.now();
   if(leads[b.id]) { leads[b.id].biz = slim(b); saveLeads(); }
@@ -639,6 +682,11 @@ function scoreBiz(b){
       if(s.copyrightYear && s.copyrightYear < new Date().getFullYear()-2) add('שנת זכויות יוצרים באתר '+s.copyrightYear+' — האתר נראה לא מתוחזק',6,'web');
       if(s.imagesNoAlt>3) add(s.imagesNoAlt+' תמונות ללא טקסט חלופי (alt) — פוגע בנגישות וב-SEO',5,'seo');
     } else if(s && s.error) add('האתר לא נגיש לבדיקה: '+s.error,15,'web');
+    if(s && !s.error){
+      if(s.ssl && s.ssl.daysLeft!=null && s.ssl.daysLeft<30) add('תעודת האבטחה (SSL) של האתר פגה בעוד '+s.ssl.daysLeft+' ימים',15,'web');
+      if(s.domain && s.domain.daysToExpire!=null && s.domain.daysToExpire<60) add('הדומיין של האתר פג בעוד '+s.domain.daysToExpire+' ימים',15,'web');
+    }
+    if(b.rank && b.rank.avg>10) add('בגוגל מפות העסק מופיע בממוצע במקום '+b.rank.avg.toFixed(1)+' על «'+b.rank.kw+'» באזור — מחוץ ל-3 הראשונים',20,'gbp');
     if(b.psi && !b.psi.error){ if(b.psi.perf<50) add('ציון מהירות מובייל של גוגל: '+b.psi.perf+'/100',15,'web'); else if(b.psi.perf<80) add('ציון מהירות מובייל בינוני: '+b.psi.perf+'/100',7,'web'); }
   }
   // Marketing — 20
@@ -661,7 +709,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -707,6 +755,8 @@ function cardHtml(b){
     const n=Object.keys(s.social||{}).length; if(n) chips.push(chip(1,n+' רשתות'));
     if(s.platform) chips.push(`<span class="chip">${esc(s.platform)}</span>`); }
   { const pr=presenceOf(b); chips.push(`<span class="chip ${pr.count>=5?'ok':pr.count>=3?'w':'no'}">📡 ${pr.count}/${pr.total} ערוצים</span>`); }
+  if(b.live) chips.push(`<span class="chip ${b.live.views?'ok':''}">👁️ ${b.live.views||0} צפיות בדוח</span>`);
+  if(b.rank) chips.push(`<span class="chip ${b.rank.avg<=3?'ok':b.rank.avg<=10?'w':'no'}">📍 מקום ${b.rank.avg.toFixed(1)}</span>`);
   if(b.rev && !b.rev.error && b.rev.negative>=2) chips.push(`<span class="chip no">${b.rev.negative} ביקורות שליליות</span>`);
   return `<div class="biz">
     <div class="score ${cls}">${sc.opp}<small>הזדמנות</small></div>
@@ -776,7 +826,7 @@ window.openBiz = id=>{
       <div>דירוג</div><div>⭐ ${b.rating||'—'} · ${b.reviews} ביקורות</div><div>תמונות</div><div>${b.photos}</div>
       <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
       <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
-    ${presenceHtml(b)}${revH}${site}${psiH}
+    ${presenceHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${regHtml(b)}
     <div class="sec"><h5>📋 ניהול הליד</h5>
       <div class="row row2"><div><label>שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
         <div><label>תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
@@ -883,19 +933,27 @@ ul{padding-right:20px;margin:6px 0}li{margin:5px 0}.imp{background:#fff4d6;color
   ${row(t.ga4||t.gtm,'Google Analytics / Tag Manager','מדידת מקורות הלקוחות')}${row(t.metaPixel,'Meta Pixel','רימרקטינג בפייסבוק ואינסטגרם')}
   ${row(t.tiktokPixel,'TikTok Pixel','')}${row(t.googleAds,'Google Ads','')}
  </table>`:''}
- <h2>${analyzed?'5':'4'}. מה מומלץ לשפר</h2>${sections||'<p>הנוכחות הדיגיטלית חזקה.</p>'}
+ ${reportExtras(b, row)}
+ <h2>מה מומלץ לשפר</h2>${sections||'<p>הנוכחות הדיגיטלית חזקה.</p>'}
+ ${lossHtml(b)}
  <div class="foot"><b>${esc(settings.brand||'')}</b>${contact?' · '+contact:''}<br>${cta}
  <p class="note">הדוח מבוסס על נתונים ציבוריים מגוגל ומהאתר של העסק, נכון לתאריך ההפקה. אחוזי הפוטנציאל הם הערכה מקצועית לתעדוף ולא מדידה.</p></div>
 </div></body></html>`;
 }
-window.openReport = id=>{
+async function ensureShot(b){
+  if(!b.website || shots[b.id] || !settings.key) return;
+  busy('📸 מצלם את האתר במובייל ומודד מהירות (עד דקה)...');
+  const p=await psiScores(b.website); if(p._shot) shots[b.id]=p._shot; delete p._shot; if(!p.error) b.psi=p; busy(false);
+}
+window.openReport = async id=>{
   const b=findBiz(id); if(!b) return;
   if(b.website && b.astate!=='done' && !confirm('העסק עוד לא נותח לעומק — הדוח יהיה חלקי. להמשיך? (אפשר ללחוץ ביטול ואז «נתח»)')) return;
+  const w=window.open('','_blank'); if(w) w.document.write('<p dir="rtl" style="font-family:Arial;padding:30px">מכין את הדוח...</p>');
+  await ensureShot(b);
   const html=reportHtml(b);
-  const w=window.open('','_blank');
   if(w){ w.document.open(); w.document.write(html); w.document.close(); }
   dl('דוח-'+b.name.replace(/[\\/:*?"<>|]/g,'').slice(0,40)+'.html', html, 'text/html;charset=utf-8');
-  log('📄 הדוח נפתח בלשונית חדשה והורד כקובץ HTML.');
+  saveResults(); log('📄 הדוח נפתח בלשונית חדשה והורד כקובץ HTML.');
 };
 
 /* ---------- outreach ---------- */
@@ -904,7 +962,7 @@ function firstName(){ return (settings.person||'').split(' ')[0]||''; }
 function outreachText(b, ch){
   const sc=scoreBiz(b), top=sc.fix.slice(0,3).map(f=>f.t), me=settings.person||'', brand=settings.brand||'';
   const pts = top.map((t,i)=>(i+1)+'. '+t).join('\n');
-  const link = settings.link ? '\n'+settings.link : '';
+  const link = (b.live&&b.live.url ? '\n\n📄 הדוח שהכנתי עבורכם: '+b.live.url : '') + (settings.link ? '\n'+settings.link : '');
   if(ch==='wa') return `היי, כאן ${me}${brand?' מ-'+brand:''} 👋\nעברתי על הנוכחות הדיגיטלית של ${b.name} ומצאתי ${sc.fix.length} דברים שכנראה עולים לכם בלקוחות. שלושת הבולטים:\n${pts}\n\nהכנתי דוח קצר עם כל הממצאים — לשלוח לך? בלי התחייבות.${link}`;
   if(ch==='email') return `שלום רב,\n\nשמי ${me}${settings.tagline?', '+settings.tagline:''}.\nבדקתי את הנוכחות הדיגיטלית של ${b.name} בגוגל ובאתר, ומצאתי כמה נקודות שמשפיעות ישירות על כמות הפניות שאתם מקבלים:\n\n${pts}\n\nציון הנוכחות הדיגיטלית של העסק כרגע: ${sc.presence}/100.\nצירפתי/אשמח לשלוח דוח ביקורת מלא עם כל הממצאים וההמלצות — ללא עלות.\n\nאפשר לתאם שיחה קצרה של 15 דקות?${link}\n\nבברכה,\n${me}\n${brand}${settings.phone?'\n'+settings.phone:''}`;
   if(ch==='call') return `🎯 פתיחה:\n"שלום, מדבר ${firstName()}${brand?' מ-'+brand:''}. אני מתקשר לגבי ${b.name} — יש לך דקה? עשיתי בדיקה קצרה לנוכחות שלכם בגוגל ורציתי לשתף משהו שמצאתי."\n\n🔍 הממצא המרכזי:\n"${top[0]||'יש כמה דברים שאפשר לשפר'}."\n\n❓ שאלת חיבור:\n"כמה פניות חדשות מגיעות אליכם היום דרך גוגל או האתר בשבוע?"\n\n💡 ערך:\n"עסקים דומים שתיקנו את זה ראו עלייה בפניות. יש עוד ${Math.max(sc.fix.length-1,0)} נקודות בדוח."\n\n📅 סגירה:\n"אני יכול לשלוח לך את הדוח המלא בוואטסאפ ולקבוע 15 דקות לעבור עליו יחד — מתי נוח לך?"\n\n🛡️ התנגדות "אין זמן / יש לנו מישהו":\n"לגמרי. הדוח חינמי וזה 15 דקות — גם אם תחליטו לעשות את זה עם מישהו אחר, תדעו בדיוק מה לבקש."`;
@@ -975,13 +1033,13 @@ function renderBoard(){
     const items=all.filter(([id,l])=>l.stage===s.id).sort((a,b)=>(a[1].due||'9')>(b[1].due||'9')?1:-1);
     return `<div class="col"><h6><span>${s.t}</span><span class="hint">${items.length}</span></h6>
       ${items.map(([id,l])=>`<div class="lcard" onclick="openBiz('${id}')"><b>${esc(l.biz.name)}</b><br>
-        <span class="hint">${esc(l.biz.phone||'')} · ציון ${scoreBiz(l.biz).opp}</span>
+        <span class="hint">${esc(l.biz.phone||'')} · ציון ${scoreBiz(l.biz).opp}${l.biz.live?' · 👁️ '+(l.biz.live.views||0):''}</span>
         ${l.due?`<div class="due ${l.due<today?'late':''}">📅 מעקב: ${esc(l.due)}</div>`:''}
         ${l.note?`<div class="hint">${esc(l.note.slice(0,80))}</div>`:''}</div>`).join('')||'<div class="hint">—</div>'}</div>`; }).join('');
 }
 $('leadSearch').oninput=renderBoard;
 function showView(v){ $('viewScan').classList.toggle('hidden',v!=='scan'); $('viewLeads').classList.toggle('hidden',v!=='leads');
-  $('tabScan').classList.toggle('on',v==='scan'); $('tabLeads').classList.toggle('on',v==='leads'); if(v==='leads') renderBoard(); }
+  $('tabScan').classList.toggle('on',v==='scan'); $('tabLeads').classList.toggle('on',v==='leads'); if(v==='leads'){ renderBoard(); refreshViews(); loadWatch(); } }
 $('tabScan').onclick=()=>showView('scan'); $('tabLeads').onclick=()=>showView('leads');
 
 /* ---------- export ---------- */
@@ -1005,10 +1063,320 @@ $('btnJson').onclick=()=>{ if(results.length) dl('leads-radar-'+stamp()+'.json',
 $('btnLeadsCsv').onclick=()=>{ const l=Object.values(leads).filter(x=>x.biz).map(x=>x.biz); if(l.length) dl('my-leads-'+stamp()+'.csv',csv(rowsOf(l)),'text/csv;charset=utf-8'); };
 $('btnClear').onclick=()=>{ if(confirm('לנקות את תוצאות הסריקה מהמסך? (הלידים השמורים נשארים)')){ results=[]; saveResults(); render(); drawMarkers(); } };
 
+/* ============================================================
+   v3 modules: competitors · local rank grid · registry · AI review summary ·
+   live reports + view tracking · quotes · loss estimate · WhatsApp queue · area watch
+   ============================================================ */
+const shots = {};   // mobile screenshots (base64) — memory only
+function busy(msg){ let el=document.getElementById('busyEl');
+  if(!msg){ if(el) el.remove(); return; }
+  if(!el){ el=document.createElement('div'); el.id='busyEl'; el.className='busy'; document.body.appendChild(el); }
+  el.innerHTML='<div class="panel center"><span class="sp"></span> '+esc(msg)+'</div>'; }
+const api = (qs)=> (settings.api||DEFAULT_API)+'?'+qs;
+async function apiCall(qs, opts={}, ms=60000){
+  const o=Object.assign({headers:{}},opts); if(settings.token) o.headers['X-LR-Token']=settings.token;
+  if(o.body && typeof o.body!=='string'){ o.body=JSON.stringify(o.body); o.headers['Content-Type']='application/json'; }
+  const r=await fetchT(api(qs), o, ms); const j=await r.json().catch(()=>({error:'תשובה לא תקינה'}));
+  if(!r.ok || j.error) throw new Error(j.error||('שגיאה '+r.status)); return j;
+}
+function needToken(){ if(settings.token) return false; alert('לפיצ׳ר הזה צריך «טוקן שרת» ב-⚙️ הגדרות → אינטגרציות.'); return true; }
+function persistBiz(b){ if(leads[b.id]){ leads[b.id].biz=slim(b); saveLeads(); } saveResults(); }
+const reopen = id=>{ render(); if(dlgBiz.open && curBiz===id) openBiz(id); };
+
+/* ---------- competitors ---------- */
+const strength = x => (x.rating||0) * Math.log10((x.reviews||0)+1) + (x.photos||0)/20;
+function competitorsOf(b){
+  const pool = new Map();
+  (b.comp||[]).forEach(c=>pool.set(c.id,c));
+  results.forEach(x=>{ if(x.id!==b.id && x.type===b.type && x.loc && b.loc && dist(b.loc,x.loc)<=3000) pool.set(x.id, x); });
+  pool.delete(b.id);
+  return [...pool.values()].map(c=>Object.assign({}, c, {d: c.loc&&b.loc?Math.round(dist(b.loc,c.loc)):null})).sort((a,c)=>strength(c)-strength(a)).slice(0,3);
+}
+window.findCompetitors = async id=>{
+  const b=findBiz(id); if(!b||!mapsLoaded) return;
+  busy('מחפש מתחרים סביב '+b.name+'...');
+  try{
+    const {Place}=await google.maps.importLibrary('places');
+    const res=await Place.searchByText({textQuery:b.type||b.name, fields:PLACE_FIELDS, locationBias:{center:b.loc, radius:2000}, maxResultCount:20, language:'iw', region:'IL'});
+    b.comp=(res.places||[]).map(toBiz).filter(c=>c.id!==b.id && c.loc && dist(b.loc,c.loc)<=3000)
+      .map(c=>({id:c.id,name:c.name,rating:c.rating,reviews:c.reviews,photos:c.photos,website:c.website,loc:c.loc,type:c.type,maps:c.maps,hours:c.hours,phone:c.phone}));
+    persistBiz(b);
+  }catch(e){ alert('חיפוש מתחרים נכשל: '+e.message); }
+  busy(false); reopen(id);
+};
+function compHtml(b){
+  const cs=competitorsOf(b);
+  const row=(x,me)=>`<tr class="${me?'me':''}"><td>${me?'⬅️ ':''}${esc(x.name)}</td><td>${x.d!=null?fmtDist(x.d):'—'}</td><td>⭐ ${x.rating||'—'}</td><td>${x.reviews||0}</td><td>${x.photos||0}</td><td>${x.website?'✓':'✕'}</td><td>${x.hours&&x.hours.length?'✓':'✕'}</td></tr>`;
+  let ins='';
+  if(cs.length){ const top=cs[0];
+    const pts=[];
+    if((top.reviews||0)>(b.reviews||0)*2 && top.reviews>=10) pts.push(`ל«${esc(top.name)}» יש ${top.reviews} ביקורות — פי ${Math.max(2,Math.round(top.reviews/Math.max(1,b.reviews)))} מ${esc(b.name)}`);
+    if((top.rating||0)>(b.rating||0)+0.2) pts.push(`הדירוג של המתחרה המוביל גבוה יותר (${top.rating} מול ${b.rating||'אין'})`);
+    if((top.photos||0)>(b.photos||0)) pts.push(`למתחרה יש יותר תמונות בגוגל (${top.photos} מול ${b.photos})`);
+    if(top.website && !b.website) pts.push('למתחרה יש אתר — לעסק אין');
+    ins = pts.length?`<ul class="fix">${pts.map(t=>`<li>${t}</li>`).join('')}</ul>`:'<div class="hint" style="margin-top:6px">העסק לא נופל מהמתחרים הבולטים בנתוני גוגל.</div>';
+  }
+  return `<div class="sec"><h5>⚔️ מול המתחרים (עד 3 ק״מ, אותה קטגוריה)</h5>
+    ${cs.length?`<table class="cmp"><tr><th>עסק</th><th>מרחק</th><th>דירוג</th><th>ביקורות</th><th>תמונות</th><th>אתר</th><th>שעות</th></tr>${row(Object.assign({},b,{d:0}),true)}${cs.map(c=>row(c)).join('')}</table>${ins}`
+      :'<div class="hint">עוד אין מתחרים מאותה קטגוריה בתוצאות.</div>'}
+    <div class="toolbar" style="margin:8px 0 0"><button onclick="findCompetitors('${b.id}')">🔎 ${b.comp?'רענן':'מצא'} מתחרים באזור (קריאת API אחת)</button></div></div>`;
+}
+
+/* ---------- local rank grid ---------- */
+function rankCls(r){ return r<=3?'rg1':r<=6?'rg2':r<=10?'rg3':r<=20?'rg4':'rg5'; }
+window.runRank = async id=>{
+  const b=findBiz(id); if(!b||!mapsLoaded||!b.loc) return;
+  const kw=($('rkKw')&&$('rkKw').value.trim())||b.type||b.name, R=+(($('rkR')&&$('rkR').value)||2000), n=+(($('rkN')&&$('rkN').value)||5);
+  if(!confirm(`בדיקת דירוג ב-${n*n} נקודות = ${n*n} קריאות לגוגל (שדה ID בלבד — הזול ביותר). להמשיך?`)) return;
+  const {Place}=await google.maps.importLibrary('places');
+  const pts=[]; for(let i=0;i<n;i++) for(let j=0;j<n;j++){ const dy=R*(1-2*i/(n-1)), dx=R*(2*j/(n-1)-1);
+    pts.push({lat:b.loc.lat+dy/111320, lng:b.loc.lng+dx/(111320*Math.cos(b.loc.lat*Math.PI/180)), r:null}); }
+  let done=0; busy('בודק דירוג מקומי: 0/'+pts.length);
+  const cell=Math.max(300, Math.round(2*R/(n-1)));
+  let idx=0; const worker=async()=>{ while(idx<pts.length){ const p=pts[idx++];
+    try{ const res=await Place.searchByText({textQuery:kw, fields:['id'], locationBias:{center:{lat:p.lat,lng:p.lng}, radius:cell}, maxResultCount:20, language:'iw', region:'IL'});
+      const k=(res.places||[]).findIndex(x=>x.id===b.id); p.r = k>=0?k+1:21; }catch(e){ p.r=null; }
+    done++; busy('בודק דירוג מקומי: '+done+'/'+pts.length); } };
+  await Promise.all([worker(),worker(),worker()]);
+  const vals=pts.map(p=>p.r).filter(v=>v!=null);
+  b.rank={kw, radius:R, n, grid:pts, avg: vals.reduce((a,c)=>a+c,0)/Math.max(1,vals.length), top3: vals.filter(v=>v<=3).length, total:vals.length, ts:Date.now()};
+  persistBiz(b); busy(false); reopen(id); drawMarkers();
+};
+function rankGridHtml(rk, big){
+  return `<div class="rgrid" style="grid-template-columns:repeat(${rk.n},1fr);${big?'max-width:380px':''}">${rk.grid.map((p,i)=>`<div class="${p.r==null?'rg5':rankCls(p.r)} ${i===Math.floor(rk.grid.length/2)?'rgc':''}">${p.r==null?'?':p.r>20?'20+':p.r}</div>`).join('')}</div>`;
+}
+function rankHtml(b){
+  const rk=b.rank;
+  return `<div class="sec"><h5>📍 דירוג מקומי בגוגל מפות (מפת חום)</h5>
+    ${rk?`<div class="hint">«${esc(rk.kw)}» · רדיוס ${fmtDist(rk.radius)} · ממוצע <b>מקום ${rk.avg.toFixed(1)}</b> · בטופ 3 ב-${rk.top3} מתוך ${rk.total} נקודות · ${new Date(rk.ts).toLocaleDateString('he-IL')}</div>
+      ${rankGridHtml(rk)}<div class="hint">כל משבצת = נקודה בשטח, והמספר = המקום של העסק בתוצאות גוגל מפות למי שמחפש משם. המשבצת עם המסגרת = העסק עצמו. 🟩 1–3 · 🟨 4–10 · 🟧 11–20 · 🟥 לא בטופ 20</div>`
+      :'<div class="hint">בודק באיזה מקום העסק מופיע בגוגל מפות כשמחפשים אותו מנקודות שונות סביבו.</div>'}
+    <div class="row row2" style="grid-template-columns:2fr 1fr 1fr;margin-top:8px">
+      <input id="rkKw" value="${esc((rk&&rk.kw)||b.type||'')}" placeholder="מילת חיפוש">
+      <select id="rkR">${[1000,2000,3000,5000].map(v=>`<option value="${v}" ${(rk?rk.radius:2000)===v?'selected':''}>${v/1000} ק״מ</option>`).join('')}</select>
+      <select id="rkN"><option value="3">3×3 (9)</option><option value="5" ${(!rk||rk.n===5)?'selected':''}>5×5 (25)</option></select></div>
+    <button onclick="runRank('${b.id}')">📍 ${rk?'בדוק שוב':'בדוק דירוג מקומי'}</button></div>`;
+}
+
+/* ---------- companies registry ---------- */
+window.lookupRegistry = async id=>{
+  const b=findBiz(id); busy('מחפש ברשם החברות...');
+  try{ const j=await fetchT(api('action=registry&q='+encodeURIComponent(b.name)),{},20000).then(r=>r.json()); b.reg={records:j.records||[], ts:Date.now()}; persistBiz(b); }
+  catch(e){ alert('החיפוש ברשם החברות נכשל: '+e.message); }
+  busy(false); reopen(id);
+};
+function regHtml(b){
+  const r=b.reg;
+  return `<div class="sec"><h5>🏢 רשם החברות (data.gov.il)</h5>
+    ${r?(r.records.length?r.records.slice(0,5).map(x=>`<div style="border-top:1px solid var(--line);padding:6px 0;font-size:13px"><b>${esc(x.name)}</b> · ח.פ. ${esc(x.number)} · <span style="color:${x.status==='פעילה'?'var(--good)':'var(--bad)'}">${esc(x.status)}</span>${x.violator?' · <span style="color:var(--bad)">חברה מפרה</span>':''}<br><span class="hint">${esc(x.type||'')} · הוקמה ${esc(x.founded||'—')} · דוח שנתי אחרון ${esc(x.lastReport||'—')} · ${esc(x.city||'')} ${esc(x.street||'')}</span>${x.desc?`<br><span class="hint">${esc(String(x.desc).slice(0,160))}</span>`:''}</div>`).join('')
+      :'<div class="hint">לא נמצאה חברה בשם הזה. ייתכן שזה עוסק מורשה / פטור (לא רשום ברשם החברות) או שהשם הרשמי שונה.</div>'):'<div class="hint">חיפוש לפי שם העסק במאגר הרשמי: מספר ח.פ., סטטוס, תאריך הקמה, כתובת רשומה.</div>'}
+    <button style="margin-top:8px" onclick="lookupRegistry('${b.id}')">🏢 ${r?'חפש שוב':'חפש ברשם החברות'}</button></div>`;
+}
+
+/* ---------- AI review summary ---------- */
+async function gemini(prompt){
+  const r=await fetchT('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(settings.model||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(settings.gemini),
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4}})},45000);
+  const j=await r.json(); if(j.error) throw new Error(j.error.message);
+  return ((j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text).join(''))||'').trim();
+}
+window.summarizeReviews = async id=>{
+  const b=findBiz(id); if(!b.rev||b.rev.error||!b.rev.list.length) return alert('קודם צריך «🔬 נתח» עם ניתוח ביקורות.');
+  if(!settings.gemini) return alert('לסיכום AI צריך מפתח Gemini ב-⚙️ הגדרות.');
+  busy('מסכם ביקורות עם AI...');
+  try{ b.revSummary={text: await gemini(`סכם בעברית, ב-3 עד 5 תבליטים קצרים, מה הלקוחות אוהבים ומה מפריע להם בעסק "${b.name}", לפי הביקורות הבאות. אם יש תלונה חוזרת — הדגש אותה. בלי הקדמה.\n\n`+b.rev.list.map(r=>`(${r.rating}★, ${r.when}) ${r.text}`).join('\n')), ts:Date.now()}; persistBiz(b); }
+  catch(e){ alert('שגיאת AI: '+e.message); }
+  busy(false); reopen(id);
+};
+function revSumHtml(b){
+  if(!b.rev||b.rev.error||!b.rev.list.length) return '';
+  return `<div class="sec"><h5>✨ מה הלקוחות אומרים (סיכום AI)</h5>
+    ${b.revSummary?`<div style="white-space:pre-wrap;font-size:13.5px;line-height:1.8">${esc(b.revSummary.text)}</div>`:'<div class="hint">סיכום קצר של הביקורות — מה אוהבים ועל מה מתלוננים. נכנס גם לדוח.</div>'}
+    <button style="margin-top:8px" onclick="summarizeReviews('${b.id}')">✨ ${b.revSummary?'סכם שוב':'סכם ביקורות'}</button></div>`;
+}
+
+/* ---------- domain & SSL ---------- */
+function domainHtml(b){
+  const s=b.site; if(!s||s.error||(!s.ssl&&!s.domain)) return '';
+  const d=s.domain, c=s.ssl;
+  return `<div class="sec"><h5>🔐 דומיין ואבטחה</h5><div class="kv">
+    ${c?`<div>תעודת SSL</div><div>${c.authorized===false?'<span style="color:var(--bad)">לא תקינה</span> · ':''}בתוקף עד ${esc(c.validTo)} (${c.daysLeft} ימים) · ${esc(c.issuer)}</div>`:''}
+    ${d&&d.created?`<div>גיל הדומיין</div><div>${d.ageYears} שנים (נרשם ${esc(d.created)})</div>`:''}
+    ${d&&d.expires?`<div>תוקף הדומיין</div><div>${esc(d.expires)} (${d.daysToExpire} ימים)</div>`:''}
+  </div></div>`;
+}
+
+/* ---------- live report + view tracking ---------- */
+async function publishLive(b, silent){
+  if(needToken()) return null;
+  await ensureShot(b);
+  busy('מעלה את הדוח לקישור חי...');
+  try{
+    const html=reportHtml(b);
+    const j=await apiCall('action=save',{method:'POST', body:{html, bizId:b.id, name:b.name, id:b.live&&b.live.id}},60000);
+    b.live=Object.assign({}, b.live, {id:j.id, url:j.url, saved:Date.now()}); persistBiz(b);
+    busy(false);
+    try{ await navigator.clipboard.writeText(j.url); }catch(e){}
+    if(!silent) log('🔗 קישור חי הועתק: '+j.url);
+    return j.url;
+  }catch(e){ busy(false); alert('העלאת הדוח נכשלה: '+e.message); return null; }
+}
+window.makeLive = async id=>{ const b=findBiz(id); const url=await publishLive(b); if(url){ reopen(id); alert('✓ הקישור החי הועתק ללוח:\n'+url+'\n\nכל פתיחה שלו אצל הלקוח נספרת. הקישור מופיע אוטומטית גם בהודעות הפנייה.'); } };
+function liveHtml(b){
+  const L=b.live;
+  return `<div class="sec"><h5>🔗 דוח חי ומעקב צפיות</h5>
+    ${L?`<div class="kv"><div>קישור</div><div><a href="${esc(L.url)}&me=1" target="_blank">${esc(L.url)}</a></div>
+      <div>צפיות</div><div><b>${L.views||0}</b>${L.last?' · אחרונה: '+new Date(L.last).toLocaleString('he-IL'):''}${L.views?'':' · עוד לא נפתח'}</div></div>
+      <div class="hint">פתיחה שלך מהקישור כאן לא נספרת. תצוגות מקדימות של וואטסאפ/פייסבוק מסוננות.</div>`
+      :'<div class="hint">מעלה את דוח הביקורת לקישור קבוע בשרת שלך, ומראה לך מתי הלקוח פתח אותו — הזמן הכי טוב להתקשר.</div>'}
+    <div class="toolbar" style="margin:8px 0 0"><button onclick="makeLive('${b.id}')">🔗 ${L?'עדכן את הדוח החי':'צור קישור חי'}</button>${L?`<button onclick="refreshViews(true)">🔄 רענן צפיות</button>`:''}</div></div>`;
+}
+async function refreshViews(force){
+  if(!settings.token) return;
+  const all=new Map(); results.forEach(b=>{ if(b.live) all.set(b.live.id,b); });
+  Object.values(leads).forEach(l=>{ if(l.biz&&l.biz.live&&!all.has(l.biz.live.id)) all.set(l.biz.live.id,l.biz); });
+  if(!all.size) return;
+  try{
+    const j=await apiCall('action=views&ids='+[...all.keys()].join(','),{},30000);
+    let changed=[];
+    all.forEach((b,id)=>{ const v=j[id]; if(!v) return; if((v.count||0)>(b.live.views||0)) changed.push(b.name);
+      b.live.views=v.count; b.live.last=v.last;
+      const r=results.find(x=>x.id===b.id); if(r&&r!==b) r.live=b.live; if(leads[b.id]&&leads[b.id].biz) leads[b.id].biz.live=b.live; });
+    saveResults(); saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard();
+    if(changed.length) log('👁️ דוח נפתח: '+changed.join(', '));
+    if(force && curBiz && dlgBiz.open) openBiz(curBiz);
+  }catch(e){ if(force) alert('רענון צפיות נכשל: '+e.message); }
+}
+$('bizLive').onclick=()=>curBiz&&makeLive(curBiz);
+
+/* ---------- report extras + loss estimate ---------- */
+function lossEstimate(b){
+  const sc=scoreBiz(b), val=+settings.val||300, monthly=+settings.monthly||20;
+  const lift=Math.min(0.6, sc.opp/100*0.6);
+  const extra=Math.round(monthly*lift);
+  return {val, monthly, liftPct:Math.round(lift*100), extra, money: extra*val};
+}
+function lossHtml(b){
+  const L=lossEstimate(b); if(!L.extra) return '';
+  return `<h2>כמה זה יכול להיות שווה</h2>
+   <div class="hero" style="display:block"><div style="font-size:15px">בהנחה של <b>${L.monthly}</b> פניות בחודש מגוגל ושווי לקוח ממוצע של <b>₪${L.val.toLocaleString('he-IL')}</b>,
+   תיקון הליקויים יכול להוסיף כ-<b>${L.liftPct}%</b> פניות — כלומר כ-<b>${L.extra}</b> לקוחות נוספים בחודש,
+   <span style="font-size:22px;font-weight:800;color:#15a86b">≈ ₪${L.money.toLocaleString('he-IL')} בחודש</span>.</div>
+   <p class="note">זו הערכה לפי הנחות, לא התחייבות. נשמח לדייק אותה יחד לפי הנתונים האמיתיים של העסק.</p></div>`;
+}
+function reportExtras(b, row){
+  let out='';
+  if(shots[b.id]) out+=`<h2>איך האתר נראה בטלפון</h2><div style="text-align:center"><img src="${shots[b.id]}" style="max-height:520px;border:8px solid #1b2440;border-radius:26px;box-shadow:0 8px 30px rgba(0,0,0,.2)"></div>`;
+  const cs=competitorsOf(b);
+  if(cs.length) out+=`<h2>השוואה למתחרים באזור</h2><table><tr><td></td><td><b>עסק</b></td><td class="n"><b>דירוג · ביקורות · תמונות · אתר</b></td></tr>
+    <tr style="background:#eef2ff"><td class="st">⬅️</td><td><b>${esc(b.name)}</b></td><td class="n">⭐ ${b.rating||'—'} · ${b.reviews} · ${b.photos} · ${b.website?'יש':'אין'}</td></tr>
+    ${cs.map(c=>`<tr><td class="st"></td><td>${esc(c.name)}</td><td class="n">⭐ ${c.rating||'—'} · ${c.reviews} · ${c.photos} · ${c.website?'יש':'אין'}</td></tr>`).join('')}</table>`;
+  if(b.rank){ const rk=b.rank;
+    out+=`<h2>הדירוג בגוגל מפות סביב העסק</h2><p>כשמחפשים «${esc(rk.kw)}» ברדיוס ${fmtDist(rk.radius)} מהעסק, הוא מופיע בממוצע <b>במקום ${rk.avg.toFixed(1)}</b>, ובשלושת הראשונים רק ב-<b>${rk.top3}</b> מתוך ${rk.total} נקודות.</p>
+    <div style="display:grid;grid-template-columns:repeat(${rk.n},1fr);gap:4px;max-width:360px;direction:ltr">${rk.grid.map((p,i)=>{const r=p.r; const bg=r==null||r>20?'#ff6b6b':r<=3?'#2fd48f':r<=6?'#b8e05a':r<=10?'#ffc24d':'#ff8f5a';
+      return `<div style="aspect-ratio:1;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;font-weight:800;${i===Math.floor(rk.grid.length/2)?'outline:3px solid #1b2440;outline-offset:-3px':''}">${r==null?'?':r>20?'20+':r}</div>`;}).join('')}</div>
+    <p class="note">כל משבצת היא נקודה בשטח; המספר הוא המקום של העסק בתוצאות גוגל מפות למי שמחפש משם. 3 המקומות הראשונים מקבלים את רוב הפניות.</p>`; }
+  if(b.revSummary) out+=`<h2>מה הלקוחות אומרים</h2><div style="white-space:pre-wrap">${esc(b.revSummary.text)}</div>`;
+  const s=b.site; if(s&&!s.error&&(s.ssl||s.domain)) out+=`<h2>דומיין ואבטחה</h2><table>
+    ${s.ssl?row(s.ssl.daysLeft>30,'תעודת אבטחה (SSL)','בתוקף עד '+esc(s.ssl.validTo)):''}
+    ${s.domain&&s.domain.expires?row(s.domain.daysToExpire>60,'תוקף הדומיין',esc(s.domain.expires)):''}
+    ${s.domain&&s.domain.created?row(null,'גיל הדומיין',s.domain.ageYears+' שנים'):''}</table>`;
+  return out;
+}
+
+/* ---------- price quote ---------- */
+function pkgList(){ return String(settings.pkgs||'').split('\n').map(l=>l.split('|').map(x=>x.trim())).filter(a=>a.length>=3&&a[0]).map(a=>({cat:a[0],name:a[1],price:+a[2]||0})); }
+function quoteHtml(b){
+  const sc=scoreBiz(b), cats=[...new Set(sc.fix.map(f=>f.cat))], c=settings.color||'#4f7cff';
+  const items=pkgList().filter(p=>cats.includes(p.cat));
+  const sub=items.reduce((a,p)=>a+p.price,0), vat=Math.round(sub*0.18), num='Q-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.floor(Math.random()*900+100);
+  const why=cat=>sc.fix.filter(f=>f.cat===cat).slice(0,2).map(f=>esc(f.t)).join(' · ');
+  return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>הצעת מחיר — ${esc(b.name)}</title><style>
+body{margin:0;font-family:"Segoe UI",Rubik,Arial,sans-serif;background:#f4f6fb;color:#1b2440;line-height:1.7}.page{max-width:820px;margin:0 auto;background:#fff;padding:36px 40px}
+.top{display:flex;align-items:center;gap:14px;border-bottom:4px solid ${c};padding-bottom:14px;margin-bottom:20px}.top img{max-height:52px}.brand{font-weight:800;color:${c};font-size:18px}.sp{flex:1}
+h1{margin:0 0 4px;font-size:24px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:10px 8px;border-bottom:1px solid #e6e9f2;text-align:right;vertical-align:top}th{background:#f4f6fb}
+td.p{white-space:nowrap;font-weight:700}.why{font-size:12px;color:#778}.tot td{border:none;font-size:15px}.grand td{font-size:19px;font-weight:800;color:${c}}
+.note{font-size:12.5px;color:#667}.tb{position:fixed;bottom:16px;left:16px}.tb button{font:inherit;padding:8px 14px;border-radius:10px;border:1px solid #ccd;background:#fff;cursor:pointer}
+@media print{.tb{display:none}body{background:#fff}.page{padding:0}}[contenteditable]:hover{outline:1px dashed #aab}</style></head><body>
+<div class="tb"><button onclick="print()">🖨️ שמור כ-PDF</button></div>
+<div class="page" contenteditable="true">
+<div class="top">${settings.logo?`<img src="${esc(settings.logo)}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="note">${esc(settings.tagline||'')}</div></div><div class="sp"></div><div class="note">מס׳ ${num}<br>${new Date().toLocaleDateString('he-IL')}</div></div>
+<h1>הצעת מחיר</h1><div>לכבוד: <b>${esc(b.name)}</b> · ${esc(b.address)}</div>
+<p>בהמשך לבדיקת הנוכחות הדיגיטלית של העסק (ציון נוכחות נוכחי: <b>${sc.presence}/100</b>), להלן השירותים המומלצים לתיקון הליקויים שנמצאו:</p>
+<table><tr><th>#</th><th>שירות</th><th>מחיר (₪)</th></tr>
+${items.map((p,i)=>`<tr><td>${i+1}</td><td><b>${esc(p.name)}</b><div class="why">למה: ${why(p.cat)}</div></td><td class="p">${p.price.toLocaleString('he-IL')}</td></tr>`).join('')||'<tr><td colspan="3">לא נמצאו ליקויים שמתאימים לחבילות שהוגדרו.</td></tr>'}
+<tr class="tot"><td></td><td>סה״כ לפני מע״מ</td><td class="p">${sub.toLocaleString('he-IL')}</td></tr>
+<tr class="tot"><td></td><td>מע״מ 18%</td><td class="p">${vat.toLocaleString('he-IL')}</td></tr>
+<tr class="grand"><td></td><td>סה״כ לתשלום</td><td class="p">₪${(sub+vat).toLocaleString('he-IL')}</td></tr></table>
+<p class="note">ההצעה בתוקף ל-30 יום. אפשר לבחור חלק מהשירותים. תנאי תשלום: 50% בתחילת העבודה, 50% במסירה.</p>
+<p><b>${esc(settings.person||'')}</b> · ${esc(settings.brand||'')}${settings.phone?' · '+esc(settings.phone):''}${settings.email?' · '+esc(settings.email):''}</p>
+<p class="note">💡 אפשר ללחוץ על כל טקסט או מחיר בעמוד הזה ולערוך אותו לפני השמירה כ-PDF (הסכומים לא מתעדכנים אוטומטית אחרי עריכה).</p>
+</div></body></html>`;
+}
+window.openQuote = id=>{ const b=findBiz(id); if(!b) return; const html=quoteHtml(b); const w=window.open('','_blank');
+  if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+  dl('הצעת-מחיר-'+b.name.replace(/[\\/:*?"<>|]/g,'').slice(0,40)+'.html', html, 'text/html;charset=utf-8'); };
+$('bizQuote').onclick=()=>curBiz&&openQuote(curBiz);
+
+/* ---------- WhatsApp queue ---------- */
+let queue=[], qi=0;
+$('btnQueue').onclick=()=>{
+  const hot=Object.values(leads).filter(l=>l.stage==='hot'&&l.biz).map(l=>l.biz);
+  queue = (hot.length?hot:results.filter(b=>scoreBiz(b).opp>=60 && stageOf(b.id)==='new')).filter(b=>b.phone||(b.site&&b.site.whatsapp&&b.site.whatsapp.length));
+  if(!queue.length) return alert('אין לידים לתור. סמן לידים בשלב «🔥 חם — לפנות», או סרוק אזור עם עסקים בציון 60+.');
+  qi=0; $('qInfo').textContent=(hot.length?'לידים בשלב «חם»':'עסקים בציון 60+ שעוד לא טופלו')+' · '+queue.length+' בתור'; showQ(); dlgQueue.showModal();
+};
+function showQ(){
+  if(qi>=queue.length){ dlgQueue.close(); log('📲 תור הוואטסאפ הסתיים.'); return; }
+  const b=queue[qi]; $('qTitle').textContent='📲 תור וואטסאפ · '+(qi+1)+'/'+queue.length;
+  $('qName').textContent=b.name; $('qMeta').textContent=[b.phone, b.type, 'ציון '+scoreBiz(b).opp, b.live?'🔗 יש דוח חי':''].filter(Boolean).join(' · ');
+  $('qText').value=outreachText(b,'wa');
+}
+$('qSend').onclick=()=>{ const b=queue[qi]; const wa=(b.site&&b.site.whatsapp&&b.site.whatsapp[0])||waNum(b.phone);
+  window.open('https://wa.me/'+wa+'?text='+encodeURIComponent($('qText').value),'_blank');
+  if(!results.find(x=>x.id===b.id)) results.push(b);
+  setStage(b.id,'contact'); qi++; showQ(); };
+$('qSkip').onclick=()=>{ qi++; showQ(); };
+
+/* ---------- area watch ---------- */
+$('btnWatch').onclick=async()=>{
+  if(needToken()) return;
+  const kw=$('kw').value.trim() || ($('cat').value?$('cat').selectedOptions[0].textContent:'');
+  if(!kw) return alert('בחר מילת חיפוש או קטגוריה — עליה יתבצע המעקב.');
+  const name=kw+' · '+($('addr').value.trim()||'אזור')+' · '+$('radLbl').textContent;
+  try{ await apiCall('action=watch',{method:'POST',body:{op:'add',area:{name,kw,lat:center.lat,lng:center.lng,radius:+$('rad').value,hook:settings.hook||''}}});
+    alert('⭐ נשמר למעקב שבועי: '+name+'\n\nהסריקה הראשונה קובעת את «קו הבסיס»; מהשבוע הבא תקבל כאן (ובמייל/Webhook אם הגדרת) כל עסק חדש שנפתח באזור.');
+    await apiCall('action=cron',{},280000).catch(()=>{}); loadNewCount();
+  }catch(e){ alert('שמירה נכשלה: '+e.message); }
+};
+async function loadWatch(){
+  if(!settings.token){ $('areasList').innerHTML='כדי להפעיל מעקב אזורים צריך «טוקן שרת» ב-⚙️ הגדרות.'; $('newLeadsList').innerHTML=''; return; }
+  try{
+    const [a,n]=await Promise.all([apiCall('action=watch'), apiCall('action=newleads')]);
+    $('areasList').innerHTML = a.areas.length? a.areas.map(x=>`<div style="padding:6px 0;border-top:1px solid var(--line)">⭐ <b>${esc(x.name)}</b> · <span class="hint">${x.lastRun?'נבדק '+new Date(x.lastRun).toLocaleString('he-IL')+' · '+(x.lastFound||0)+' עסקים'+(x.baseline&&!x.lastNew?'':' · '+(x.lastNew||0)+' חדשים'):'טרם נבדק'}${x.lastError?' · ⚠️ '+esc(x.lastError):''}</span>
+      <a href="#" onclick="unwatch('${x.id}');return false" style="margin-inline-start:8px">🗑️ הסר</a></div>`).join('') : 'אין אזורים במעקב. בפאנל הסריקה: בחר אזור ומילת חיפוש → «⭐ מעקב שבועי».';
+    const L=n.leads.slice().reverse();
+    $('newLeadsList').innerHTML = L.length? `<b>🆕 ${L.length} עסקים חדשים</b><div class="grid" style="margin-top:8px">${L.map(x=>`<div class="biz"><h4 style="padding:0">${esc(x.name)}</h4>
+      <div class="meta">${esc(x.type||'')} · ${esc(x.area)}<br>${esc(x.address||'')}<br>${x.phone?'📞 '+esc(x.phone)+'<br>':''}⭐ ${x.rating||'—'} (${x.reviews}) · זוהה ${new Date(x.detected).toLocaleDateString('he-IL')}</div>
+      <div class="acts"><button onclick='adoptNew(${JSON.stringify(x.id)})'>➕ ללידים (חם)</button>${x.maps?`<a href="${esc(x.maps)}" target="_blank">🗺️</a>`:''}<button onclick='ackNew([${JSON.stringify(x.id)}])'>✓ נקרא</button></div></div>`).join('')}</div>` : '<div class="hint">אין עסקים חדשים כרגע.</div>';
+    window._newLeads=n.leads; setNewBadge(n.leads.length);
+  }catch(e){ $('areasList').innerHTML='⚠️ '+esc(e.message); }
+}
+function setNewBadge(n){ const el=$('newBadge'); el.textContent='🆕 '+n; el.classList.toggle('hidden',!n); }
+async function loadNewCount(){ if(!settings.token) return; try{ const n=await apiCall('action=newleads'); window._newLeads=n.leads; setNewBadge(n.leads.length); }catch(e){} }
+window.unwatch=async id=>{ if(!confirm('להסיר את האזור מהמעקב?')) return; await apiCall('action=watch',{method:'POST',body:{op:'remove',id}}); loadWatch(); };
+window.ackNew=async ids=>{ await apiCall('action=ackleads',{method:'POST',body:{ids}}); loadWatch(); };
+window.adoptNew=async id=>{ const x=(window._newLeads||[]).find(l=>l.id===id); if(!x) return;
+  const b={id:x.id,name:x.name,address:x.address,phone:x.phone,website:x.website,rating:x.rating,reviews:x.reviews,status:'OPERATIONAL',hours:[],type:x.type||'',types:[],photos:0,photoUrl:'',maps:x.maps,loc:x.loc,dist:null,site:null,rev:null,psi:null,astate:''};
+  if(!results.find(r=>r.id===b.id)) results.push(b); saveResults(); setStage(b.id,'hot'); await ackNew([id]); log('➕ '+b.name+' נוסף ללידים.'); };
+$('btnCronNow').onclick=async()=>{ if(needToken()) return; busy('סורק את האזורים במעקב...'); try{ const j=await apiCall('action=cron',{},290000);
+  busy(false); alert(j.report.map(r=>r.area+': '+(r.error?'שגיאה — '+r.error:(r.baseline?'קו בסיס נקבע ('+r.found+' עסקים)':r.new+' חדשים מתוך '+r.found))).join('\n')||'אין אזורים במעקב.'); }catch(e){ busy(false); alert(e.message); } loadWatch(); };
+$('btnAckAll').onclick=async()=>{ if(needToken()) return; if(!confirm('לסמן את כל העסקים החדשים כנקראו?')) return; await apiCall('action=ackleads',{method:'POST',body:{all:true}}); loadWatch(); };
+
 /* ---------- start ---------- */
 $('rad').dispatchEvent(new Event('input'));
 results.forEach(b=>{ if(b.astate==='run') b.astate=''; });
-render(); updateLeadsCount(); boot();
+render(); updateLeadsCount(); boot(); setTimeout(()=>{ refreshViews(); loadNewCount(); },2500);
 if(results.length) log('נטענו '+results.length+' תוצאות מהסריקה הקודמת.');
 </script>
 </body>
