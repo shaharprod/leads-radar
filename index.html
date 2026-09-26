@@ -1186,7 +1186,7 @@ async function ensureAd(b){
   if(!adImgs[b.id]){
     if(settings.token && /^[A-Za-z0-9_-]{10,}$/.test(b.id||'')){
       busy('📣 שולף תמונות שהעסק העלה בעצמו לכרטיס בגוגל...');
-      try{ const j=await apiCall('action=photos&id='+encodeURIComponent(b.id)+'&n=3',{},45000); adImgs[b.id]=(j.photos||[]).filter(x=>x.owner);
+      try{ const j=await apiCall('action=photos&id='+encodeURIComponent(b.id)+'&n=3&name='+encodeURIComponent(b.name||''),{},45000); adImgs[b.id]=(j.photos||[]).filter(x=>x.owner);
         log('📣 תמונות למודעה: '+(j.owner||0)+' של בעל העסק מתוך '+(j.total||0)+' בכרטיס (תמונות של לקוחות לא נכללות).'); }
       catch(e){ adImgs[b.id]=[]; log('⚠️ תמונות למודעה: '+e.message); }
       busy(false);
