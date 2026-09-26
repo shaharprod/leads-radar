@@ -1185,8 +1185,9 @@ function adFallback(b){
 async function ensureAd(b){
   if(!adImgs[b.id]){
     if(settings.token && /^[A-Za-z0-9_-]{10,}$/.test(b.id||'')){
-      busy('📣 שולף תמונות מכרטיס העסק בגוגל למודעה...');
-      try{ const j=await apiCall('action=photos&id='+encodeURIComponent(b.id)+'&n=3',{},45000); adImgs[b.id]=j.photos||[]; }
+      busy('📣 שולף תמונות שהעסק העלה בעצמו לכרטיס בגוגל...');
+      try{ const j=await apiCall('action=photos&id='+encodeURIComponent(b.id)+'&n=3',{},45000); adImgs[b.id]=(j.photos||[]).filter(x=>x.owner);
+        log('📣 תמונות למודעה: '+(j.owner||0)+' של בעל העסק מתוך '+(j.total||0)+' בכרטיס (תמונות של לקוחות לא נכללות).'); }
       catch(e){ adImgs[b.id]=[]; log('⚠️ תמונות למודעה: '+e.message); }
       busy(false);
     } else adImgs[b.id]=[];
@@ -1214,7 +1215,6 @@ ${pos.length?'ציטוטים מביקורות אמיתיות:\n'+pos.map(r=>'- '
 function adHtml(b){
   const a=b.ad; if(!a) return '';
   const ph=(adImgs[b.id]||[]).filter(p=>p&&p.data), im=ph.map(p=>p.data);
-  const authors=[...new Set(ph.map(p=>p.author).filter(Boolean))].join(', ');
   const img=u=>`<img src="${u}" alt="">`;
   const media = im.length>=3 ? `<div class="adm g3">${img(im[0])}${img(im[1])}${img(im[2])}</div>`
     : im.length===2 ? `<div class="adm g2">${img(im[0])}${img(im[1])}</div>`
@@ -1222,7 +1222,7 @@ function adHtml(b){
     : `<div class="adm noimg" style="background:linear-gradient(135deg,${settings.color||'#4f7cff'},#1b2440)"><b>${esc(b.name)}</b><span>${esc(b.type||'')}</span></div>`;
   let dom=''; try{ dom=b.website?new URL(b.website).hostname.replace(/^www\./,''):''; }catch(e){}
   return `<h2>📣 מודעה לדוגמה שהכנו עבורכם</h2>
- <p>כך יכולה להיראות מודעה ממומנת של ${esc(b.name)} בפייסבוק ובאינסטגרם${im.length?' — בנויה מהתמונות שכבר נמצאות בכרטיס העסק שלכם בגוגל':''}. מודעה כזו מופיעה מול אנשים באזור שלכם שמתאימים לקהל היעד.</p>
+ <p>כך יכולה להיראות מודעה ממומנת של ${esc(b.name)} בפייסבוק ובאינסטגרם${im.length?' — בנויה מהתמונות שהעסק עצמו העלה לכרטיס בגוגל':''}. מודעה כזו מופיעה מול אנשים באזור שלכם שמתאימים לקהל היעד.</p>
  <div class="adwrap"><div class="ad">
   <div class="adh"><div class="adav">${im[0]?img(im[0]):esc(String(b.name||'?').trim().charAt(0))}</div><div class="adn"><b>${esc(b.name)}</b><small>ממומן · 🌐</small></div></div>
   <div class="adt">${esc(a.primary)}</div>
@@ -1230,7 +1230,7 @@ function adHtml(b){
   <div class="adf"><div class="x">${dom?`<small>${esc(dom)}</small>`:''}<b>${esc(a.headline)}</b>${a.desc?`<span>${esc(a.desc)}</span>`:''}</div><div class="adbtn">${esc(a.cta)}</div></div>
   <div class="ada"><span>👍 לייק</span><span>💬 תגובה</span><span>↗️ שיתוף</span></div>
  </div></div>
- <p class="note" style="text-align:center">${im.length?'התמונות מתוך פרופיל העסק בגוגל'+(authors?' · צילום: '+esc(authors):'')+'. ':''}הדמיה להמחשה בלבד — המודעה לא פורסמה.</p>`;
+ <p class="note" style="text-align:center">${im.length?'התמונות הועלו על ידי העסק לפרופיל שלו בגוגל. ':'לא נמצאו בכרטיס הגוגל תמונות שהעסק העלה בעצמו — לכן הרקע בצבעי המותג. תמונות מקצועיות של העסק ישפרו מאוד את המודעה. '}הדמיה להמחשה בלבד — המודעה לא פורסמה.</p>`;
 }
 $('bizAd').onclick=()=>{ const b=curBiz&&findBiz(curBiz); if(!b) return; delete b.ad; delete adImgs[b.id]; openReport(b.id); };
 
