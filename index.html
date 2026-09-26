@@ -64,6 +64,9 @@ body.resizing iframe,body.resizing #map,body.resizing-v #map{pointer-events:none
 .mapwrap.big{position:fixed;inset:0;z-index:1000;background:var(--bg)}
 .mapwrap.big #map{height:100vh!important;border-radius:0;border:0}
 #btnBig{position:absolute;top:10px;left:10px;z-index:5;background:#0d142c;border:1px solid var(--acc);font-size:13px;padding:7px 12px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#mapCount{position:absolute;top:50px;left:10px;right:10px;margin:0 auto;width:fit-content;max-width:calc(100% - 20px);z-index:5;background:rgba(13,20,44,.93);border:1px solid var(--acc);border-radius:14px;font-size:12.5px;padding:5px 12px;text-align:center;line-height:1.7;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#mapCount button{font-size:11.5px;padding:2px 8px;margin-inline-start:6px;border-radius:12px}
+.mapwrap.big #mapCount{top:18px;font-size:15px;padding:8px 16px;max-width:60%}
 .mapwrap.big #btnBig{top:16px;left:16px;font-size:16px;padding:12px 20px;background:#ff6b6b;border:none;font-weight:700;color:#fff}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 14px}
 @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
@@ -153,7 +156,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
         <input id="addr" placeholder="לדוגמה: רחוב יפו 97, ירושלים" value="ירושלים"></div>
       <div class="row row2" style="grid-template-columns:1fr auto">
         <button id="btnGeo">📍 מצא על המפה</button><button id="btnMe" title="המיקום שלי">🎯</button></div>
-      <div class="mapwrap" id="mapWrap"><div id="map"></div><button id="btnBig" type="button">⛶ הגדל מפה</button></div>
+      <div class="mapwrap" id="mapWrap"><div id="map"></div><button id="btnBig" type="button">⛶ הגדל מפה</button><div id="mapCount" style="display:none"></div></div>
       <div class="map-resize" id="mapResize" title="גרור למעלה/למטה לשינוי גובה המפה · לחיצה כפולה = גובה רגיל"><i></i></div>
       <div class="hint" style="margin-top:4px">גוררים את הסיכה או לוחצים על המפה כדי לקבוע מרכז.</div>
       <div class="row" style="margin-top:12px"><label>רדיוס סריקה: <b id="radLbl">5 ק״מ</b></label>
@@ -513,9 +516,16 @@ function showMini(b,m){
   miniFor=b.id; miniIW.setContent(miniHtml(b)); miniIW.open({map, anchor:m, shouldFocus:false});
 }
 function hideMiniSoon(){ clearTimeout(miniTimer); miniTimer=setTimeout(()=>{ if(miniIW) miniIW.close(); miniFor=null; },400); }
-function drawMarkers(){
+function drawMarkers(list){
   if(!map) return; markers.forEach(m=>m.setMap(null)); markers=[]; if(miniIW){ miniIW.close(); miniFor=null; }
-  results.forEach(b=>{ if(!b.loc) return; const o=scoreBiz(b).opp;
+  list=list||filterList($('filt').value); markerKey=markerKeyOf(list);
+  const f=$('filt'), fl=f.options[f.selectedIndex]?f.options[f.selectedIndex].text:'', mc=$('mapCount');
+  if(mc){ if(!results.length) mc.style.display='none';
+    else { mc.style.display='block';
+      mc.innerHTML = f.value==='all' ? '📍 מוצגים '+list.length+' עסקים'
+        : '🔎 מוצגים <b>'+list.length+'</b> מתוך '+results.length+' · '+esc(fl)+' <button type="button" id="mapCountClr" title="הצג את כל העסקים">✕ הכל</button>';
+      const cb=$('mapCountClr'); if(cb) cb.onclick=()=>{ f.value='all'; render(); }; } }
+  list.forEach(b=>{ if(!b.loc) return; const o=scoreBiz(b).opp;
     const m=new google.maps.Marker({map, position:b.loc,
       icon:{path:google.maps.SymbolPath.CIRCLE, scale:7, fillOpacity:1, strokeWeight:1.5, strokeColor:'#0b1020',
         fillColor: o>=70?'#ff6b6b':o>=40?'#ffc24d':'#2fd48f'}});
@@ -892,10 +902,8 @@ function leadScore(b){
   return Math.max(0,Math.min(100,Math.round(v)));
 }
 
-/* ---------- render ---------- */
-let rTimer=null; function renderSoon(){ clearTimeout(rTimer); rTimer=setTimeout(render,120); }
-function render(){
-  const f=$('filt').value, s=$('sort').value;
+/* ---------- filter (shared by grid + map) ---------- */
+function filterList(f){
   let list=results.map(b=>Object.assign(b,{_s:scoreBiz(b)}));
   if(f==='nosite') list=list.filter(b=>!b.website);
   if(f==='weak') list=list.filter(b=>b._s.opp>=50);
@@ -905,6 +913,15 @@ function render(){
   if(f==='nosocial') list=list.filter(b=>!Object.keys(socialOf(b)).length);
   if(f==='sweet') list=list.filter(b=>{ const V=vitality(b); return b._s.opp>=45 && V.score!=null && V.score>=55; });
   if(f==='dormant') list=list.filter(b=>{ const V=vitality(b); return V.score!=null && V.score<45; });
+  return list;
+}
+let markerKey='';
+function markerKeyOf(list){ return $('filt').value+'|'+list.map(b=>b.id+':'+(b._s?b._s.opp:'')).join(','); }
+/* ---------- render ---------- */
+let rTimer=null; function renderSoon(){ clearTimeout(rTimer); rTimer=setTimeout(render,120); }
+function render(){
+  const f=$('filt').value, s=$('sort').value;
+  let list=filterList(f);
   const cmp={best:(a,b)=>leadScore(b)-leadScore(a), vital:(a,b)=>(vitality(b).score||0)-(vitality(a).score||0), opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
     dist:(a,b)=>(a.dist||0)-(b.dist||0), name:(a,b)=>a.name.localeCompare(b.name,'he')};
   list.sort(cmp[s]||cmp.best); if(s==='best'||!cmp[s]) list.forEach((b,i)=>b._rank=i+1); else list.forEach(b=>b._rank=null);
@@ -914,6 +931,7 @@ function render(){
   $('stAvg').textContent=results.length?Math.round(results.reduce((t,b)=>t+scoreBiz(b).opp,0)/results.length):0;
   $('empty').style.display=list.length?'none':'block';
   $('grid').innerHTML=list.map(cardHtml).join('');
+  if(map && markerKeyOf(list)!==markerKey) drawMarkers(list);
 }
 function cardHtml(b){
   const sc=b._s||scoreBiz(b), cls=sc.opp>=70?'s-hi':sc.opp>=40?'s-mid':'s-low', st=stageOf(b.id), s=b.site;
