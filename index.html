@@ -411,7 +411,7 @@ const NETS = [
   {k:'linkedin', t:'לינקדאין',ico:'💼', site:'linkedin.com'},
   {k:'twitter',  t:'X / טוויטר',ico:'✖️', site:'x.com'}
 ];
-function digSocial(b){ const o={}; ((b.dig&&b.dig.items)||[]).forEach(it=>{ if(it.verified!=='exact') return; let h=''; try{ h=new URL(it.url).hostname; }catch(e){ return; }
+function digSocial(b){ const o={}; ((b.dig&&b.dig.items)||[]).forEach(it=>{ if(it.verified!=='exact'&&it.verified!=='content') return; if(/\/(groups|posts|videos|photos|watch|reel|reels|p|status|story|stories|events|share)\b|[?&]v=/i.test(it.url)) return; /* a post/video about the business is not its official page */ let h=''; try{ h=new URL(it.url).hostname; }catch(e){ return; }
   h=h.replace(/^(www|m|he-il|he)\./,''); const n=NETS.find(n=>h===n.site||h.endsWith('.'+n.site)); if(n && !o[n.k]) o[n.k]=it.url; }); return o; }
 function socialOf(b){ return Object.assign({}, digSocial(b), (b.site&&!b.site.error&&b.site.social)||{}, manualSocial[b.id]||{}); }
 function presenceOf(b){
@@ -783,7 +783,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live,ad:b.ad,dig:b.dig,photoUrls:b.photoUrls,ownPhotos:b.ownPhotos,pv:b.pv});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live,ad:b.ad,dig:b.dig,insight:b.insight,photoUrls:b.photoUrls,ownPhotos:b.ownPhotos,pv:b.pv});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -983,6 +983,8 @@ function cardHtml(b){
   if(b.site&&b.site.tech&&(b.site.tech.googleAds||b.site.tech.metaPixel)) chips.push('<span class="chip w">💰 מפרסם</span>');
   if(leads[b.id]&&leads[b.id].seq&&!leads[b.id].seq.done){ const d=seqDue(leads[b.id].seq); chips.push(`<span class="chip ${d>=0?'w':''}">🔁 סדרה${d>=0?' · להיום':''}</span>`); }
   if(b.kit) chips.push('<span class="chip ok">🎁 ערכה</span>');
+  if(b.dig){ const R=sentimentRows(b), g=R[0]&&R[0].total||0; const o=R.slice(1).filter(r=>r.total&&!isMirror(r,R[0])); const n=o.reduce((t,r)=>t+r.total,0);
+    if(n) chips.push(`<span class="chip ok" title="ביקורות באתרים מחוץ לגוגל: ${o.map(r=>r.site+' '+r.total).join(', ')}">⭐ +${n} ביקורות מחוץ לגוגל</span>`); }
   if(b.pv===2 && !b.ownPhotos) chips.push('<span class="chip no" title="בכרטיס הגוגל אין תמונות שהעסק העלה בעצמו — רק של לקוחות, או בכלל לא">📷 אין תמונות של העסק</span>');
   if(platformOf(b.website)) chips.push(`<span class="chip no">אתר = דף ${esc(platformOf(b.website))}</span>`);
   if(hasMobile(b)) chips.push('<span class="chip ok">📱 נייד</span>');
@@ -1489,21 +1491,158 @@ function digResultsHtml(b){
   const d=b.dig; if(!d) return '';
   const host=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } };
   const groups=Object.keys(DIG_T).map(k=>[k,(d.items||[]).filter(i=>i.cat===k)]).filter(g=>g[1].length);
-  return `${d.summary?`<div style="background:rgba(79,124,255,.08);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px">🧠 ${esc(d.summary)}</div>`:''}
+  return `${digAggHtml(b)}${d.summary?`<div style="background:rgba(79,124,255,.08);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px">🧠 ${esc(d.summary)}</div>`:''}
     ${groups.length?groups.map(([k,arr])=>`<div style="margin:8px 0 4px;font-weight:700">${DIG_T[k]} <span class="hint">(${arr.length})</span></div>`+arr.map(i=>`<div style="border-top:1px solid var(--line);padding:6px 0;font-size:13px">
-      <a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title||host(i.url))}</a> <span class="hint">· ${esc(host(i.url))}${i.date?' · '+esc(i.date):''}</span>
-      ${i.verified==='exact'?'<span class="chip ok" style="font-size:10px;padding:1px 6px">✓ מאומת</span>':'<span class="chip w" style="font-size:10px;padding:1px 6px" title="האתר הופיע בתוצאות החיפוש, הכתובת המדויקת לא נבדקה">~ אתר מאומת</span>'}
-      ${i.snippet?`<div class="hint">${esc(i.snippet)}</div>`:''}</div>`).join('')).join('')
+      <a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title||host(i.pageUrl||i.url))}</a> <span class="hint">· ${esc(host(i.pageUrl||i.url))}${i.date?' · '+esc(i.date):''}</span>
+      ${i.verified==='search'?'<span class="chip" style="font-size:10px;padding:1px 6px" title="האתר חוסם בדיקה אוטומטית ולא ניתן לאמת את הכתובת המדויקת — הקישור פותח חיפוש גוגל של העסק באתר הזה">🔍 חיפוש באתר (חוסם בדיקה)</span>':i.verified==='content'?'<span class="chip ok" style="font-size:10px;padding:1px 6px" title="פתחנו את העמוד והוא מזכיר את שם העסק או את הטלפון שלו">✓ מאומת — העמוד מזכיר את העסק</span>':'<span class="chip w" style="font-size:10px;padding:1px 6px" title="הקישור הגיע מתוצאות חיפוש אמיתיות, אבל האתר חוסם בדיקה אוטומטית של התוכן">✓ מתוצאות החיפוש</span>'}
+      ${i.snippet?`<div class="hint">${esc(i.snippet)}</div>`:''}
+      ${i.ex?exHtml(i.ex):`<button style="font-size:11px;padding:3px 9px;margin-top:4px" onclick="extractOne('${b.id}',${(d.items||[]).indexOf(i)})">📥 שלוף את כל הנתונים מהעמוד</button>`}</div>`).join('')).join('')
       :'<div class="hint">לא נמצאו ממצאים מאומתים על העסק ברשת — זה עצמו ממצא: העסק כמעט לא קיים מחוץ לגוגל מפות.</div>'}
     <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">מקורות שגוגל החזיר (${(d.sources||[]).length}) · ${new Date(d.ts).toLocaleDateString('he-IL')}</summary>
       ${(d.sources||[]).map(x=>`<div style="font-size:12px"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title||x.host)}</a></div>`).join('')}
       ${(d.queries||[]).length?`<div class="hint" style="margin-top:6px">חיפושים שבוצעו: ${d.queries.map(esc).join(' · ')}</div>`:''}</details>`;
 }
+function exHtml(x){
+  if(x.err) return `<div class="hint" style="color:var(--bad)">שליפה נכשלה: ${esc(x.err)}</div>`;
+  const d=x.data||{}; if(d.about_this_business===false) return '<div class="hint">⚠️ לפי תוכן העמוד — לא בטוח שהוא על העסק הזה. הנתונים לא נכללו.</div>';
+  const arr=a=>Array.isArray(a)?a.filter(Boolean):[], ch=a=>arr(a).map(v=>`<span class="chip" style="font-size:11px">${esc(v)}</span>`).join('');
+  const kv=[]; const add=(k,v)=>{ if(v!=null&&v!==''&&!(Array.isArray(v)&&!v.length)) kv.push(`<div>${k}</div><div>${v}</div>`); };
+  if(d.rating!=null||d.reviewCount!=null) add('דירוג', `${d.rating!=null?'⭐ '+esc(d.rating)+(d.ratingScale?' / '+esc(d.ratingScale):''):''}${d.reviewCount!=null?' · <b>'+esc(d.reviewCount)+'</b> ביקורות':''}`);
+  add('שירותים', ch(d.services)); add('אזורי שירות', ch(d.areas)); add('מחירים', esc(d.prices||'')); add('ותק', esc(d.years||''));
+  add('שעות', esc(d.hours||'')); add('טלפונים', arr(d.phones).map(esc).join(' · ')); add('מיילים', arr(d.emails).map(esc).join(' · '));
+  add('אתר', d.website?`<a href="${esc(d.website)}" target="_blank" rel="noopener">${esc(d.website)}</a>`:''); add('כתובת', esc(d.address||''));
+  add('עוקבים', esc(d.followers||'')); add('פעילות אחרונה', esc(d.lastActivity||'')); add('תגים / הסמכות', ch(d.badges));
+  arr(d.other).slice(0,12).forEach(o=>o&&o.k&&add(esc(o.k), esc(o.v||'')));
+  const revs=arr(d.reviews);
+  return `<div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:6px">
+    ${x.via==='search'?'<div class="hint" style="margin-bottom:4px">ℹ️ העמוד חוסם שליפה ישירה — הנתונים לפי תוצאות החיפוש בגוגל</div>':''}
+    ${d.about?`<div style="margin-bottom:6px">${esc(d.about)}</div>`:''}
+    ${d.written&&d.written!==d.about?`<div style="margin-bottom:6px;border-right:3px solid var(--acc);padding-right:8px;white-space:pre-wrap">📝 ${esc(d.written)}</div>`:''}
+    ${kv.length?`<div class="kv">${kv.join('')}</div>`:(!d.about&&!d.written&&!revs.length?'<div class="hint">לא נמצאו בעמוד נתונים נוספים על העסק.</div>':'')}
+    ${revs.length?`<details open style="margin-top:6px"><summary style="cursor:pointer">💬 ${revs.length} ביקורות — מה כתבו על העסק</summary>${revs.map(r=>`<div style="border-top:1px solid var(--line);padding:5px 0"><b style="color:${polarR(r,d.ratingScale)<0?'var(--bad)':'var(--good)'}">${r.rating!=null?esc(r.rating)+'★':(r.sentiment==='pos'?'👍':r.sentiment==='neg'?'👎':'')}</b> <span class="hint">${esc(r.author||'')}${r.date?' · '+esc(r.date):''}</span><br>${esc(r.text||'')}</div>`).join('')}</details>`:''}</div>`;
+}
+function digAgg(b){
+  const its=((b.dig&&b.dig.items)||[]).filter(i=>i.ex&&!i.ex.err&&i.ex.data&&i.ex.data.about_this_business!==false);
+  const host=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } };
+  const U=a=>[...new Set(a.filter(Boolean).map(x=>String(x).trim()))];
+  const plat=its.filter(i=>i.ex.data.rating!=null||i.ex.data.reviewCount!=null).map(i=>({host:host(i.url),url:i.url,r:i.ex.data.rating,sc:i.ex.data.ratingScale,n:+i.ex.data.reviewCount||0}));
+  return { n:its.length, plat, reviews:plat.reduce((t,p)=>t+p.n,0),
+    phones:U(its.flatMap(i=>i.ex.data.phones||[])), emails:U(its.flatMap(i=>i.ex.data.emails||[])), services:U(its.flatMap(i=>i.ex.data.services||[])).slice(0,25),
+    areas:U(its.flatMap(i=>i.ex.data.areas||[])).slice(0,20), badges:U(its.flatMap(i=>i.ex.data.badges||[])).slice(0,15), years:U(its.map(i=>i.ex.data.years)) };
+}
+const REVIEW_HOSTS=/(^|\.)(midrag|easy|zap|rest|tripadvisor|b144|d|facebook|doctors|mishpati|tzaneret)\.(co\.il|com)$/;
+function isMirror(r, g){ // a site repeating the Google review count (e.g. a Google widget on the business site) — known review platforms are never mirrors
+  if(!g||!g.total||g.total<20||!r.total||REVIEW_HOSTS.test(r.site||'')) return false;
+  return Math.abs(r.total-g.total)<=Math.max(3,g.total*0.03) && (r.rating==null || (Number(r.sc||5)===5 && Math.abs(r.rating-(g.rating||0))<=0.2)); }
+function polarR(v, sc){ if(v&&(v.rating==null||isNaN(+v.rating))) return v.sentiment==='pos'?1:v.sentiment==='neg'?-1:0; return polar(v&&v.rating, sc); }
+function polar(r, sc){ if(r==null||isNaN(+r)) return 0; r=+r; const S=sc==10||r>5?10:5; return S===10?(r>=8?1:r<=5?-1:0):(r>=4?1:r<=2?-1:0); }
+function sentimentRows(b){
+  const host=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } };
+  const rows=[];
+  const g=(b.rev&&!b.rev.error&&b.rev.list)||[];
+  rows.push({site:'גוגל', url:b.maps||'', rating:b.rating||null, sc:5, total:b.reviews||0,
+    pos:g.filter(r=>polar(r.rating,5)>0).length, neg:g.filter(r=>polar(r.rating,5)<0).length, read:g.length, exact:false});
+  ((b.dig&&b.dig.items)||[]).forEach(i=>{ const d=i.ex&&!i.ex.err&&i.ex.data; if(!d||d.about_this_business===false) return;
+    const rv=Array.isArray(d.reviews)?d.reviews:[]; if(d.rating==null&&d.reviewCount==null&&!rv.length) return;
+    const exact=d.positiveCount!=null||d.negativeCount!=null;
+    rows.push({site:host(i.pageUrl||i.url), url:i.url, rating:d.rating, sc:d.ratingScale, total:+d.reviewCount||rv.length,
+      pos:exact?(+d.positiveCount||0):rv.filter(r=>polarR(r,d.ratingScale)>0).length,
+      neg:exact?(+d.negativeCount||0):rv.filter(r=>polarR(r,d.ratingScale)<0).length, read:rv.length, exact}); });
+  ((b.dig&&b.dig.ratings)||[]).forEach(x=>{ const h=String(x.site||'').replace(/^www\./,''); if(rows.some(r=>r.site===h)) return; const rv=x.reviews||[];
+    const exact=x.positive!=null||x.negative!=null;
+    rows.push({site:h, url:x.url, rating:x.rating, sc:x.scale, total:+x.count||rv.length, pos:exact?(+x.positive||0):rv.filter(r=>polarR(r,x.scale)>0).length,
+      neg:exact?(+x.negative||0):rv.filter(r=>polarR(r,x.scale)<0).length, read:rv.length, exact, viaSearch:true, reviews:rv, note:x.note}); });
+  return rows;
+}
+function digAggHtml(b){
+  const a=digAgg(b), rows=sentimentRows(b);
+  const ch=x=>x.map(v=>`<span class="chip" style="font-size:11px">${esc(v)}</span>`).join('');
+  const gTot=rows[0]&&rows[0].total||0; rows.forEach((r,k)=>{ r.mirror = k>0 && isMirror(r, rows[0]); });
+  const seenT=new Set(); const tot=rows.reduce((t,r)=>{ if(r.mirror) return t; return t+(r.total||0); },0);
+  return `<div style="border:1px solid var(--acc);border-radius:10px;padding:10px;margin-bottom:10px"><b>⭐ כמה דירגו אותו ומה כתבו — בכל האתרים</b>
+    <table style="width:100%;font-size:13px;margin:6px 0;border-collapse:collapse">
+     <tr class="hint"><td>אתר</td><td>דירוג</td><td>ביקורות</td><td>👍 טובות</td><td>👎 רעות</td></tr>
+     ${rows.map(r=>`<tr style="border-top:1px solid var(--line)"><td style="padding:4px 0">${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.site)}</a>`:esc(r.site)}</td>
+       <td>${r.rating!=null?'⭐ '+esc(r.rating)+(r.sc?'/'+esc(r.sc):''):'—'}</td><td><b>${r.total||'—'}</b></td>
+       <td style="color:var(--good)">${r.exact||r.read?r.pos:'—'}</td><td style="color:var(--bad)">${r.exact||r.read?r.neg:'—'}</td></tr>
+       ${r.mirror||(!r.exact&&r.read)?`<tr><td colspan="5" class="hint" style="font-size:11px;padding-bottom:3px">${r.mirror?'🔁 כנראה אותן ביקורות גוגל שמוצגות גם שם — לא נספר בסה״כ. ':''}${!r.exact&&r.read?`👍/👎 מתוך ${r.read} הביקורות שנקראו${r.total>r.read?' (לא מכל '+r.total+')':''}`:''}</td></tr>`:''}`).join('')}
+     <tr style="border-top:2px solid var(--line)"><td style="padding-top:4px"><b>סה״כ (בלי כפילויות)</b></td><td></td><td><b>${tot}</b></td><td></td><td></td></tr></table>
+    ${rows.filter(r=>r.viaSearch).map(r=>`<details open style="margin:4px 0"><summary style="cursor:pointer"><b>${esc(r.site)}</b> — מה כתבו שם <span class="hint">(לפי תוצאות חיפוש גוגל)</span></summary>
+      ${r.note?`<div class="hint">${esc(r.note)}</div>`:''}${(r.reviews||[]).map(v=>`<div style="border-top:1px solid var(--line);padding:4px 0;font-size:13px">${v.rating!=null?`<b style="color:${polar(v.rating,r.sc)<0?'var(--bad)':'var(--good)'}">${esc(v.rating)}★</b> `:(v.sentiment?`<b>${v.sentiment==='pos'?'👍':v.sentiment==='neg'?'👎':'😐'}</b> `:'')}<span class="hint">${esc(v.date||'')}</span> ${esc(v.text||'')}</div>`).join('')||'<div class="hint">לא הופיעו ציטוטים בתוצאות החיפוש.</div>'}</details>`).join('')}
+    ${a.n?`<div class="kv">${a.phones.length?`<div>טלפונים</div><div>${a.phones.map(esc).join(' · ')}</div>`:''}${a.emails.length?`<div>מיילים</div><div>${a.emails.map(esc).join(' · ')}</div>`:''}
+    ${a.years.length?`<div>ותק</div><div>${a.years.map(esc).join(' · ')}</div>`:''}${a.services.length?`<div>שירותים</div><div>${ch(a.services)}</div>`:''}
+    ${a.areas.length?`<div>אזורים</div><div>${ch(a.areas)}</div>`:''}${a.badges.length?`<div>הסמכות / תגים</div><div>${ch(a.badges)}</div>`:''}</div>`:''}</div>
+    ${insightHtml(b)}`;
+}
+/* ---------- 🧠 strengths, pains and exactly where/how to help ---------- */
+function insightPack(b){
+  const sc=scoreBiz(b), pr=presenceOf(b), V=vitality(b), rows=sentimentRows(b);
+  const revs=[]; ((b.rev&&!b.rev.error&&b.rev.list)||[]).forEach(r=>revs.push(`[גוגל ${r.rating}★ ${r.when||''}] ${String(r.text||'').slice(0,300)}`));
+  ((b.dig&&b.dig.items)||[]).forEach(i=>{ const d=i.ex&&!i.ex.err&&i.ex.data; if(!d||d.about_this_business===false) return; let h=''; try{ h=new URL(i.pageUrl||i.url).hostname.replace(/^www\./,''); }catch(e){}
+    (d.reviews||[]).forEach(r=>revs.push(`[${h} ${r.rating!=null?r.rating+(d.ratingScale?'/'+d.ratingScale:''):''} ${r.date||''}] ${String(r.text||'').slice(0,300)}`));
+    if(d.written) revs.push(`[נכתב ב-${h}] ${String(d.written).slice(0,400)}`); });
+  ((b.dig&&b.dig.ratings)||[]).forEach(x=>{ (x.reviews||[]).forEach(r=>revs.push(`[${x.site} ${r.rating!=null?r.rating+'/'+(x.scale||''):''} ${r.date||''}] ${String(r.text||'').slice(0,240)}`)); if(x.note) revs.push(`[${x.site}] ${x.note}`); });
+  return `עסק: "${b.name}" (${b.type||''}, ${b.address||''}).
+דירוגים: ${rows.map(r=>`${r.site}: ${r.rating!=null?r.rating+(r.sc?'/'+r.sc:''):'—'} (${r.total||0} ביקורות${r.read||r.exact?`, טובות ${r.pos}, רעות ${r.neg}`:''})`).join(' · ')}
+ציון נוכחות דיגיטלית: ${sc.presence}/100 · ציון הזדמנות: ${sc.opp}/100 · ערוצים: ${pr.channels.filter(c=>c.ok).map(c=>c.t).join(', ')||'—'} · חסר: ${pr.channels.filter(c=>!c.ok).map(c=>c.t).join(', ')}
+${V.score!=null?`מדד חיוניות: ${V.score} (${V.level.t})`:''}
+ליקויים שנמצאו בבדיקה: ${sc.fix.slice(0,10).map(f=>f.t).join(' | ')||'—'}
+${b.site&&!b.site.error?`אתר: ${b.website} · מובייל ${b.site.mobile?'כן':'לא'} · פיקסל ${b.site.tech&&b.site.tech.metaPixel?'כן':'לא'} · Analytics ${b.site.tech&&(b.site.tech.ga4||b.site.tech.gtm)?'כן':'לא'}`:(b.website?'':'אין אתר')}
+${b.dig&&b.dig.summary?'סיכום חיפוש ברשת: '+b.dig.summary:''}
+ביקורות ואזכורים שנאספו:
+${revs.slice(0,40).join('\n')||'(אין)'}`;
+}
+window.runInsight = async (id, quiet)=>{
+  const b=findBiz(id); if(!b) return;
+  busy('🧠 מנתח סגולות, כאבים ואיפה בדיוק אפשר לעזור לעסק...');
+  const prompt=`אתה יועץ שיווק דיגיטלי לעסקים קטנים בישראל. נתח את העסק לפי הנתונים האמיתיים בלבד שלמטה.
+החזר JSON בלבד:
+{"strengths":[{"t":"סגולה — משפט קצר","ev":"ראיה: ציטוט קצר מביקורת או נתון, עם המקור בסוגריים"}],
+ "pains":[{"t":"כאב/בעיה של העסק או של הלקוחות שלו — משפט קצר","ev":"ראיה עם מקור"}],
+ "help":[{"where":"הערוץ/המקום המדויק (למשל: פרופיל גוגל, אתר — עמוד הבית, מידרג, אינסטגרם, מודעות גוגל, וואטסאפ)","what":"מה בדיוק לעשות — פעולה קונקרטית","why":"למה — קשור לכאב/לנתון","impact":"גבוה/בינוני/נמוך","effort":"קל/בינוני/כבד"}],
+ "pitch":"משפט פתיחה אחד לשיחה עם בעל העסק שמבוסס על הכאב הכי בולט והסגולה הכי חזקה"}
+3-6 סגולות, 3-6 כאבים, 4-8 המלצות מסודרות מההשפעה הגבוהה לנמוכה. אל תמציא עובדות, מספרים או ציטוטים שלא מופיעים בנתונים. אם אין ראיה — כתוב "ללא ראיה ישירה".
+
+${insightPack(b)}`;
+  try{ const k=parseJSON(await aiText(prompt,0.4)); b.insight={strengths:k.strengths||[], pains:k.pains||[], help:k.help||[], pitch:k.pitch||'', ts:Date.now()}; persistBiz(b); }
+  catch(e){ if(!quiet) alert('הניתוח נכשל: '+e.message); }
+  busy(false); if(!quiet) reopen(id);
+};
+function insightHtml(b){
+  const I=b.insight;
+  const btn=`<button onclick="runInsight('${b.id}')" style="margin-top:6px">🧠 ${I?'נתח שוב':'נתח סגולות, כאבים ואיך לעזור'}</button>`;
+  if(!I) return `<div style="margin-bottom:10px">${btn}</div>`;
+  const li=(a,c)=>(a||[]).map(x=>`<li style="margin:4px 0"><b style="color:${c}">${esc(x.t||'')}</b>${x.ev?`<div class="hint">${esc(x.ev)}</div>`:''}</li>`).join('');
+  const lvl=v=>v==='גבוה'?'ok':v==='בינוני'?'w':'';
+  return `<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px">
+    ${I.pitch?`<div style="background:rgba(255,194,77,.1);border-radius:8px;padding:8px;margin-bottom:8px">💬 <b>משפט פתיחה:</b> ${esc(I.pitch)}</div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><b>✅ הסגולות של העסק</b><ul style="padding-right:18px;margin:4px 0">${li(I.strengths,'var(--good)')}</ul></div>
+      <div><b>⚠️ הכאבים של העסק</b><ul style="padding-right:18px;margin:4px 0">${li(I.pains,'var(--bad)')}</ul></div></div>
+    <b>🎯 איפה ואיך בדיוק אפשר לעזור לו</b>
+    ${(I.help||[]).map((h,n)=>`<div style="border-top:1px solid var(--line);padding:6px 0"><b>${n+1}. ${esc(h.where||'')}</b> <span class="chip ${lvl(h.impact)}" style="font-size:10px;padding:1px 6px">השפעה: ${esc(h.impact||'')}</span> <span class="chip" style="font-size:10px;padding:1px 6px">מאמץ: ${esc(h.effort||'')}</span>
+      <div>${esc(h.what||'')}</div>${h.why?`<div class="hint">למה: ${esc(h.why)}</div>`:''}</div>`).join('')}
+    <div class="hint" style="margin-top:4px">נותח ב-${new Date(I.ts).toLocaleDateString('he-IL')} לפי הביקורות והנתונים שנאספו.</div>${btn}</div>`;
+}
+async function extractItem(b, i){
+  const it=b.dig.items[i]; if(!it) return;
+  try{ const j=await apiCall('action=extract',{method:'POST',body:{url:it.pageUrl||it.url,name:b.name,city:cityOf(b)}},120000); it.ex={via:j.via,data:j.data||{},ts:j.ts}; }
+  catch(e){ it.ex={err:e.message,ts:Date.now()}; }
+}
+window.extractOne = async (id,i)=>{ const b=findBiz(id); if(!b||!b.dig||needToken()) return; busy('📥 שולף נתונים מהעמוד...'); await extractItem(b,i); persistBiz(b); busy(false); reopen(id); };
+async function extractAll(b){
+  const idx=b.dig.items.map((it,i)=>[it,i]).slice(0,12).map(x=>x[1]); let done=0, k=0;
+  const work=async()=>{ while(k<idx.length){ const i=idx[k++]; await extractItem(b,i); done++; busy(`📥 שולף את כל הנתונים מהעמודים שנמצאו — ${done}/${idx.length}...`); } };
+  busy(`📥 שולף את כל הנתונים מהעמודים שנמצאו — 0/${idx.length}...`);
+  await Promise.all([work(),work(),work()]);
+}
 window.runDig = async id=>{
   const b=findBiz(id); if(!b || needToken()) return;
-  busy('🔎 חופר בגוגל על העסק — חדשות, ביקורות, רשתות, אינדקסים ודרושים (עד דקה וחצי)...');
+  busy('🔎 חופר בגוגל על העסק — חדשות, ביקורות, רשתות, אינדקסים ודרושים...');
   try{ const j=await apiCall('action=dig',{method:'POST',body:{name:b.name,type:b.type,address:b.address,phone:b.phone,website:b.website}},150000);
-    b.dig={items:j.items||[], summary:j.summary||'', sources:j.sources||[], queries:j.queries||[], ts:j.ts||Date.now()}; persistBiz(b);
+    b.dig={items:j.items||[], ratings:j.ratings||[], summary:j.summary||'', sources:j.sources||[], queries:j.queries||[], ts:j.ts||Date.now()}; persistBiz(b);
+    await extractAll(b); persistBiz(b);
+    await runInsight(id, true);
     log('🔎 חפירה על '+b.name+': '+b.dig.items.length+' ממצאים מאומתים מתוך '+b.dig.sources.length+' מקורות.'); }
   catch(e){ alert('החפירה נכשלה: '+e.message); }
   busy(false); reopen(id); setTimeout(()=>{ const el=document.getElementById('digSec'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); },150);
