@@ -498,7 +498,7 @@ let miniIW=null, miniTimer=null, miniFor=null;
 function miniHtml(b){
   const sc=scoreBiz(b), pr=presenceOf(b), col=sc.opp>=70?'#ff6b6b':sc.opp>=40?'#ffc24d':'#2fd48f';
   return `<div class="mini" dir="rtl" id="miniCard">
-    ${b.photoUrl?`<div class="mini-img" style="background-image:url('${esc(b.photoUrl)}')"></div>`:`<div class="mini-img mini-noimg">🏪</div>`}
+    ${b.pv===2&&b.photoUrl?`<div class="mini-img" style="background-image:url('${esc(b.photoUrl)}')"></div>`:`<div class="mini-img mini-noimg">🏪</div>`}
     <div class="mini-b">
       <div class="mini-top"><b class="mini-name">${esc(b.name)}</b><span class="mini-score" style="color:${col};border-color:${col}">${sc.opp}</span></div>
       <div class="mini-meta">${esc(b.type)}${b.dist!=null?' · '+fmtDist(b.dist):''}</div>
@@ -1044,7 +1044,7 @@ window.openBiz = id=>{
     <div class="hint" style="margin-bottom:8px">${b.rev.list.length} אחרונות · ${b.rev.negative} שליליות · האחרונה: ${b.rev.daysSince!=null?'לפני '+b.rev.daysSince+' ימים':'—'}</div>
     ${b.rev.list.map(r=>`<div style="border-top:1px solid var(--line);padding:7px 0;font-size:13px"><b style="color:${r.rating<=3?'var(--bad)':'var(--good)'}">${'★'.repeat(r.rating||0)}</b> <span class="hint">${esc(r.when)} · ${esc(r.author)}</span><br>${esc(r.text)}</div>`).join('')}</div>`;
   $('bizBody').innerHTML=`
-    ${b.photoUrl?`<img src="${esc(b.photoUrl)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px">`:''}
+    ${b.pv===2&&b.photoUrl?`<img src="${esc(b.photoUrl)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px">`:''}
     <div class="sec"><h5>🎯 ציון הזדמנות</h5>
       <div style="display:flex;align-items:center;gap:14px"><div style="font-size:40px;font-weight:800">${sc.opp}</div>
       <div style="flex:1"><div class="bar"><i style="width:${sc.opp}%"></i></div>
