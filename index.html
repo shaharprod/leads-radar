@@ -327,7 +327,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
 </dialog>
 
 <dialog id="dlgBiz"><div class="dlg-h"><b id="bizTitle"></b><div class="spacer"></div>
-  <button id="bizReport">📄 דוח</button><button id="bizAd" title="כותב מודעה חדשה ושולף מחדש את תמונות העסק, ואז מפיק את הדוח">📣 מודעה חדשה</button><button id="bizLive">🔗 קישור חי</button><button id="bizQuote">💰 הצעת מחיר</button><button id="bizKit">🎁 ערכת תוכן</button><button id="bizOutreach">✉️ פנייה</button>
+  <button id="bizDig" title="מחפש בגוגל חדשות, ביקורות באתרים אחרים, רשתות חברתיות, אינדקסים ודרושים — ומציג רק קישורים שנמצאו בחיפוש אמיתי">🔎 חפירה מלאה</button><button id="bizReport">📄 דוח</button><button id="bizAd" title="כותב מודעה חדשה ושולף מחדש את תמונות העסק, ואז מפיק את הדוח">📣 מודעה חדשה</button><button id="bizLive">🔗 קישור חי</button><button id="bizQuote">💰 הצעת מחיר</button><button id="bizKit">🎁 ערכת תוכן</button><button id="bizOutreach">✉️ פנייה</button>
   <button class="ghost" data-close>סגור</button></div><div class="dlg-b" id="bizBody"></div></dialog>
 
 <dialog id="dlgOut"><div class="dlg-h"><b id="outTitle">✉️ פנייה מותאמת</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
@@ -411,7 +411,9 @@ const NETS = [
   {k:'linkedin', t:'לינקדאין',ico:'💼', site:'linkedin.com'},
   {k:'twitter',  t:'X / טוויטר',ico:'✖️', site:'x.com'}
 ];
-function socialOf(b){ return Object.assign({}, (b.site&&!b.site.error&&b.site.social)||{}, manualSocial[b.id]||{}); }
+function digSocial(b){ const o={}; ((b.dig&&b.dig.items)||[]).forEach(it=>{ if(it.verified!=='exact') return; let h=''; try{ h=new URL(it.url).hostname; }catch(e){ return; }
+  h=h.replace(/^(www|m|he-il|he)\./,''); const n=NETS.find(n=>h===n.site||h.endsWith('.'+n.site)); if(n && !o[n.k]) o[n.k]=it.url; }); return o; }
+function socialOf(b){ return Object.assign({}, digSocial(b), (b.site&&!b.site.error&&b.site.social)||{}, manualSocial[b.id]||{}); }
 function presenceOf(b){
   const soc=socialOf(b), s=b.site&&!b.site.error?b.site:null;
   const ch=[
@@ -781,7 +783,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live,ad:b.ad,photoUrls:b.photoUrls,ownPhotos:b.ownPhotos,pv:b.pv});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live,ad:b.ad,dig:b.dig,photoUrls:b.photoUrls,ownPhotos:b.ownPhotos,pv:b.pv});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -1103,6 +1105,7 @@ window.saveLead = id=>{ const b=findBiz(id);
   if(leads[id].stage==='new' && !leads[id].note && !leads[id].due && !leads[id].contact) delete leads[id];
   saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard(); log('הליד נשמר.'); };
 $('bizReport').onclick=()=>curBiz&&openReport(curBiz);
+$('bizDig').onclick=()=>curBiz&&runDig(curBiz);
 $('bizOutreach').onclick=()=>curBiz&&openOutreach(curBiz);
 
 /* ---------- white-label audit report ---------- */
@@ -1481,6 +1484,30 @@ function gextraHtml(b){
   if(!g.summary && !rows) return '';
   return `<div class="sec"><h5>🧾 מה גוגל יודע על העסק</h5>${g.summary?`<div style="margin-bottom:8px">${esc(g.summary)}</div>`:''}<div class="kv">${rows}</div></div>`;
 }
+const DIG_T={news:'📰 חדשות ואזכורים',reviews:'⭐ ביקורות באתרים אחרים',facebook:'📘 פייסבוק',instagram:'📸 אינסטגרם',linkedin:'💼 לינקדאין',tiktok:'🎵 טיקטוק',youtube:'▶️ יוטיוב',directory:'🗂️ אינדקסים עסקיים',jobs:'🛒 דרושים / התרחבות',other:'🧩 ממצאים נוספים'};
+function digResultsHtml(b){
+  const d=b.dig; if(!d) return '';
+  const host=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } };
+  const groups=Object.keys(DIG_T).map(k=>[k,(d.items||[]).filter(i=>i.cat===k)]).filter(g=>g[1].length);
+  return `${d.summary?`<div style="background:rgba(79,124,255,.08);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px">🧠 ${esc(d.summary)}</div>`:''}
+    ${groups.length?groups.map(([k,arr])=>`<div style="margin:8px 0 4px;font-weight:700">${DIG_T[k]} <span class="hint">(${arr.length})</span></div>`+arr.map(i=>`<div style="border-top:1px solid var(--line);padding:6px 0;font-size:13px">
+      <a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title||host(i.url))}</a> <span class="hint">· ${esc(host(i.url))}${i.date?' · '+esc(i.date):''}</span>
+      ${i.verified==='exact'?'<span class="chip ok" style="font-size:10px;padding:1px 6px">✓ מאומת</span>':'<span class="chip w" style="font-size:10px;padding:1px 6px" title="האתר הופיע בתוצאות החיפוש, הכתובת המדויקת לא נבדקה">~ אתר מאומת</span>'}
+      ${i.snippet?`<div class="hint">${esc(i.snippet)}</div>`:''}</div>`).join('')).join('')
+      :'<div class="hint">לא נמצאו ממצאים מאומתים על העסק ברשת — זה עצמו ממצא: העסק כמעט לא קיים מחוץ לגוגל מפות.</div>'}
+    <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">מקורות שגוגל החזיר (${(d.sources||[]).length}) · ${new Date(d.ts).toLocaleDateString('he-IL')}</summary>
+      ${(d.sources||[]).map(x=>`<div style="font-size:12px"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title||x.host)}</a></div>`).join('')}
+      ${(d.queries||[]).length?`<div class="hint" style="margin-top:6px">חיפושים שבוצעו: ${d.queries.map(esc).join(' · ')}</div>`:''}</details>`;
+}
+window.runDig = async id=>{
+  const b=findBiz(id); if(!b || needToken()) return;
+  busy('🔎 חופר בגוגל על העסק — חדשות, ביקורות, רשתות, אינדקסים ודרושים (עד דקה וחצי)...');
+  try{ const j=await apiCall('action=dig',{method:'POST',body:{name:b.name,type:b.type,address:b.address,phone:b.phone,website:b.website}},150000);
+    b.dig={items:j.items||[], summary:j.summary||'', sources:j.sources||[], queries:j.queries||[], ts:j.ts||Date.now()}; persistBiz(b);
+    log('🔎 חפירה על '+b.name+': '+b.dig.items.length+' ממצאים מאומתים מתוך '+b.dig.sources.length+' מקורות.'); }
+  catch(e){ alert('החפירה נכשלה: '+e.message); }
+  busy(false); reopen(id); setTimeout(()=>{ const el=document.getElementById('digSec'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); },150);
+};
 function digHtml(b){
   const city=(b.address||'').split(',').slice(-2,-1)[0]||'', n='"'+b.name+'"';
   const links=[
@@ -1490,8 +1517,11 @@ function digHtml(b){
     ['📘 עמוד העסק בפייסבוק', gSearch(n+' '+city+' site:facebook.com')],
     ['🗂️ אינדקסים עסקיים (b144, dapei zahav)', gSearch(n+' '+city+' site:b144.co.il OR site:d.co.il OR site:easy.co.il')],
     ['🛒 מודעות דרושים / התרחבות', gSearch(n+' דרושים OR משרה')]];
-  return `<div class="sec"><h5>🔎 חפירה נוספת (חיפושים ממוקדים בגוגל)</h5><div class="chips">${links.map(([t,u])=>`<a class="chip" href="${u}" target="_blank" style="text-decoration:none">${t}</a>`).join('')}</div>
-    <div class="hint" style="margin-top:6px">כל כפתור פותח חיפוש מוכן בגוגל על העסק. מה שמוצאים — אפשר לרשום ב«📋 ניהול הליד».</div></div>`;
+  return `<div class="sec" id="digSec"><h5>🔎 חפירה נוספת</h5>
+    <button class="primary" onclick="runDig('${b.id}')" style="width:100%;margin-bottom:10px">${b.dig?'🔄 חפור שוב':'🔎 חשוף את כל החפירה — אוטומטית'}</button>
+    ${digResultsHtml(b)}
+    <div class="hint" style="margin:8px 0 4px">או חיפוש ידני בגוגל:</div>
+    <div class="chips">${links.map(([t,u])=>`<a class="chip" href="${u}" target="_blank" style="text-decoration:none">${t}</a>`).join('')}</div></div>`;
 }
 function licHtml(b){
   const l=b.lic; if(!l||!l.records||!l.records.length) return '';
