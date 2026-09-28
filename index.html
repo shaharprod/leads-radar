@@ -76,6 +76,10 @@ body.resizing iframe,body.resizing #map,body.resizing-v #map{pointer-events:none
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 .biz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:9px;position:relative}
 .biz:hover{border-color:var(--acc)}
+.bph{display:grid;gap:3px;height:118px;border-radius:10px;overflow:hidden;position:relative;background:#0d142c;cursor:pointer}
+.bph img{width:100%;height:100%;object-fit:cover;display:block;min-height:0}
+.bph.g2{grid-template-columns:1fr 1fr}.bph.g3{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr}.bph.g3 img:first-child{grid-row:1/3}
+.bph .tag{position:absolute;bottom:6px;right:6px;background:rgba(11,16,32,.8);color:#fff;font-size:11px;padding:2px 8px;border-radius:99px}
 .biz h4{margin:0;font-size:16px;padding-left:54px}
 .score{position:absolute;top:12px;left:12px;width:44px;height:44px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:16px}
 .score small{font-size:8px;font-weight:600;opacity:.85}
@@ -487,7 +491,7 @@ function initMap(){
   circle = new google.maps.Circle({map, center, radius:+$('rad').value, strokeColor:'#4f7cff', strokeOpacity:.9, strokeWeight:2, fillColor:'#4f7cff', fillOpacity:.10});
   marker.addListener('dragend', e=>{ center={lat:e.latLng.lat(),lng:e.latLng.lng()}; circle.setCenter(center); });
   map.addListener('click', e=>{ center={lat:e.latLng.lat(),lng:e.latLng.lng()}; marker.setPosition(center); circle.setCenter(center); });
-  fitCircle(); drawMarkers();
+  fitCircle(); drawMarkers(); backfillPhotos();
 }
 function fitCircle(){ if(circle&&map) map.fitBounds(circle.getBounds()); }
 let miniIW=null, miniTimer=null, miniFor=null;
@@ -592,6 +596,12 @@ function tiles(c, R, levels){
 }
 const PLACE_FIELDS = ['id','displayName','formattedAddress','location','googleMapsURI','nationalPhoneNumber','internationalPhoneNumber',
   'websiteURI','rating','userRatingCount','businessStatus','regularOpeningHours','primaryTypeDisplayName','types','photos','priceLevel'];
+const normName = x => String(x||'').toLowerCase().replace(/[\s"'`׳״.,\-_|()&!]/g,'');
+// owner photos only: Google credits photos the business uploaded to the business name itself; customer photos carry the customer's name
+function ownerPhotos(photos, name){ const n=normName(name); if(!n) return [];
+  return (photos||[]).filter(ph=>{ const a=ph.authorAttributions&&ph.authorAttributions[0]; return a && normName(a.displayName)===n; }); }
+function photoFields(photos, name){ const own=ownerPhotos(photos, name);
+  return { photoUrl: own[0]?own[0].getURI({maxWidth:600}):'', photoUrls: own.slice(0,3).map(ph=>ph.getURI({maxWidth:420})), ownPhotos: own.length, pv:2 }; }
 function toBiz(p){
   const loc = p.location ? {lat:p.location.lat(), lng:p.location.lng()} : null;
   return { id:p.id, name:p.displayName||'', address:p.formattedAddress||'',
@@ -601,7 +611,7 @@ function toBiz(p){
     hoursWeek:(()=>{ try{ const ps=p.regularOpeningHours&&p.regularOpeningHours.periods; if(!ps||!ps.length) return null;
       if(ps.length===1&&!ps[0].close) return 168; let m=0; ps.forEach(x=>{ if(!x.close) return; let a=x.open.day*1440+x.open.hour*60+x.open.minute, c=x.close.day*1440+x.close.hour*60+x.close.minute; if(c<=a) c+=10080; m+=c-a; }); return Math.round(m/60); }catch(e){ return null; } })(),
     type:p.primaryTypeDisplayName||(p.types&&p.types[0])||'', types:p.types||[],
-    photos:(p.photos||[]).length, photoUrl:(p.photos&&p.photos[0])?p.photos[0].getURI({maxWidth:600}):'',
+    photos:(p.photos||[]).length, ...photoFields(p.photos, p.displayName),
     priceLevel:p.priceLevel||'', maps:p.googleMapsURI||'', loc, dist:loc?Math.round(dist(center,loc)):null,
     site:null, rev:null, psi:null, astate:'' };
 }
@@ -771,7 +781,7 @@ function scoreBiz(b){
 
 /* ---------- leads / pipeline ---------- */
 const slim = b => ({id:b.id,name:b.name,address:b.address,phone:b.phone,website:b.website,rating:b.rating,reviews:b.reviews,
-  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live,ad:b.ad});
+  type:b.type,maps:b.maps,loc:b.loc,photos:b.photos,hours:b.hours,status:b.status,site:b.site,rev:b.rev,psi:b.psi,types:b.types,photoUrl:b.photoUrl,dist:b.dist,astate:b.astate,gextra:b.gextra,lic:b.lic,kit:b.kit,hist:b.hist,hoursWeek:b.hoursWeek,cites:b.cites,comp:b.comp,rank:b.rank,reg:b.reg,revSummary:b.revSummary,live:b.live,ad:b.ad,photoUrls:b.photoUrls,ownPhotos:b.ownPhotos,pv:b.pv});
 function stageOf(id){ return (leads[id]&&leads[id].stage)||'new'; }
 function setStage(id,st){
   const b=results.find(x=>x.id===id) || (leads[id]&&leads[id].biz); if(!b) return;
@@ -917,6 +927,22 @@ function filterList(f){
 }
 let markerKey='';
 function markerKeyOf(list){ return $('filt').value+'|'+list.map(b=>b.id+':'+(b._s?b._s.opp:'')).join(','); }
+/* ---------- owner photos for results scanned before v17 (Place Details «photos» = free IDs-only SKU) ---------- */
+let photoFill=false;
+async function backfillPhotos(){
+  if(photoFill || !mapsLoaded) return; photoFill=true;
+  try{
+    const todo=results.filter(b=>b.pv!==2 && /^[A-Za-z0-9_-]{10,}$/.test(b.id||''));
+    if(!todo.length) return;
+    const {Place}=await google.maps.importLibrary('places'); let i=0, n=0;
+    const work=async()=>{ while(i<todo.length){ const b=todo[i++];
+      try{ const pl=new Place({id:b.id}); await pl.fetchFields({fields:['photos']}); Object.assign(b, photoFields(pl.photos, b.name)); n++;
+        if(leads[b.id]&&leads[b.id].biz) Object.assign(leads[b.id].biz, {photoUrl:b.photoUrl, photoUrls:b.photoUrls, ownPhotos:b.ownPhotos, pv:2});
+        renderSoon(); }catch(e){} } };
+    await Promise.all([work(),work(),work(),work()]);
+    saveResults(); saveLeads(); if(n) log('📷 עודכנו תמונות בעלי העסק ל-'+n+' עסקים (רק תמונות שהעסק העלה בעצמו).');
+  } finally { photoFill=false; }
+}
 /* ---------- render ---------- */
 let rTimer=null; function renderSoon(){ clearTimeout(rTimer); rTimer=setTimeout(render,120); }
 function render(){
@@ -932,6 +958,11 @@ function render(){
   $('empty').style.display=list.length?'none':'block';
   $('grid').innerHTML=list.map(cardHtml).join('');
   if(map && markerKeyOf(list)!==markerKey) drawMarkers(list);
+}
+function cardPhotos(b){
+  const u=(b.photoUrls||[]).filter(Boolean); if(!u.length) return '';
+  const cls=u.length>=3?'g3':u.length===2?'g2':'';
+  return `<div class="bph ${cls}" onclick="openBiz('${b.id}')" title="תמונות שהעסק העלה לכרטיס שלו בגוגל">${u.slice(0,3).map(x=>`<img src="${esc(x)}" loading="lazy" alt="" onerror="this.remove()">`).join('')}<span class="tag">📷 ${b.ownPhotos>3?b.ownPhotos+' תמונות של העסק':'תמונות העסק'}</span></div>`;
 }
 function cardHtml(b){
   const sc=b._s||scoreBiz(b), cls=sc.opp>=70?'s-hi':sc.opp>=40?'s-mid':'s-low', st=stageOf(b.id), s=b.site;
@@ -950,6 +981,7 @@ function cardHtml(b){
   if(b.site&&b.site.tech&&(b.site.tech.googleAds||b.site.tech.metaPixel)) chips.push('<span class="chip w">💰 מפרסם</span>');
   if(leads[b.id]&&leads[b.id].seq&&!leads[b.id].seq.done){ const d=seqDue(leads[b.id].seq); chips.push(`<span class="chip ${d>=0?'w':''}">🔁 סדרה${d>=0?' · להיום':''}</span>`); }
   if(b.kit) chips.push('<span class="chip ok">🎁 ערכה</span>');
+  if(b.pv===2 && !b.ownPhotos) chips.push('<span class="chip no" title="בכרטיס הגוגל אין תמונות שהעסק העלה בעצמו — רק של לקוחות, או בכלל לא">📷 אין תמונות של העסק</span>');
   if(platformOf(b.website)) chips.push(`<span class="chip no">אתר = דף ${esc(platformOf(b.website))}</span>`);
   if(hasMobile(b)) chips.push('<span class="chip ok">📱 נייד</span>');
   if(leads[b.id]&&leads[b.id].contact) chips.push(`<span class="chip ok">👤 ${esc(leads[b.id].contact)}</span>`);
@@ -962,6 +994,7 @@ function cardHtml(b){
     <h4>${esc(b.name)}</h4>
     <div class="meta">${esc(b.type)}${b.dist!=null?' · '+fmtDist(b.dist):''}<br>${esc(b.address)}<br>
       ${b.phone?'📞 <b>'+esc(b.phone)+'</b><br>':''}⭐ ${b.rating||'—'} (${b.reviews} ביקורות)</div>
+    ${cardPhotos(b)}
     <div class="chips">${chips.join('')}</div>
     ${sc.fix[0]?`<div class="hint">🎯 <b style="color:var(--gold)">${esc(sc.fix[0].t)}</b></div>`:''}
     <div class="acts">
