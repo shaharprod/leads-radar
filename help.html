@@ -74,7 +74,8 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <ol class="steps">
 <li><b>מפתח Google Maps Platform</b> (חובה). ההנחיות המלאות ב<a href="#keys">פרק 2</a>. לוקח כ-10 דקות בפעם הראשונה.</li>
 <li><b>המיתוג שלך</b> (מומלץ לפני הדוח הראשון). <a href="#brand">פרק 3</a>.</li>
-<li><b>מפתח Gemini</b> (אופציונלי, לניסוח פניות ב-AI). <a href="#ai">פרק 15</a>.</li>
+<li><b>מפתח Gemini</b> (אופציונלי, לניסוח פניות ב-AI ולערכת תוכן). <a href="#ai">פרק 15</a>.</li>
+<li><b>שרת ביקורת העומק</b> — מוגדר מראש, אין מה להקים. <a href="#audit">פרק 7</a>.</li>
 </ol>
 <div class="box tip"><b>טיפ:</b> הכלי זוכר את ההגדרות והסריקות בדפדפן שבו עבדת. אם תפתח אותו בדפדפן אחר או במחשב אחר, תצטרך להזין את ההגדרות שוב. ב<a href="#data">פרק 17</a> מוסבר למה זה כך ואיך לגבות.</div>
 
@@ -230,8 +231,14 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 </ul>
 
 <h2 id="ai">15. ניסוח ב-AI וערכת תוכן (Gemini)</h2>
-<p class="where">איפה: <span class="btn">⚙️ הגדרות</span> ← "✨ ניסוח פניות ב-AI". מפתח: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> ← <span class="btn">Create API key</span>.</p>
-<p>עם מפתח Gemini: הפניות מנוסחות מחדש ב-AI בטון אישי לפי הממצאים, ו<span class="btn">🎁 ערכת תוכן</span> כותבת לעסק תיאור לגוגל, 3 פוסטים ותשובות לביקורות. מורידים כמתנה ללקוח (זה פותח דלתות) או מצרפים לדוח. המודל המומלץ: <code>gemini-2.5-flash</code> (מהיר וזול). ל-Gemini יש מכסה חינמית נדיבה.</p>
+<p class="where">איפה: <span class="btn">⚙️ הגדרות</span> ← "✨ ניסוח פניות ב-AI".</p>
+<p><b>שתי דרכים למפתח Gemini:</b></p>
+<ol class="steps">
+<li><b>מפתח נפרד וחינמי (הכי פשוט):</b> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> ← <span class="btn">Create API key</span> ← מדביקים בשדה "Gemini API Key".</li>
+<li><b>אותו מפתח Google של המפות:</b> אפשרי, בשני תנאים: (א) בפרויקט שלכם מופעל <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank" rel="noopener">Generative Language API</a>; (ב) ב-<a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a> ← המפתח ← <b>API restrictions</b> — השירות Generative Language API מסומן ברשימת המותרים (אם הגבלתם את המפתח ל-5 שירותי המפות, הוסיפו אותו כשישי).</li>
+</ol>
+<div class="box warn"><b>שגיאות נפוצות ומה הן אומרות:</b> "Gemini API has not been used in project … or it is disabled" = תנאי (א) חסר. "method GenerateContent are blocked" = תנאי (ב) חסר. "This model … is no longer available to new users" = המודל שבהגדרות סגור למפתח שלכם; הכלי עובר לבד למודל Flash אחר ושומר אותו בהגדרות — מספיק לנסות שוב.</div>
+<p>עם מפתח Gemini: הפניות מנוסחות מחדש ב-AI בטון אישי לפי הממצאים, ו<span class="btn">🎁 ערכת תוכן</span> כותבת לעסק תיאור לגוגל, 3 פוסטים ותשובות לביקורות. מורידים כמתנה ללקוח (זה פותח דלתות) או מצרפים לדוח. המודל בברירת מחדל: <code>gemini-3.8-flash</code> (מהיר וזול); אם הוא לא זמין למפתח שלכם הכלי מנסה לבד <code>gemini-flash-latest</code> ואחרים. ל-Gemini יש מכסה חינמית נדיבה. <b>שימו לב:</b> ניסוח ב-AI וערכת התוכן עובדים עם מפתח Gemini שלכם בלבד — לא דרך שרת הביקורת.</p>
 
 <h2 id="law">16. שימוש חוקי: מה מותר ומה אסור</h2>
 <div class="box law">
@@ -263,7 +270,10 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <tr><td>הביקורת מדלגת על אתרים</td><td>האתר לא עונה בתוך 30 שניות</td><td>תקין. העסק מסומן "שגיאת ביקורת"; אפשר לנסות שוב מהכרטיס</td></tr>
 <tr><td>הסריקה מוצאת עסקים אבל ביקורות = 0, תמונות = 0, ו"מצא על המפה" נכשל</td><td>לפרויקט של המפתח אין חשבון חיוב מקושר (Billing is disabled). גוגל מחזירה אז רק נתונים בסיסיים</td><td><a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">מסך החיוב של הפרויקט</a> ← Link a billing account. אם גוגל כותבת שהגעתם למגבלת הפרויקטים לחיוב, צרו את המפתח בפרויקט שכבר מחויב</td></tr>
 <tr><td>הלוגו לא מופיע בדוח</td><td>הקישור אינו לתמונה ישירה</td><td>פתחו את הקישור בלשונית: אם רואים דף ולא תמונה, זה לא קישור ישיר</td></tr>
-<tr><td>"לא הוגדר שרת ביקורת בהגדרות"</td><td>תכונה שדורשת שרת (קישור חי, רשם החברות, מעקב שבועי)</td><td>תקין. שאר הכלי עובד. ראו <a href="#audit">פרק 7</a></td></tr>
+<tr><td>"לא הוגדר שרת ביקורת בהגדרות" / «נתח» לא עובד</td><td>שדה "כתובת שרת הביקורת" ריק (גרסה ישנה של ההגדרות)</td><td><span class="btn">⚙️ הגדרות</span> ← "שרת ביקורת העומק" ← <span class="btn">↺ שחזר ברירת מחדל</span> ← <span class="btn">🔌 בדוק חיבור</span> ← <span class="btn">שמור</span></td></tr>
+<tr><td>"התכונה הזו דורשת שרת ביקורת פרטי משלכם עם טוקן"</td><td>לחצתם על קישור חי, מעקב שבועי או חפירה ברשת</td><td>תכונות אלה אינן כלולות בשרת המובנה. <a href="#audit">פרק 7</a>, "מתקדם"</td></tr>
+<tr><td>שגיאת AI: "…has not been used in project…" / "…are blocked" / "…no longer available to new users"</td><td>מפתח Gemini: השירות לא מופעל / לא מורשה למפתח / מודל סגור</td><td>ראו התיבה הצהובה ב<a href="#ai">פרק 15</a></td></tr>
+<tr><td>מופיע באנר "🆕 יש גרסה חדשה של הכלי"</td><td>הכלי עודכן בזמן שהלשונית הייתה פתוחה</td><td>לחצו <span class="btn">רענן עכשיו</span>. הנתונים שלכם נשמרים (הם בדפדפן)</td></tr>
 <tr><td>הנתונים נעלמו</td><td>ניקוי דפדפן, או דפדפן/פרופיל אחר</td><td>שחזרו מגיבוי JSON/CSV. ראו <a href="#data">פרק 17</a></td></tr>
 <tr><td>חיוב בלתי צפוי מגוגל</td><td>סריקות עמוקות רבות + PageSpeed</td><td>קבעו תקרת מכסה יומית; השתמשו בעומק "בינוני"; כבו PageSpeed כשלא צריך</td></tr>
 </table></div>
@@ -297,8 +307,9 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <tr><td><a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a></td><td>הפיכת "רחוב יפו 97, ירושלים" לנקודה על המפה</td><td>«📍 מצא על המפה»</td><td>$5 — קריאה אחת לכל חיפוש כתובת</td></tr>
 <tr><td><a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a></td><td>ציוני מהירות, SEO, נגישות ו-Best Practices לאתר העסק, וצילום מסך מהנייד</td><td>סימון «כלול מדידת מהירות» לפני הסריקה; הדוח</td><td>חינם (מכסה של 25,000 ביום)</td></tr>
 <tr><td><a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a></td><td>האם לאתר יש כמות גולשים אמיתית לפי נתוני Chrome (כולל מנייד)</td><td>«💓 חיוניות» ← שורת "תנועה אמיתית לאתר"</td><td>חינם</td></tr>
-<tr><td><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Gemini API</a> (אופציונלי)</td><td>ניסוח פניות אישיות, תסריט שיחה, ערכת תוכן, טקסט מודעה — על בסיס הממצאים האמיתיים בלבד</td><td>«✨ נסח ב-AI», «🎁 ערכת תוכן»</td><td>מכסה חינמית יומית ב-AI Studio; מעבר לה לפי <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">תמחור Gemini</a></td></tr>
-<tr><td>שרת ביקורת (אופציונלי, <a href="#audit">פרק 7</a>)</td><td>ביקורת אתר מעמיקה (טכנולוגיות, טפסים, צ'אט, פיקסלים, מיילים), רשם החברות ופנקס הקבלנים, קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים</td><td>«🔬 נתח», «🔗 קישור חי», «⭐ מעקב שבועי»</td><td>Cloud Run בפרויקט שלכם — בדרך כלל בתוך המכסה החינמית</td></tr>
+<tr><td><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Gemini API</a> (אופציונלי; מפתח נפרד מ-AI Studio או אותו מפתח Google עם <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank" rel="noopener">Generative Language API</a> מופעל ומורשה — <a href="#ai">פרק 15</a>)</td><td>ניסוח פניות אישיות, תסריט שיחה, ערכת תוכן, טקסט מודעה — על בסיס הממצאים האמיתיים בלבד</td><td>«✨ נסח ב-AI», «🎁 ערכת תוכן»</td><td>מכסה חינמית יומית ב-AI Studio; מעבר לה לפי <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">תמחור Gemini</a></td></tr>
+<tr><td>שרת ביקורת העומק (מוגדר מראש, <a href="#audit">פרק 7</a>)</td><td>ביקורת אתר מעמיקה (טכנולוגיות, טפסים, צ'אט, פיקסלים, מיילים), בדיקת נגישות · פרטיות · תקנון וציון חשיפה משפטית, רשם החברות ופנקס הקבלנים</td><td>«🔬 נתח» / «חפירה מלאה», הסינונים המשפטיים, פרק החשיפה בדוח</td><td>כלול — אין מה להקים ואין עלות</td></tr>
+<tr><td>שרת פרטי משלכם (מתקדם, אופציונלי, <a href="#audit">פרק 7</a>)</td><td>קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים, חפירה ברשת</td><td>«🔗 קישור חי», «⭐ מעקב שבועי», «🔎 חפירה ברשת»</td><td>Cloud Run בפרויקט שלכם — בדרך כלל בתוך המכסה החינמית</td></tr>
 </table></div>
 <div class="box tip"><b>איך הכלי חוסך לכם:</b> כל פרטי העסק נמשכים בקריאת החיפוש עצמה (20 עסקים בקריאה אחת) במקום קריאה לכל עסק; ביקורות ותמונות נמשכות רק לעסקים שאתם מנתחים או פותחים; PageSpeed רק כשמסמנים; CrUX רק לאתרים עצמאיים. סריקה "מהירה" = קריאת חיפוש אחת; "עמוקה" = עד 19. כדי שסריקות עמוקות רבות לא יפתיעו, קבעו <a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">תקרת מכסה יומית</a> ל-Places.</div>
 
@@ -316,7 +327,7 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 </table></div>
 <p class="sub">הרחבות אלה אינן בנויות עדיין בכלי. אם אחת מהן חשובה לכם, כתבו לנו דרך <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המכירה</a>.</p>
 
-<p class="sub" style="margin-top:50px">המדריך מתעדכן עם הכלי. גרסה: 3 באוקטובר 2026. · <a href="https://shaharprod.github.io/leads-radar/legal/terms.html">תנאי שימוש</a> · <a href="https://shaharprod.github.io/leads-radar/legal/privacy.html">פרטיות</a> · <a href="https://shaharprod.github.io/leads-radar/legal/accessibility.html">נגישות</a></p>
+<p class="sub" style="margin-top:50px">המדריך מתעדכן עם הכלי. גרסה: 3 באוקטובר 2026 (ערב). · <a href="https://shaharprod.github.io/leads-radar/legal/terms.html">תנאי שימוש</a> · <a href="https://shaharprod.github.io/leads-radar/legal/privacy.html">פרטיות</a> · <a href="https://shaharprod.github.io/leads-radar/legal/accessibility.html">נגישות</a></p>
 </div>
 <script>
 // כשהמדריך מוצג בתוך הכלי (iframe), קישורים חיצוניים נפתחים בלשונית חדשה

@@ -471,6 +471,14 @@ try{ if(settings.pkgs && !/פרטיות/.test(settings.pkgs)){
   store.set(LS.set, settings);
 } }catch(e){}
 
+/* ---------- new-version banner: when the tool was updated while the tab stayed open, offer a one-click refresh ---------- */
+(function(){
+  let tag=null; const check=async()=>{ try{ const r=await fetch(location.pathname+'?v='+Date.now(),{method:'HEAD',cache:'no-store'}); const t=r.headers.get('etag')||r.headers.get('last-modified'); if(!t) return;
+    if(tag===null){ tag=t; return; } if(t!==tag && !document.getElementById('newVer')){ const d=document.createElement('div'); d.id='newVer';
+      d.style.cssText='position:fixed;bottom:14px;right:14px;z-index:9999;background:#1d2850;border:1px solid #4f7cff;border-radius:12px;padding:10px 14px;font-size:13px;box-shadow:0 8px 28px rgba(0,0,0,.4)';
+      d.innerHTML='🆕 יש גרסה חדשה של הכלי. <button onclick="location.reload(true)" style="margin-inline-start:8px;padding:4px 12px;border-radius:8px;border:0;background:#4f7cff;color:#fff;cursor:pointer;font:inherit">רענן עכשיו</button>'; document.body.appendChild(d); } }catch(e){} };
+  check(); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') check(); }); setInterval(check, 10*60*1000);
+})();
 /* ---------- helpers ---------- */
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function log(msg){ const el=$('log'); el.textContent = msg + "\n" + el.textContent.split("\n").slice(0,14).join("\n"); }
