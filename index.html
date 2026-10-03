@@ -361,6 +361,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
       <div class="keylinks" style="margin-top:8px;display:grid;gap:4px;font-size:12.5px;line-height:1.6">
         <div>1️⃣ <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">צור פרויקט חדש</a> (או בחר קיים) · 2️⃣ <a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">קשר חשבון חיוב לפרויקט</a></div>
         <div>3️⃣ הפעל (Enable) 5 שירותים: <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">Maps JavaScript API</a> · <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Places API (New)</a> · <a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a> · <a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a> · <a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a> · ואם רוצים AI עם אותו מפתח, גם: <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank" rel="noopener">Generative Language API (Gemini)</a></div>
+        <div>➕ אופציונלי (חינם במכסה, מעשיר את הדוח): <a href="https://console.cloud.google.com/apis/library/street-view-image-backend.googleapis.com" target="_blank" rel="noopener">Street View Static API</a> (חזית העסק בדוח) · <a href="https://console.cloud.google.com/apis/library/static-maps-backend.googleapis.com" target="_blank" rel="noopener">Maps Static API</a> (מפת מתחרים בדוח) · <a href="https://console.cloud.google.com/apis/library/safebrowsing.googleapis.com" target="_blank" rel="noopener">Safe Browsing API</a> (אתר פרוץ/מסוכן) · <a href="https://console.cloud.google.com/apis/library/kgsearch.googleapis.com" target="_blank" rel="noopener">Knowledge Graph Search API</a> (ישות מותג). מפתח מוגבל? הוסיפו גם אותם לרשימת המותרים. בלי הפעלה — הכלי פשוט מדלג.</div>
         <div>4️⃣ <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials ← Create credentials ← API key</a>: הגבל לשירותים שהפעלתם (5, או 6 עם Gemini) ולאתר <code style="direction:ltr;display:inline-block">https://shaharprod.github.io/*</code> · 5️⃣ <a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">תקרת מכסה יומית</a> (מומלץ) · <a href="https://console.cloud.google.com/billing/budgets" target="_blank" rel="noopener">התראת תקציב</a></div>
         <div>📖 הסבר מלא: <a href="help.html#keys" target="_blank" rel="noopener">מדריך ← פרק 2</a> · מה כל שירות נותן ומה עולה: <a href="help.html#apis" target="_blank" rel="noopener">פרק 21</a></div>
       </div>
@@ -820,6 +821,39 @@ async function auditSite(url){
     return await r.json();
   }catch(e){ return {error: e.name==='AbortError' ? 'פג הזמן (30 שניות) — האתר איטי מאוד או חסום' : 'שגיאת רשת: '+e.message}; }
 }
+/* ---------- optional Google APIs on the customer's key (each silently skipped if the API is not enabled on the key) ---------- */
+// Google Safe Browsing: is the site flagged as malware / phishing / unwanted software
+async function safeBrowsing(url){
+  try{
+    const r=await fetchT('https://safebrowsing.googleapis.com/v4/threatMatches:find?key='+encodeURIComponent(settings.key),{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({client:{clientId:'leads-radar',clientVersion:'1.0'},threatInfo:{threatTypes:['MALWARE','SOCIAL_ENGINEERING','UNWANTED_SOFTWARE','POTENTIALLY_HARMFUL_APPLICATION'],platformTypes:['ANY_PLATFORM'],threatEntryTypes:['URL'],threatEntries:[{url}]}})},15000);
+    if(!r.ok) return null; const j=await r.json(); const th=(j.matches||[]).map(m=>m.threatType);
+    return {checked:true, threats:[...new Set(th)], ts:Date.now()};
+  }catch(e){ return null; }
+}
+// Google Knowledge Graph: does the business have a brand entity (knowledge panel)
+async function knowledgeGraph(b){
+  try{
+    const core=String(b.name||'').split(/\s[|–—-]\s|\(/)[0].trim(); if(core.length<3) return null;
+    const r=await fetchT('https://kgsearch.googleapis.com/v1/entities:search?limit=5&languages=he&languages=en&query='+encodeURIComponent(core)+'&key='+encodeURIComponent(settings.key),{},15000);
+    if(!r.ok) return null; const j=await r.json();
+    const norm=x=>String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+    const hit=(j.itemListElement||[]).map(e=>e.result||{}).find(e=>{ const n=norm(e.name); const c=norm(core); return n && c && (n===c || n.includes(c) || c.includes(n)); });
+    return {checked:true, found:!!hit, name:hit?hit.name:'', type:hit?(hit['@type']||[]).filter(t=>t!=='Thing').join(', '):'', desc:hit?(hit.description||''):'', url:hit&&hit.detailedDescription?hit.detailedDescription.url:'' , ts:Date.now()};
+  }catch(e){ return null; }
+}
+// Street View front photo + static map (data URIs, fetched from the tool page so the referrer-restricted key works, then embedded in the report)
+const streetImgs = {};
+async function ensureStreet(b){
+  if(!settings.key || !b.loc || streetImgs[b.id]) return;
+  const toData=async u=>{ try{ const r=await fetchT(u,{},20000); if(!r.ok) return ''; const bl=await r.blob(); if(bl.size<2000) return ''; return await new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>res(''); fr.readAsDataURL(bl); }); }catch(e){ return ''; } };
+  const loc=b.loc.lat+','+b.loc.lng, k='&key='+encodeURIComponent(settings.key);
+  let street='';
+  try{ const m=await fetchT('https://maps.googleapis.com/maps/api/streetview/metadata?location='+loc+k,{},10000).then(r=>r.json()); if(m.status==='OK') street=await toData('https://maps.googleapis.com/maps/api/streetview?size=640x320&location='+loc+'&fov=80'+k); }catch(e){}
+  const comps=competitorsOf(b).filter(c=>c.loc).slice(0,3);
+  const map=await toData('https://maps.googleapis.com/maps/api/staticmap?size=640x320&scale=1&zoom=15&language=he&markers=color:red%7Clabel:A%7C'+loc+comps.map((c,i)=>'&markers=color:gray%7Clabel:'+(i+1)+'%7C'+c.loc.lat+','+c.loc.lng).join('')+k);
+  streetImgs[b.id]={street, map, comps:comps.map(c=>c.name)};
+}
 async function psiScores(url){
   try{
     const r=await fetchT('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?strategy=mobile&category=performance&category=seo&category=accessibility&category=best-practices&url='
@@ -859,6 +893,8 @@ async function analyzeBiz(b){
   if(!b.reg) jobs.push(fetchT(api('action=registry&q='+encodeURIComponent(b.name)),{},20000).then(r=>r.json()).then(j=>b.reg={records:j.records||[],ts:Date.now()}).catch(()=>{}));
   if(!b.lic) jobs.push(fetchT(api('action=licenses&q='+encodeURIComponent(b.name)),{},20000).then(r=>r.json()).then(j=>b.lic={records:j.records||[],ts:Date.now()}).catch(()=>{}));
   if($('usePsi').checked && b.website) jobs.push(psiScores(b.website).then(p=>{ if(p._shot) shots[b.id]=p._shot; delete p._shot; b.psi=p; }));
+  if(settings.key && b.website) jobs.push(safeBrowsing(b.website).then(r=>{ if(r) b.safe=r; }).catch(()=>{}));
+  if(settings.key) jobs.push(knowledgeGraph(b).then(r=>{ if(r) b.kg=r; }).catch(()=>{}));
   await Promise.all(jobs);
   if(b.website && b.site && !b.site.error){ const cx=await cruxClient(b.site.finalUrl||b.website); if(cx) b.site.crux=cx; }
   b.astate = (b.site&&b.site.error) ? 'err' : 'done'; b.analyzedAt=Date.now();
@@ -960,8 +996,10 @@ function scoreBiz(b){
       if(!(s.whatsapp&&s.whatsapp.length)) add('אין כפתור וואטסאפ — ערוץ ההמרה מספר 1 בישראל',12,'conv');
       if(s.loadMs>4000) add('דף הבית נטען לאט ('+(s.loadMs/1000).toFixed(1)+' שניות)',10,'web');
       if(s.copyrightYear && s.copyrightYear < new Date().getFullYear()-2) add('שנת זכויות יוצרים באתר '+s.copyrightYear+' — האתר נראה לא מתוחזק',6,'web');
+      if(s.wayback&&s.wayback.found&&s.wayback.yearsSinceChange!=null&&s.wayback.yearsSinceChange>=2) add('האתר לא השתנה מאז '+s.wayback.lastChange.slice(0,4)+' לפי ארכיון האינטרנט ('+s.wayback.yearsSinceChange+' שנים) — אתר נטוש בעיני גוגל ובעיני לקוחות',8,'web');
       if(s.imagesNoAlt>3) add(s.imagesNoAlt+' תמונות ללא טקסט חלופי (alt) — פוגע בנגישות וב-SEO',5,'seo');
     } else if(s && s.error) add('האתר לא נגיש לבדיקה: '+s.error,15,'web');
+    if(b.safe&&b.safe.checked&&b.safe.threats.length) add('⚠️ Google Safe Browsing מסמן את האתר כמסוכן ('+b.safe.threats.join(', ')+') — גולשים מקבלים אזהרה אדומה, האתר כנראה פרוץ',30,'web');
     if(s && !s.error){
       if(s.ssl && s.ssl.daysLeft!=null && s.ssl.daysLeft<30) add('תעודת האבטחה (SSL) של האתר פגה בעוד '+s.ssl.daysLeft+' ימים',15,'web');
       if(s.domain && s.domain.daysToExpire!=null && s.domain.daysToExpire<60) add('הדומיין של האתר פג בעוד '+s.domain.daysToExpire+' ימים',15,'web');
@@ -1189,6 +1227,9 @@ function cardHtml(b){
     chips.push(chip(s.mobile,'מובייל'), chip(t.metaPixel,'Pixel'), chip(t.ga4||t.gtm,'Analytics'),
       chip(s.whatsapp&&s.whatsapp.length,'וואטסאפ'), chip(s.accessibility,'נגישות'));
     if(legalOf(b)){ chips.push(chip(s.legal.privacy.found,'פרטיות'), chip(s.legal.terms.found,'תקנון')); const lb=legalBadge(b); if(lb) chips.push(lb); }
+    if(b.safe&&b.safe.checked&&b.safe.threats.length) chips.push('<span class="chip no">☠️ Safe Browsing: '+esc(b.safe.threats.join(', '))+'</span>');
+    if(s.wayback&&s.wayback.found&&s.wayback.yearsSinceChange>=2) chips.push('<span class="chip w" title="לפי ארכיון האינטרנט">🕰️ לא עודכן מאז '+esc(s.wayback.lastChange.slice(0,4))+'</span>');
+    if(b.kg&&b.kg.found) chips.push('<span class="chip ok" title="'+esc(b.kg.desc||'')+'">🏷️ ישות גוגל</span>');
     const n=Object.keys(s.social||{}).length; if(n) chips.push(chip(1,n+' רשתות'));
     if(s.platform) chips.push(`<span class="chip">${esc(s.platform)}</span>`); }
   { const pr=presenceOf(b); chips.push(`<span class="chip ${pr.count>=5?'ok':pr.count>=3?'w':'no'}">📡 ${pr.count}/${pr.total} ערוצים</span>`); }
@@ -1241,6 +1282,9 @@ window.openBiz = id=>{
         <div>כותרת</div><div>${esc(s.title)||'—'}</div><div>תיאור</div><div>${esc(s.desc)||'—'}</div><div>H1</div><div>${esc(s.h1)||'—'}</div>
         <div>פלטפורמה</div><div>${esc(s.platform)||'לא זוהתה'}</div><div>זמן טעינה</div><div>${s.loadMs?(s.loadMs/1000).toFixed(1)+' שניות':'—'} · ${s.kb||'?'} KB</div>
         <div>© שנה באתר</div><div>${s.copyrightYear||'—'}</div><div>תמונות</div><div>${s.images||0} (${s.imagesNoAlt||0} בלי alt)</div>
+        ${s.wayback&&s.wayback.found?`<div>ארכיון האינטרנט</div><div>באוויר מאז ${esc(s.wayback.first||'?')} · שונה לאחרונה <b>${esc(s.wayback.lastChange||'?')}</b> · ${esc(String(s.wayback.versions))} גרסאות · <a href="${esc(s.wayback.url)}" target="_blank" rel="noopener">היסטוריה ↗</a></div>`:''}
+        ${b.safe&&b.safe.checked?`<div>Safe Browsing</div><div>${b.safe.threats.length?'<span class="chip no">מסומן: '+esc(b.safe.threats.join(', '))+'</span>':'<span class="chip ok">✓ לא מסומן כמסוכן</span>'}</div>`:''}
+        ${b.kg&&b.kg.checked?`<div>ישות בגוגל</div><div>${b.kg.found?'<span class="chip ok">✓ '+esc(b.kg.name)+(b.kg.type?' · '+esc(b.kg.type):'')+'</span>':'<span class="chip">לא זוהה כמותג</span>'}</div>`:''}
       </div></div>${legalHtml(b)}
       <div class="sec"><h5>📈 שיווק ומעקב</h5>
         <div class="chips">${yn(t.ga4,'Google Analytics 4')} ${yn(t.gtm,'Tag Manager')} ${yn(t.metaPixel,'Meta Pixel')} ${yn(t.tiktokPixel,'TikTok Pixel')} ${yn(t.googleAds,'Google Ads')} ${yn(t.linkedinInsight,'LinkedIn Insight')} ${yn(t.hotjar||t.clarity,'Heatmap')} ${yn(s.newsletter,'ניוזלטר')} ${yn(s.reviewsWidget,'ווידג׳ט ביקורות')} ${yn(s.video,'וידאו')}</div>
@@ -1378,17 +1422,21 @@ ul{padding-right:20px;margin:6px 0}li{margin:5px 0}.imp{background:#fff4d6;color
  <div class="hero"><div class="gauge"><div>${sc.presence}<small>מתוך 100</small></div></div>
   <div><b style="font-size:18px">הנוכחות הדיגיטלית של העסק: ${grade}</b><br>
   מצאנו <b>${sc.fix.length}</b> נקודות לשיפור. הבולטות: ${sc.fix.slice(0,3).map(f=>esc(f.t)).join(' · ')||'—'}.</div></div>
+ ${(()=>{ const si=streetImgs[b.id]; if(!si||(!si.street&&!si.map)) return ''; return `<div style="display:grid;grid-template-columns:${si.street&&si.map?'1fr 1fr':'1fr'};gap:14px;margin:14px 0">${si.street?`<figure style="margin:0"><img src="${si.street}" alt="חזית העסק מהרחוב" style="width:100%;border-radius:12px;display:block"><figcaption class="note">חזית העסק (Google Street View)</figcaption></figure>`:''}${si.map?`<figure style="margin:0"><img src="${si.map}" alt="מפת האזור והמתחרים" style="width:100%;border-radius:12px;display:block"><figcaption class="note">A = העסק${si.comps.length?' · '+si.comps.map((n,i)=>(i+1)+' = '+esc(n)).join(' · '):''}</figcaption></figure>`:''}</div>`; })()}
 
  <h2>1. פרופיל העסק בגוגל</h2><table>
   ${row(!!b.phone,'מספר טלפון בכרטיס',esc(b.phone))}${row(b.hours.length>0,'שעות פתיחה מוגדרות','')}
   ${row(b.photos>=5,'תמונות בכרטיס',b.photos+' תמונות')}${row(b.rating>=4,'דירוג ממוצע','⭐ '+(b.rating||'אין'))}
   ${row(b.reviews>=20,'כמות ביקורות',b.reviews+' ביקורות')}${row(!!b.website,'אתר מקושר לכרטיס',esc(b.website||'אין'))}
   ${b.rev&&!b.rev.error?row(b.rev.daysSince!=null&&b.rev.daysSince<=90,'ביקורות טריות',b.rev.daysSince!=null?'האחרונה לפני '+b.rev.daysSince+' ימים':'')+row(b.rev.negative<2,'ביקורות שליליות אחרונות',b.rev.negative+' מתוך '+b.rev.list.length):''}
+  ${b.kg&&b.kg.checked?row(b.kg.found,'ישות מותג בגוגל (פאנל ידע)',b.kg.found?esc(b.kg.name+(b.kg.type?' · '+b.kg.type:'')):'גוגל לא מזהה את העסק כמותג'):''}
  </table>
  ${b.website?`<h2>2. האתר</h2>${analyzed?`<table>
   ${row(s.https,'אבטחה (HTTPS)','')}${row(s.mobile,'התאמה למובייל','')}${row(s.loadMs?s.loadMs<=4000:null,'מהירות טעינה',s.loadMs?(s.loadMs/1000).toFixed(1)+' שניות':'')}
   ${b.psi&&!b.psi.error?row(b.psi.perf>=50,'ציון מהירות גוגל (מובייל)',b.psi.perf+'/100'):''}
   ${row(!!s.title,'כותרת לגוגל',esc(s.title))}${row(!!s.desc,'תיאור לגוגל',esc((s.desc||'').slice(0,90)))}${row(!!s.h1,'כותרת ראשית (H1)','')}
+  ${b.safe&&b.safe.checked?row(!b.safe.threats.length,'בטיחות האתר (Google Safe Browsing)',b.safe.threats.length?'מסומן: '+esc(b.safe.threats.join(', ')):'לא מסומן כמסוכן'):''}
+  ${s.wayback&&s.wayback.found?row(s.wayback.yearsSinceChange==null||s.wayback.yearsSinceChange<2,'עדכון התוכן האחרון (ארכיון האינטרנט)','שונה לאחרונה '+esc(s.wayback.lastChange)+(s.wayback.first?' · באוויר מאז '+esc(s.wayback.first):'')):''}
   ${row(s.schema,'נתונים מובנים (Schema)','')}${row(s.sitemap,'מפת אתר (sitemap)','')}${row(s.accessibility,'הצהרת נגישות / רכיב נגישות','חובה לפי החוק בישראל')}${s.legal&&!s.legal.unavailable?row(s.legal.accessibility.widget.found,'תפריט נגישות צף (רכיב נגישות)',s.legal.accessibility.widget.found?esc(s.legal.accessibility.widget.names.join(', ')):'לא נמצא')+row(!((s.legal.accessibility.checks||{issues:[]}).issues.length>=2),'נגישות בקוד הדף (ת"י 5568 / WCAG)',(s.legal.accessibility.checks||{issues:[]}).issues.length?(s.legal.accessibility.checks.issues.length+' ליקויים: '+esc(s.legal.accessibility.checks.issues.map(x=>x.t).join('; '))):'לא נמצאו ליקויים בבדיקה האוטומטית')+row(s.legal.privacy.found,'מדיניות פרטיות','חובת הודעה לפי חוק הגנת הפרטיות')+row(s.legal.terms.found,'תנאי שימוש / תקנון',s.legal.sellsOnline||s.legal.booking?'חובה באתר שמוכר או מתאם תורים':''):''}
   ${row(s.form,'טופס השארת פרטים','')}${row(s.whatsapp&&s.whatsapp.length>0,'כפתור וואטסאפ','')}${row((s.chat||[]).length>0||(s.booking||[]).length>0,'צ׳אט / קביעת תורים',[...(s.chat||[]),...(s.booking||[])].join(', '))}
  </table>`:`<p class="note">${b.site&&b.site.error?'האתר לא היה נגיש לבדיקה: '+esc(b.site.error):'האתר טרם נבדק לעומק.'}</p>`}`:`<h2>2. האתר</h2><p><b>לעסק אין אתר אינטרנט.</b> לקוחות שמחפשים בגוגל לא מוצאים מידע, מחירים או דרך נוחה ליצור קשר — ופונים למתחרים.</p>`}
@@ -1417,7 +1465,7 @@ window.openReport = async id=>{
   const b=findBiz(id); if(!b) return;
   if(b.website && b.astate!=='done' && !confirm('העסק עוד לא נותח לעומק — הדוח יהיה חלקי. להמשיך? (אפשר ללחוץ ביטול ואז «נתח»)')) return;
   const w=window.open('','_blank'); if(w) w.document.write('<p dir="rtl" style="font-family:Arial;padding:30px">מכין את הדוח...</p>');
-  await ensureShot(b); await ensureAd(b);
+  await ensureShot(b); await ensureAd(b); try{ await ensureStreet(b); }catch(e){}
   const html=reportHtml(b);
   if(w){ w.document.open(); w.document.write(html); w.document.close(); }
   dl('דוח-'+b.name.replace(/[\\/:*?"<>|]/g,'').slice(0,40)+'.html', html, 'text/html;charset=utf-8');
@@ -1576,7 +1624,7 @@ function rowsOf(list){
     return {'שם העסק':b.name,'קטגוריה':b.type,'כתובת':b.address,'טלפון':b.phone,'אתר':b.website,'דירוג':b.rating,'ביקורות':b.reviews,
       'תמונות':b.photos,'מרחק (מ׳)':b.dist,'ציון הזדמנות':s.opp,'נוכחות דיגיטלית':s.presence,'ליקוי מוביל':s.fix[0]?s.fix[0].t:'',
       'כל הליקויים':s.fix.map(f=>f.t).join(' | '),'HTTPS':w.https?'כן':'','מובייל':w.mobile?'כן':'','Analytics':(t.ga4||t.gtm)?'כן':'',
-      'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','מדיניות פרטיות':legalOf(b)?(legalOf(b).privacy.found?'כן':'לא'):'','תנאי שימוש':legalOf(b)?(legalOf(b).terms.found?'כן':'לא'):'','הצהרת נגישות':legalOf(b)?(legalOf(b).accessibility.statement.found?'כן':'לא'):'','תפריט נגישות צף':legalOf(b)?(legalOf(b).accessibility.widget.found?legalOf(b).accessibility.widget.names.join(' ')||'כן':'לא'):'','ליקויי נגישות בקוד':legalOf(b)?((legalOf(b).accessibility.checks||{issues:[]}).issues.map(x=>x.t).join(' | ')):'','ציון חשיפה משפטית':legalOf(b)?legalOf(b).exposure.score:'','חשוף משפטית':legalOf(b)?(legalFlags(b).length?'כן — חסר: '+legalFlags(b).map(x=>x.t).join(' · '):'לא'):'','רמת חשיפה משפטית':legalOf(b)?(LEGAL_LEVEL[legalOf(b).exposure.level]||{}).t||'':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
+      'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','מדיניות פרטיות':legalOf(b)?(legalOf(b).privacy.found?'כן':'לא'):'','תנאי שימוש':legalOf(b)?(legalOf(b).terms.found?'כן':'לא'):'','הצהרת נגישות':legalOf(b)?(legalOf(b).accessibility.statement.found?'כן':'לא'):'','תפריט נגישות צף':legalOf(b)?(legalOf(b).accessibility.widget.found?legalOf(b).accessibility.widget.names.join(' ')||'כן':'לא'):'','ליקויי נגישות בקוד':legalOf(b)?((legalOf(b).accessibility.checks||{issues:[]}).issues.map(x=>x.t).join(' | ')):'','עדכון אחרון (Wayback)':w.wayback&&w.wayback.found?w.wayback.lastChange:'','באוויר מאז (Wayback)':w.wayback&&w.wayback.found?w.wayback.first:'','Safe Browsing':b.safe&&b.safe.checked?(b.safe.threats.length?b.safe.threats.join(' '):'נקי'):'','ישות גוגל':b.kg&&b.kg.checked?(b.kg.found?b.kg.name:'לא'):'','ציון חשיפה משפטית':legalOf(b)?legalOf(b).exposure.score:'','חשוף משפטית':legalOf(b)?(legalFlags(b).length?'כן — חסר: '+legalFlags(b).map(x=>x.t).join(' · '):'לא'):'','רמת חשיפה משפטית':legalOf(b)?(LEGAL_LEVEL[legalOf(b).exposure.level]||{}).t||'':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
       'ערוצים דיגיטליים':presenceOf(b).count+'/'+presenceOf(b).total,
       'פייסבוק':socialOf(b).facebook||'','אינסטגרם':socialOf(b).instagram||'','טיקטוק':socialOf(b).tiktok||'','יוטיוב':socialOf(b).youtube||'','לינקדאין':socialOf(b).linkedin||'','פלטפורמה':w.platform||'',
       'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'חיוניות':vitality(b).score??'','רמת חיוניות':(vitality(b).level||{}).t||'','קצב ביקורות לחודש':(velocityOf(b)||{}).perMonth??'','שעות פתיחה בשבוע':hoursWeekOf(b)??'','תנועה לאתר (CrUX)':b.site&&b.site.crux?(b.site.crux.hasData?'יש':'אין'):'','איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','מפרסם':(t.googleAds||t.metaPixel)?'כן':'','מייל תקין':bestEmail(b),'שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
