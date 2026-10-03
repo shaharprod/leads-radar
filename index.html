@@ -292,8 +292,8 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     </div>
     <div class="sec"><h5>🏷️ המיתוג שלך בדוחות (White-Label)</h5>
       <div class="row row2">
-        <div><label>שם העסק / הסוכנות</label><input id="setBrand" placeholder="SHAHAR AI PRODUCTIONS"></div>
-        <div><label>שם איש הקשר</label><input id="setPerson" placeholder="שמוליק שחר"></div></div>
+        <div><label>שם העסק / הסוכנות</label><input id="setBrand" placeholder="שם העסק שלך"></div>
+        <div><label>שם איש הקשר</label><input id="setPerson" placeholder="ישראל ישראלי"></div></div>
       <div class="row row2">
         <div><label>טלפון / וואטסאפ</label><input id="setPhone" placeholder="050-0000000"></div>
         <div><label>אימייל</label><input id="setEmail" placeholder="name@domain.com"></div></div>
@@ -311,7 +311,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     </div>
     <div class="sec"><h5>🔗 אינטגרציות</h5>
       <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
-      <div class="row"><label>שרת ביקורת האתרים</label><input id="setApi"></div>
+      <div class="row"><label>שרת ביקורת האתרים</label><input id="setApi" placeholder="https://... (אופציונלי — לביקורות עומק, רישום חברות ורישיונות)"></div>
       <div class="row"><label>טוקן שרת (לקישורים חיים, מעקב צפיות ומעקב אזורים)</label><input id="setToken" placeholder="—"></div>
     </div>
     <div class="sec"><h5>💰 הצעות מחיר והערכת הפסד</h5>
@@ -380,7 +380,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
    Leads Radar v2 — סריקה · ביקורת · דוחות · פניות · משפך
    ============================================================ */
 const $ = id => document.getElementById(id);
-const DEFAULT_API = 'https://europe-west1-aiproject-484911.cloudfunctions.net/leads-radar-audit';
+const DEFAULT_API = ''; // אין שרת ברירת מחדל: כל משתמש מגדיר שרת משלו בהגדרות (אופציונלי)
 const LS = { key:'lr_apikey', leads:'lr_leads', last:'lr_last', results:'lr_results', set:'lr_settings' };
 const STAGES = [
   {id:'new',    t:'חדש'},
@@ -424,7 +424,7 @@ function presenceOf(b){
   return {channels:ch, count:ch.filter(c=>c.ok).length, total:ch.length, social:soc};
 }
 let settings = Object.assign({api:DEFAULT_API, model:'gemini-2.5-flash', color:'#4f7cff',
-  brand:'SHAHAR AI PRODUCTIONS', person:'שמוליק שחר', tagline:'ייעוץ והטמעת בינה מלאכותית לעסקים ולבעלי מקצוע',
+  brand:'', person:'', tagline:'',
   val:'300', monthly:'20', pkgs:['web|בניית אתר / דף נחיתה ממיר|3500','seo|קידום אורגני בסיסי (SEO) — הקמה|1800','legal|התאמת נגישות לאתר + הצהרת נגישות|1500',
   'rev|מערכת איסוף ביקורות וניהול מוניטין (חודשי)|450','gbp|אופטימיזציה לפרופיל גוגל העסקי|900','mkt|הטמעת Analytics, Pixel ומדידת המרות|1200',
   'soc|הקמה ומיתוג רשתות חברתיות|1500','conv|כפתור וואטסאפ, טופס לידים ובוט מענה|1200'].join('\n')}, store.get(LS.set,{}));
@@ -647,6 +647,7 @@ $('btnScan').onclick = async ()=>{
 
 /* ---------- deep audit ---------- */
 async function auditSite(url){
+  if(!settings.api) return {error:'לא הוגדר שרת ביקורת בהגדרות'};
   try{
     const r = await fetchT((settings.api||DEFAULT_API)+'?url='+encodeURIComponent(url), {}, 30000);
     if(!r.ok) return {error:'שרת הביקורת החזיר '+r.status};
@@ -1388,6 +1389,7 @@ function busy(msg){ let el=document.getElementById('busyEl');
   el.innerHTML='<div class="panel center"><span class="sp"></span> '+esc(msg)+'</div>'; }
 const api = (qs)=> (settings.api||DEFAULT_API)+'?'+qs;
 async function apiCall(qs, opts={}, ms=60000){
+  if(!settings.api) return {error:'לא הוגדר שרת ביקורת בהגדרות'};
   const o=Object.assign({headers:{}},opts); if(settings.token) o.headers['X-LR-Token']=settings.token;
   if(o.body && typeof o.body!=='string'){ o.body=JSON.stringify(o.body); o.headers['Content-Type']='application/json'; }
   const r=await fetchT(api(qs), o, ms); const j=await r.json().catch(()=>({error:'תשובה לא תקינה'}));
