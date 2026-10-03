@@ -111,6 +111,7 @@ ul.fix li b{color:var(--gold)}
 .sec h5{margin:0 0 10px;font-size:14px;color:var(--acc2)}
 .hint{font-size:12px;color:var(--mut);line-height:1.7}
 .err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.5);color:#ffb3b3;padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
+#alert .ok{background:rgba(47,212,143,.1);border:1px solid rgba(47,212,143,.5);color:#bff3d9;padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
 .okbox{background:rgba(47,212,143,.08);border:1px solid rgba(47,212,143,.4);padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
 .center{text-align:center}
 .sp{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
@@ -491,6 +492,7 @@ const DEFAULT_API = 'https://leads-radar-audit-scagoip22a-ew.a.run.app'; window.
 const LS = { key:'lr_apikey', leads:'lr_leads', last:'lr_last', results:'lr_results', set:'lr_settings' };
 const STAGES = [
   {id:'new',    t:'חדש'},
+  {id:'saved',  t:'⭐ שמור — לטיפול'},
   {id:'hot',    t:'🔥 חם — לפנות'},
   {id:'contact',t:'📞 נוצר קשר'},
   {id:'meet',   t:'📅 פגישה נקבעה'},
@@ -563,7 +565,12 @@ function dist(a,b){ const R=6371000,t=x=>x*Math.PI/180; const dLat=t(b.lat-a.lat
 const fmtDist = d => d==null?'':(d>=1000?(d/1000).toFixed(1)+' ק״מ':d+' מ׳');
 const waNum = p => String(p||'').replace(/\D/g,'').replace(/^0/,'972');
 const saveResults = ()=> store.set(LS.results, results.map(b=>Object.assign({},b,{_s:undefined})));
-const saveLeads = ()=> { store.set(LS.leads, leads); updateLeadsCount(); };
+// לידים: לפני כל שמירה ממזגים עם מה שכבר בדפדפן (טאב אחר יכול היה לשמור בינתיים) — כדי שליד לא ייעלם
+function mergeLeadsFromStorage(){ const disk=store.get(LS.leads, {}); let changed=false;
+  for(const [id,l] of Object.entries(disk)){ if(!leads[id] || (l.updated||0)>(leads[id].updated||0)){ if(!leads._deleted || !leads._deleted[id]) { leads[id]=l; changed=true; } } }
+  return changed; }
+const saveLeads = ()=> { try{ mergeLeadsFromStorage(); }catch(e){} const toSave=Object.assign({},leads); delete toSave._deleted; store.set(LS.leads, toSave); updateLeadsCount(); };
+window.addEventListener('storage', e=>{ if(e.key===LS.leads){ try{ if(mergeLeadsFromStorage()){ updateLeadsCount(); if($('viewLeads') && !$('viewLeads').classList.contains('hidden')) renderBoard(); } }catch(err){} } });
 async function fetchT(url, opts={}, ms=25000){
   const c=new AbortController(); const t=setTimeout(()=>c.abort(), ms);
   try{ return await fetch(url, Object.assign({}, opts, {signal:c.signal})); }
@@ -1375,9 +1382,13 @@ window.editSocial = (id,k)=>{
   render(); openBiz(id);
 };
 window.saveLead = id=>{ const b=findBiz(id);
-  leads[id]=Object.assign({created:Date.now()}, leads[id], {stage:$('ldStage').value, due:$('ldDue').value, note:$('ldNote').value, contact:$('ldContact').value.trim(), role:$('ldRole').value.trim(), direct:$('ldDirect').value.trim(), updated:Date.now(), biz:slim(b)});
-  if(leads[id].stage==='new' && !leads[id].note && !leads[id].due && !leads[id].contact) delete leads[id];
-  saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard(); log('הליד נשמר.'); };
+  let st=$('ldStage').value; if(st==='new') st='saved';   // «שמור ליד» תמיד שומר — ליד בשלב «חדש» עובר אוטומטית ל-«⭐ שמור»
+  leads[id]=Object.assign({created:Date.now()}, leads[id], {stage:st, due:$('ldDue').value, note:$('ldNote').value, contact:$('ldContact').value.trim(), role:$('ldRole').value.trim(), direct:$('ldDirect').value.trim(), updated:Date.now(), biz:slim(b)});
+  saveLeads(); render(); if(!$('viewLeads').classList.contains('hidden')) renderBoard();
+  const ok=!!store.get(LS.leads,{})[id];
+  log(ok?('✅ הליד נשמר בעמודה «'+stageName(st)+'» — לשונית «📋 הלידים שלי» ('+Object.values(leads).filter(l=>l.stage&&l.stage!=='new'&&l.stage!=='out').length+')'):'⚠️ השמירה נכשלה — הדפדפן לא אפשר לשמור (אחסון מלא או מצב פרטי)');
+  if(ok){ const t=$('ldStage'); if(t) t.value=st; if(dlgBiz.open) dlgBiz.close(); alertBox('✅ הליד «'+esc(b.name)+'» נשמר ב-«'+stageName(st)+'». רואים אותו בלשונית <b>📋 הלידים שלי</b>.','ok'); setTimeout(()=>alertBox(''),6000); }
+  else alert('השמירה נכשלה: הדפדפן לא אפשר לשמור (ייתכן אחסון מלא או גלישה פרטית).'); };
 $('bizReport').onclick=()=>curBiz&&openReport(curBiz);
 $('bizDig').onclick=()=>curBiz&&runDig(curBiz);
 $('bizOutreach').onclick=()=>curBiz&&openOutreach(curBiz);
