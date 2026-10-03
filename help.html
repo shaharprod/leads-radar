@@ -40,7 +40,7 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 </style>
 </head>
 <body>
-<div class="top"><b>📖 מדריך למשתמש · רדאר מפת הלידים</b><a href="./">← חזרה לכלי</a></div>
+<div class="top"><b>📖 מדריך למשתמש · רדאר מפת הלידים</b><a href="./" target="_top">← חזרה לכלי</a></div>
 <div class="wrap">
 <h1>מדריך למשתמש</h1>
 <p class="sub">כל מה שצריך כדי להתחיל, מהמפתח הראשון ועד הליד הראשון שנסגר. המדריך בנוי לפי סדר העבודה. אפשר לקרוא אותו ברצף או לקפוץ לפרק שצריך.</p>
@@ -65,6 +65,7 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <li><a href="#data">איפה הנתונים שלך נשמרים</a></li>
 <li><a href="#trouble">פתרון תקלות</a></li>
 <li><a href="#faq">שאלות נפוצות</a></li>
+<li><a href="#account">המנוי שלך: כניסה, חשבוניות, ביטול ותנאים</a></li>
 </ol></nav>
 
 <h2 id="start">1. התחלה: מה צריך לפני הסריקה הראשונה</h2>
@@ -96,7 +97,7 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <div class="box warn"><b>שליטה בהוצאות:</b> ב<a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">מסך המכסות של Maps</a> אפשר לקבוע תקרה יומית לכל שירות. הגדרה שמרנית לדוגמה: 2,000 בקשות ליום ל-Places. סריקה עמוקה (19 נקודות) יכולה לצרוך כמה עשרות בקשות, וביקורת עומק עוד כמה לכל עסק. ב<a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener">מסך החיוב</a> אפשר גם להגדיר התראת תקציב.</div>
 
 <h2 id="brand">3. המיתוג שלך: שם, לוגו, כתובת, פרטי קשר</h2>
-<p class="where">איפה: <span class="btn">⚙️ הגדרות</span> ← החלק "🏷️ המיתוג שלך בדוחות (White-Label)".</p>
+<p class="where">איפה: בכלי, בסרגל העליון ← <span class="btn">⚙️ הגדרות</span> ← החלק "🏷️ המיתוג שלך בדוחות (White-Label)" ← בסוף <span class="btn">שמור</span>. המדריך הזה נפתח מכפתור <span class="btn">❓ עזרה</span> באותו סרגל.</p>
 <p>כל מה שתמלאו כאן יופיע על הדוחות, הצעות המחיר, ערכות התוכן והפניות שהכלי מפיק. הלקוח שלכם רואה אתכם, לא אותנו.</p>
 <div class="scroll"><table>
 <tr><th>שדה</th><th>איפה זה מופיע</th><th>הערות</th></tr>
@@ -108,10 +109,12 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <tr><td>כתובת העסק</td><td>חתימת הדוח והצעת המחיר</td><td>נדרש בדרך כלל במסמכים עסקיים</td></tr>
 <tr><td>קישור לקביעת שיחה</td><td>הכפתור הראשי בסוף הדוח ("לתיאום שיחת ייעוץ")</td><td>Calendly, דף נחיתה, או כל קישור. אם ריק, הכפתור יפנה לוואטסאפ</td></tr>
 <tr><td>צבע מותג</td><td>כותרות הדוח וכפתורים</td><td></td></tr>
-<tr><td>כתובת לוגו</td><td>פינת הדוח, הצעת המחיר, ערכת התוכן</td><td>קישור לתמונה שנמצאת באינטרנט (PNG או JPG). לא קובץ מהמחשב. אפשר להעלות ל-<a href="https://postimages.org/" target="_blank" rel="noopener">PostImages</a> או לאתר שלכם ולהעתיק את הקישור</td></tr>
+<tr><td>לוגו — העלאת קובץ</td><td>פינת הדוח, הצעת המחיר, ערכת התוכן</td><td>הדרך הפשוטה: לחצו על שדה "לוגו — העלאת קובץ מהמחשב" ובחרו PNG, JPG או SVG. הכלי מקטין את התמונה (עד 320 פיקסלים) ושומר אותה בדפדפן שלכם. אין צורך באתר או בקישור</td></tr>
+<tr><td>או כתובת לוגו (URL)</td><td>כנ"ל</td><td>חלופה: קישור ישיר לתמונה שכבר נמצאת באינטרנט (למשל באתר שלכם). אם מילאתם גם קובץ וגם קישור, הקובץ מנצח. <span class="btn">הסר לוגו</span> מנקה את שניהם</td></tr>
 <tr><td>תיאור קצר</td><td>מתחת לשם בדוח, ובמשפט הפתיחה של הפנייה</td><td>משפט אחד: מה אתם עושים ולמי</td></tr>
 </table></div>
-<div class="box tip"><b>בדיקה מהירה:</b> אחרי השמירה, פתחו כרטיס של עסק כלשהו ולחצו <span class="btn">📄 דוח</span>. הדוח ייפתח בלשונית חדשה עם המיתוג שלכם. אם הלוגו לא מופיע, בדקו שהקישור נפתח ישירות לתמונה.</div>
+<div class="box tip"><b>תצוגה מקדימה:</b> מתחת לשדות המיתוג יש "תצוגה מקדימה של כותרת הדוח שלך". היא מתעדכנת תוך כדי הקלדה ומראה בדיוק מה הלקוח יראה בראש הדוח: הלוגו, שם העסק בצבע המותג, התיאור ושורת פרטי הקשר.</div>
+<div class="box tip"><b>בדיקה מהירה:</b> אחרי השמירה, פתחו כרטיס של עסק כלשהו ולחצו <span class="btn">📄 דוח</span>. הדוח ייפתח בלשונית חדשה עם המיתוג שלכם. אם הלוגו לא מופיע: בקובץ שהעליתם נסו PNG או JPG; בקישור, בדקו שהוא נפתח ישירות לתמונה ולא לדף.</div>
 
 <h2 id="scan">4. סריקה ראשונה</h2>
 <p class="where">איפה: לשונית <span class="btn">🔍 סריקה</span>.</p>
@@ -252,7 +255,24 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <h3>איך מבטלים את המנוי?</h3><p>בחשבון PayPal שלכם, או במייל אלינו. פרטים בתנאי השימוש.</p>
 <h3>איך נכנסים? יש סיסמה?</h3><p>אין סיסמה. בדף הכניסה מקלידים את המייל ששילמתם איתו ב-PayPal, מקבלים קוד בן 6 ספרות, ונכנסים ל-7 ימים.</p>
 
-<p class="sub" style="margin-top:50px">המדריך מתעדכן עם הכלי. גרסה: אוקטובר 2026.</p>
+<h2 id="account">20. המנוי שלך: כניסה, חשבוניות, ביטול ותנאים</h2>
+<div class="scroll"><table>
+<tr><th>מה</th><th>איפה</th><th>פרטים</th></tr>
+<tr><td>כניסה לכלי</td><td><a href="https://shaharprod.github.io/leads-radar/login.html" target="_blank" rel="noopener">דף הכניסה</a></td><td>מקלידים את המייל ששילמתם איתו ב-PayPal ← מקבלים קוד בן 6 ספרות למייל ← מקלידים אותו. הכניסה תקפה 7 ימים. אין סיסמה.</td></tr>
+<tr><td>רכישה או שדרוג</td><td><a href="https://shaharprod.github.io/leads-radar/sales.html#pricing" target="_blank" rel="noopener">דף המכירה</a></td><td>97 ₪ לחודש או 1,020 ₪ לשנה בתשלום אחד. המחירים כוללים מע"מ. התשלום דרך PayPal, אפשר גם בכרטיס אשראי בלי חשבון PayPal.</td></tr>
+<tr><td>חשבונית מס/קבלה</td><td>המייל שלכם</td><td>נשלחת אוטומטית אחרי כל חיוב, לכתובת המייל של חשבון PayPal.</td></tr>
+<tr><td>החיוב הבא, השהיה או ביטול</td><td><a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">PayPal ← תשלומים אוטומטיים</a></td><td>ביטול חל מהחידוש הבא; הגישה נשמרת עד סוף התקופה ששולמה. ב-14 הימים הראשונים אפשר לבטל ולקבל החזר לפי חוק הגנת הצרכן.</td></tr>
+<tr><td>תנאי השימוש ומדיניות הביטולים</td><td><a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank" rel="noopener">תנאי השימוש</a></td><td>מה מותר, מה אסור, איך מבטלים ואיך מקבלים החזר.</td></tr>
+<tr><td>מדיניות פרטיות</td><td><a href="https://shaharprod.github.io/leads-radar/legal/privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a></td><td>איזה מידע נשמר (מעט מאוד: מייל וסטטוס מנוי) ואצל מי.</td></tr>
+<tr><td>הצהרת נגישות</td><td><a href="https://shaharprod.github.io/leads-radar/legal/accessibility.html" target="_blank" rel="noopener">הצהרת הנגישות</a></td><td>איך לפנות אם נתקלתם בבעיית נגישות.</td></tr>
+</table></div>
+<div class="box"><b>הנתונים שלכם לא אצלנו.</b> המפתחות, ההגדרות, הלוגו, הסריקות והלידים נשמרים רק בדפדפן שלכם (<a href="#data">פרק 17</a>). אנחנו שומרים רק את המייל ואת סטטוס המנוי, כדי לדעת למי לפתוח את הדלת.</div>
+
+<p class="sub" style="margin-top:50px">המדריך מתעדכן עם הכלי. גרסה: 3 באוקטובר 2026. · <a href="https://shaharprod.github.io/leads-radar/legal/terms.html">תנאי שימוש</a> · <a href="https://shaharprod.github.io/leads-radar/legal/privacy.html">פרטיות</a> · <a href="https://shaharprod.github.io/leads-radar/legal/accessibility.html">נגישות</a></p>
 </div>
+<script>
+// כשהמדריך מוצג בתוך הכלי (iframe), קישורים חיצוניים נפתחים בלשונית חדשה
+if (window.self !== window.top) document.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+</script>
 </body>
 </html>
