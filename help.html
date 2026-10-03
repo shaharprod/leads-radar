@@ -66,6 +66,7 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <li><a href="#trouble">פתרון תקלות</a></li>
 <li><a href="#faq">שאלות נפוצות</a></li>
 <li><a href="#account">המנוי שלך: כניסה, חשבוניות, ביטול ותנאים</a></li>
+<li><a href="#apis">מה כל הרשאה נותנת, ומה עוד כדאי לחבר</a></li>
 </ol></nav>
 
 <h2 id="start">1. התחלה: מה צריך לפני הסריקה הראשונה</h2>
@@ -167,7 +168,12 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <li><b>ניתוח ביקורות גוגל</b>: קריאת API נוספת לעסק. נותן את הטענות החוזרות של הלקוחות.</li>
 <li>אפשר <span class="btn">⏹ עצור</span> בכל רגע. אתר שלא עונה מסומן כשגיאה ולא תוקע את התהליך.</li>
 </ul>
-<div class="box"><b>שרת ביקורת (אופציונלי):</b> חלק מהבדיקות המעמיקות (רישום חברות, רישיונות, קישור חי עם מעקב צפיות, מעקב שבועי) דורשות שרת שלכם. השדה "שרת ביקורת האתרים" בהגדרות הוא לכתובת של שרת כזה. בלי שרת, שאר הכלי עובד במלואו, והתכונות האלה מציגות "לא הוגדר שרת ביקורת".</div>
+<div class="box"><b>שרת ביקורת (אופציונלי):</b> חלק מהבדיקות המעמיקות (ביקורת אתר מעמיקה, רשם החברות, רישיונות, קישור חי עם מעקב צפיות, מעקב שבועי, ערכת תוכן ב-AI) דורשות שרת קטן שלכם ב-Google Cloud: פונקציית Cloud Run בשם <code>leads-radar-audit</code>. בלי שרת, שאר הכלי עובד במלואו, והתכונות האלה מציגות "לא הוגדר שרת ביקורת".
+<ul>
+<li><b>שרת ביקורת האתרים</b> (בהגדרות): כתובת הפונקציה. רואים אותה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> ← לחיצה על השירות <code>leads-radar-audit</code> ← שורת <b>URL</b> בראש העמוד (נראית כמו <code>https://europe-west1-&lt;project&gt;.cloudfunctions.net/leads-radar-audit</code>).</li>
+<li><b>טוקן שרת</b> (בהגדרות): סיסמה פנימית שאתם קובעים בעת ההקמה, נשמרת בשרת כמשתנה סביבה <code>LR_TOKEN</code>. רואים/משנים אותה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Cloud Run</a> ← השירות ← לשונית <b>Containers</b> ← <b>Variables &amp; Secrets</b> (שינוי דרך <b>Edit &amp; deploy new revision</b>). בהגדרות הכלי מדביקים בדיוק את אותו ערך — אחרת קישור חי, מעקב צפיות ומעקב אזורים יחזירו שגיאת הרשאה.</li>
+<li>ההקמה עצמה (קוד הפונקציה והפריסה) אינה חלק מהמנוי הבסיסי; פנו אלינו דרך <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המכירה</a> ונחזור עם הצעה.</li>
+</ul></div>
 
 <h2 id="card">8. כרטיס העסק המלא</h2>
 <p>לחיצה על כרטיס פותחת אותו. בפנים: כל הפרטים, הביקורות, רשימת הליקויים עם "פוטנציאל שיפור" לכל אחד, השוואה ל-3 המתחרים החזקים באותה קטגוריה עד 3 ק"מ, ו<span class="btn">בדוק דירוג מקומי</span>: מפת חום של המקום של העסק בתוצאות גוגל מפות מ-9 או 25 נקודות סביבו. זה הנתון שמשכנע בעלי עסקים: "אתה במקום 7 ברחוב שלך".</p>
@@ -269,6 +275,34 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <tr><td>הצהרת נגישות</td><td><a href="https://shaharprod.github.io/leads-radar/legal/accessibility.html" target="_blank" rel="noopener">הצהרת הנגישות</a></td><td>איך לפנות אם נתקלתם בבעיית נגישות.</td></tr>
 </table></div>
 <div class="box"><b>הנתונים שלכם לא אצלנו.</b> המפתחות, ההגדרות, הלוגו, הסריקות והלידים נשמרים רק בדפדפן שלכם (<a href="#data">פרק 17</a>). אנחנו שומרים רק את המייל ואת סטטוס המנוי, כדי לדעת למי לפתוח את הדלת.</div>
+
+<h2 id="apis">21. מה כל הרשאה נותנת, ומה עוד כדאי לחבר</h2>
+<p>כל שירות (API) שהפעלתם בפרויקט Google שלכם פותח תכונות מסוימות בכלי. הטבלה מראה בדיוק מה תלוי במה, ומה עולה. המחירים לפי <a href="https://developers.google.com/maps/billing-and-pricing/pricing" target="_blank" rel="noopener">דף התמחור של Google Maps Platform</a> (נבדק 3.10.2026, בדולרים ל-1,000 קריאות; מכסה חינמית חודשית: Essentials 10,000 · Pro 5,000 · Enterprise 1,000 קריאות לכל SKU).</p>
+<div class="scroll"><table>
+<tr><th>שירות</th><th>מה הוא נותן בכלי</th><th>איפה זה מופיע</th><th>עלות</th></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">Maps JavaScript API</a></td><td>המפה, הסיכה, הרדיוס, סימון העסקים לפי צבע</td><td>פאנל הסריקה, «⛶ הגדל מפה»</td><td>Dynamic Maps, $7 — טעינת מפה אחת לכל פתיחת הכלי</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Places API (New)</a></td><td>חיפוש העסקים (עד 20 בקריאה), שם, כתובת, טלפון, אתר, דירוג, מספר ביקורות, שעות, רמת מחיר, סטטוס, תמונות שבעל העסק העלה, 5 ביקורות אחרונות, שירותי משלוח/הזמנה</td><td>«🔍 התחל סריקה», כרטיסי העסק, ציון ההזדמנות, החיוניות, הדוח, מוקאפ המודעה</td><td>חיפוש: Text Search Enterprise+Atmosphere, $40 — קריאה אחת ל-20 עסקים · ביקורות: Place Details Enterprise+Atmosphere, $25 — רק לעסק שלוחצים עליו «🔬 נתח» · תמונות: Place Photos, $7 — רק לתמונות שמוצגות</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a></td><td>הפיכת "רחוב יפו 97, ירושלים" לנקודה על המפה</td><td>«📍 מצא על המפה»</td><td>$5 — קריאה אחת לכל חיפוש כתובת</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a></td><td>ציוני מהירות, SEO, נגישות ו-Best Practices לאתר העסק, וצילום מסך מהנייד</td><td>סימון «כלול מדידת מהירות» לפני הסריקה; הדוח</td><td>חינם (מכסה של 25,000 ביום)</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a></td><td>האם לאתר יש כמות גולשים אמיתית לפי נתוני Chrome (כולל מנייד)</td><td>«💓 חיוניות» ← שורת "תנועה אמיתית לאתר"</td><td>חינם</td></tr>
+<tr><td><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Gemini API</a> (אופציונלי)</td><td>ניסוח פניות אישיות, תסריט שיחה, ערכת תוכן, טקסט מודעה — על בסיס הממצאים האמיתיים בלבד</td><td>«✨ נסח ב-AI», «🎁 ערכת תוכן»</td><td>מכסה חינמית יומית ב-AI Studio; מעבר לה לפי <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">תמחור Gemini</a></td></tr>
+<tr><td>שרת ביקורת (אופציונלי, <a href="#audit">פרק 7</a>)</td><td>ביקורת אתר מעמיקה (טכנולוגיות, טפסים, צ'אט, פיקסלים, מיילים), רשם החברות ופנקס הקבלנים, קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים</td><td>«🔬 נתח», «🔗 קישור חי», «⭐ מעקב שבועי»</td><td>Cloud Run בפרויקט שלכם — בדרך כלל בתוך המכסה החינמית</td></tr>
+</table></div>
+<div class="box tip"><b>איך הכלי חוסך לכם:</b> כל פרטי העסק נמשכים בקריאת החיפוש עצמה (20 עסקים בקריאה אחת) במקום קריאה לכל עסק; ביקורות ותמונות נמשכות רק לעסקים שאתם מנתחים או פותחים; PageSpeed רק כשמסמנים; CrUX רק לאתרים עצמאיים. סריקה "מהירה" = קריאת חיפוש אחת; "עמוקה" = עד 19. כדי שסריקות עמוקות רבות לא יפתיעו, קבעו <a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">תקרת מכסה יומית</a> ל-Places.</div>
+
+<h3>מה עוד אפשר לחבר (לא נדרש היום; לפי תועלת)</h3>
+<div class="scroll"><table>
+<tr><th>שירות</th><th>התועלת ללידים</th><th>עלות</th></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/street-view-image-backend.googleapis.com" target="_blank" rel="noopener">Street View Static API</a></td><td>תמונת חזית העסק מהרחוב לדוח ולמוקאפ המודעה, גם לעסק בלי תמונות בגוגל</td><td>$7 ל-1,000, 10,000 חינם בחודש</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/static-maps-backend.googleapis.com" target="_blank" rel="noopener">Maps Static API</a></td><td>מפה קטנה של האזור והמתחרים בתוך הדוח (PDF/הדפסה)</td><td>$2 ל-1,000, 10,000 חינם</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/customsearch.googleapis.com" target="_blank" rel="noopener">Custom Search JSON API</a></td><td>כמה עמודים של האתר גוגל מכירה (site:), ואיתור פרופילים ברשתות ובאינדקסים לפי שם העסק</td><td>100 חיפושים ביום חינם, אחר כך $5 ל-1,000</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API</a></td><td>האם לעסק יש ערוץ יוטיוב ומתי העלה סרטון לאחרונה — עוד ערוץ נוכחות בציון</td><td>חינם (מכסה יומית)</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/safebrowsing.googleapis.com" target="_blank" rel="noopener">Safe Browsing API</a></td><td>האם האתר של העסק מסומן כמסוכן/פרוץ — ממצא שמוכר שירות אבטחה מיד</td><td>חינם</td></tr>
+<tr><td><a href="https://console.cloud.google.com/apis/library/kgsearch.googleapis.com" target="_blank" rel="noopener">Knowledge Graph Search API</a></td><td>האם לעסק יש ישות מותג בגוגל (פאנל ידע) — סימן לעסק מבוסס</td><td>חינם</td></tr>
+<tr><td><a href="https://data.gov.il/" target="_blank" rel="noopener">data.gov.il</a> (ממשלתי)</td><td>רשם החברות, פנקס הקבלנים, רשם העמותות, רישוי עסקים עירוני — שנת רישום, סטטוס, היקף (חלק כבר בשרת הביקורת)</td><td>חינם, בלי מפתח</td></tr>
+<tr><td><a href="https://archive.org/help/wayback_api.php" target="_blank" rel="noopener">Wayback Machine</a></td><td>מתי האתר שונה לאחרונה לאורך שנים — "אתר שלא נגעו בו מ-2019"</td><td>חינם</td></tr>
+</table></div>
+<p class="sub">הרחבות אלה אינן בנויות עדיין בכלי. אם אחת מהן חשובה לכם, כתבו לנו דרך <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המכירה</a>.</p>
 
 <p class="sub" style="margin-top:50px">המדריך מתעדכן עם הכלי. גרסה: 3 באוקטובר 2026. · <a href="https://shaharprod.github.io/leads-radar/legal/terms.html">תנאי שימוש</a> · <a href="https://shaharprod.github.io/leads-radar/legal/privacy.html">פרטיות</a> · <a href="https://shaharprod.github.io/leads-radar/legal/accessibility.html">נגישות</a></p>
 </div>
