@@ -331,10 +331,10 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
         <button type="button" class="ghost" id="btnApiTest" style="padding:5px 12px;font-size:12.5px">🔌 בדוק חיבור</button>
         <button type="button" class="ghost" id="btnApiDefault" style="padding:5px 12px;font-size:12.5px">↺ שחזר ברירת מחדל</button>
         <span class="hint" id="apiTestOut" style="margin:0"></span></div>
-      <div class="row" style="margin-top:10px"><label>טוקן שרת (אופציונלי — לתכונות המתקדמות)</label><input id="setToken" placeholder="טוקן שקיבלתם מאיתנו (או ה-LR_TOKEN של השרת שלכם)"></div>
-      <div class="hint"><b>בלי טוקן עובדים:</b> סריקה, «נתח» / «חפירה מלאה» מלאה, ציון חשיפה משפטית, רשם החברות, רישיונות, דוח, הצעת מחיר ופנייה. <b>עם טוקן נוספים:</b> 🔗 קישור חי לדוח עם מעקב צפיות, ⭐ מעקב שבועי על אזורים, 🎁 ערכת תוכן ב-AI דרך השרת ו-🔎 חפירה ברשת. אם אין לכם טוקן ואתם רוצים את התכונות האלה: <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המנוי</a> · <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a>.</div>
-      <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:var(--mut)">מתקדם: הפעלת שרת ביקורת משלכם ב-Google Cloud</summary>
-        <div class="hint" style="margin-top:6px">למי שרוצה שרת פרטי (לא נדרש למנוי הרגיל): פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code style="direction:ltr;display:inline-block">leads-radar-audit</code>. את הכתובת רואים בשורת <b>URL</b> למעלה בדף השירות; את הטוקן קובעים כמשתנה סביבה <code style="direction:ltr;display:inline-block">LR_TOKEN</code> ב-<b>Containers ← Variables &amp; Secrets</b> (שינוי: <b>Edit &amp; deploy new revision</b>). מדביקים כאן את הכתובת ואת אותו טוקן בדיוק. הקמה צעד-אחר-צעד: <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a>.</div>
+      <div class="hint" style="margin-top:8px"><b>עם ההגדרה הזו עובדים:</b> סריקה, «נתח» / «חפירה מלאה», ציון חשיפה משפטית, רשם החברות, רישיונות, דוח, הצעת מחיר, פנייה, וערכת תוכן ב-AI (עם מפתח Gemini שלכם למעלה). <b>לא כלולים:</b> 🔗 קישור חי עם מעקב צפיות, ⭐ מעקב שבועי על אזורים ו-🔎 חפירה ברשת — אלה דורשים שרת פרטי משלכם (ראו "מתקדם").</div>
+      <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:var(--mut)">מתקדם: שרת ביקורת פרטי משלכם ב-Google Cloud (לקישור חי, מעקב שבועי וחפירה ברשת)</summary>
+        <div class="hint" style="margin-top:6px">פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code style="direction:ltr;display:inline-block">leads-radar-audit</code>, בחשבון Google שלכם ועל חשבונכם. את הכתובת רואים בשורת <b>URL</b> למעלה בדף השירות ומדביקים בשדה "כתובת שרת הביקורת" למעלה; את הטוקן אתם קובעים כמשתנה סביבה <code style="direction:ltr;display:inline-block">LR_TOKEN</code> ב-<b>Containers ← Variables &amp; Secrets</b> (שינוי: <b>Edit &amp; deploy new revision</b>) ומדביקים כאן את אותו ערך בדיוק. הקמה צעד-אחר-צעד: <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a>.</div>
+        <div class="row" style="margin-top:8px"><label>טוקן שרת (רק לשרת פרטי משלכם)</label><input id="setToken" placeholder="הערך של LR_TOKEN בשרת שלכם"></div>
       </details>
     </div>
     <div class="sec"><h5>🔗 אינטגרציות (אופציונלי)</h5>
@@ -1512,7 +1512,7 @@ async function apiCall(qs, opts={}, ms=60000){
   const r=await fetchT(api(qs), o, ms); const j=await r.json().catch(()=>({error:'תשובה לא תקינה'}));
   if(!r.ok || j.error) throw new Error(j.error||('שגיאה '+r.status)); return j;
 }
-function needToken(){ if(settings.token) return false; alert('לפיצ׳ר הזה צריך «טוקן שרת» ב-⚙️ הגדרות → אינטגרציות.'); return true; }
+function needToken(){ if(settings.token) return false; alert('התכונה הזו דורשת שרת ביקורת פרטי משלכם עם טוקן: ⚙️ הגדרות → שרת ביקורת העומק → מתקדם.'); return true; }
 function persistBiz(b){ if(leads[b.id]){ leads[b.id].biz=slim(b); saveLeads(); } saveResults(); }
 const reopen = id=>{ render(); if(dlgBiz.open && curBiz===id) openBiz(id); };
 
@@ -1983,7 +1983,7 @@ $('btnWatch').onclick=async()=>{
   }catch(e){ alert('שמירה נכשלה: '+e.message); }
 };
 async function loadWatch(){
-  if(!settings.token){ $('areasList').innerHTML='כדי להפעיל מעקב אזורים צריך «טוקן שרת» ב-⚙️ הגדרות.'; $('newLeadsList').innerHTML=''; return; }
+  if(!settings.token){ $('areasList').innerHTML='מעקב אזורים דורש שרת ביקורת פרטי משלכם עם טוקן: ⚙️ הגדרות → שרת ביקורת העומק → מתקדם.'; $('newLeadsList').innerHTML=''; return; }
   try{
     const [a,n]=await Promise.all([apiCall('action=watch'), apiCall('action=newleads')]);
     $('areasList').innerHTML = a.areas.length? a.areas.map(x=>`<div style="padding:6px 0;border-top:1px solid var(--line)">⭐ <b>${esc(x.name)}</b> · <span class="hint">${x.lastRun?'נבדק '+new Date(x.lastRun).toLocaleString('he-IL')+' · '+(x.lastFound||0)+' עסקים'+(x.baseline&&!x.lastNew?'':' · '+(x.lastNew||0)+' חדשים'):'טרם נבדק'}${x.lastError?' · ⚠️ '+esc(x.lastError):''}</span>
@@ -2011,7 +2011,7 @@ $('btnAckAll').onclick=async()=>{ if(needToken()) return; if(!confirm('לסמן 
    ============================================================ */
 async function aiText(prompt, temp){
   if(settings.gemini) return await gemini(prompt);
-  if(!settings.token) throw new Error('אין מפתח Gemini ואין טוקן שרת — ⚙️ הגדרות');
+  if(!settings.token) throw new Error('לניסוח ב-AI צריך מפתח Gemini: ⚙️ הגדרות → ניסוח פניות ב-AI');
   const j=await apiCall('action=ai',{method:'POST',body:{prompt, temp: temp==null?0.6:temp}},120000); return j.text||'';
 }
 function parseJSON(t){ const m=String(t).replace(/```json|```/g,'').match(/\{[\s\S]*\}/); if(!m) throw new Error('תשובת AI לא בפורמט הצפוי'); return JSON.parse(m[0]); }

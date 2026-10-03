@@ -171,8 +171,8 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 </ul>
 <div class="box"><b>שרת ביקורת העומק:</b> הוא זה שמבצע את «🔬 נתח» / «חפירה מלאה», את בדיקת הנגישות · פרטיות · תקנון, רשם החברות והרישיונות. <b>הכתובת מוגדרת מראש בכלי ואין צורך לעשות כלום.</b> אם «נתח» מחזיר "לא הוגדר שרת ביקורת": <span class="btn">⚙️ הגדרות</span> ← «שרת ביקורת העומק» ← <span class="btn">🔌 בדוק חיבור</span>; אם השדה ריק — <span class="btn">↺ שחזר ברירת מחדל</span> ← <span class="btn">שמור</span>.
 <ul>
-<li><b>טוקן שרת</b> (אופציונלי): נדרש רק לתכונות המתקדמות — קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים, ערכת תוכן ב-AI דרך השרת וחפירה ברשת. כל השאר עובד בלי טוקן. לקבלת טוקן: <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המנוי</a>.</li>
-<li><b>שרת פרטי משלכם</b> (מתקדם, לא נדרש): פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code>leads-radar-audit</code>. הכתובת בשורת <b>URL</b> בדף השירות; הטוקן הוא משתנה הסביבה <code>LR_TOKEN</code> (<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Cloud Run</a> ← השירות ← Containers ← Variables &amp; Secrets). מדביקים את שניהם בהגדרות.</li>
+<li><b>מה לא כלול בשרת המובנה:</b> קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים וחפירה ברשת. אלה עובדים רק עם שרת פרטי משלכם (הסעיף הבא). ערכת תוכן וניסוח ב-AI עובדים עם מפתח Gemini שלכם — בלי שרת.</li>
+<li><b>שרת פרטי משלכם</b> (מתקדם, אופציונלי, בחשבון Google שלכם): פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code>leads-radar-audit</code>. הכתובת בשורת <b>URL</b> בדף השירות; הטוקן הוא משתנה הסביבה <code>LR_TOKEN</code> (<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Cloud Run</a> ← השירות ← Containers ← Variables &amp; Secrets). מדביקים את שניהם בהגדרות.</li>
 </ul></div>
 
 <h3 id="legal-check">🛡️ חשיפה משפטית: נגישות, פרטיות ותקנון</h3>
