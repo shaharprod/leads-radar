@@ -355,6 +355,11 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
 <dialog id="dlgSettings">
   <div class="dlg-h"><b>⚙️ הגדרות</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
+    <div class="sec" id="secAccount"><h5>👤 החשבון שלי <span class="chip" id="stAcct"></span></h5>
+      <div class="kv" id="acctKv"><div>מצב</div><div>טוען…</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="ghost" id="acctAdmin" hidden>🛠️ ניהול מנויים</button><button type="button" class="ghost" id="acctLogout">🚪 יציאה מהחשבון</button><a class="ghost" href="login.html?stay=1" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border:1px solid var(--line);border-radius:10px;text-decoration:none">דף הכניסה ↗</a></div>
+      <div class="hint" style="margin-top:6px">הכניסה היא בקוד למייל (בלי סיסמה) ונשמרת 7 ימים בדפדפן הזה. מי נחשב מנהל נקבע בשרת הביקורת (משתנה הסביבה <code style="direction:ltr;display:inline-block">LR_ADMIN</code>), לא בהגדרות כאן — כדי שאף לקוח לא יוכל למנות את עצמו.</div>
+    </div>
     <div class="sec"><h5>🔑 Google <span class="chip" id="stKey"></span></h5>
       <div class="row"><label for="setKey">Google Maps API Key (חובה — בלי זה הסריקה לא עובדת)</label><input id="setKey" placeholder="AIza..."></div>
       <div class="hint">נשמר רק בדפדפן שלך. המפתח נוצר בחשבון Google שלך, בפרויקט <b>עם חשבון חיוב מקושר</b> (בלי חיוב גוגל לא מחזירה ביקורות ותמונות). השימוש הרגיל נשאר בתוך המכסה החינמית.</div>
@@ -2340,6 +2345,18 @@ if(results.length) log('נטענו '+results.length+' תוצאות מהסריק�
     </div>
     <div class="sec"><h5>👥 מנויים <span class="chip" id="admCount"></span></h5><div class="scroll"><table id="admTable"><thead><tr><th>מייל</th><th>סטטוס</th><th>עד</th><th>תוכנית</th><th>מקור</th><th>נרשם</th><th>כניסה אחרונה</th><th>כניסות</th><th>סריקות</th><th>ניתוחים</th><th>דוחות</th><th>הערה</th><th></th></tr></thead><tbody></tbody></table></div></div>
     <div class="sec"><h5>🚪 נכנסו בלי מנוי <span class="chip" id="admVisCount"></span></h5><div class="hint">אנשים שהתחברו במייל אבל אין להם מנוי — מכאן אפשר לפתוח להם גישה בלחיצה.</div><div class="scroll"><table id="admVisitors"><thead><tr><th>מייל</th><th>ניסיון ראשון</th><th>ניסיון אחרון</th><th>ניסיונות</th><th></th></tr></thead><tbody></tbody></table></div></div>
+    <div class="sec"><h5>🎟️ קופונים</h5>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+        <div><label for="cpCode">קוד (ריק = אוטומטי)</label><input id="cpCode" placeholder="למשל SAM10" style="width:130px;direction:ltr;text-transform:uppercase"></div>
+        <div><label for="cpPct">הנחה %</label><input id="cpPct" type="number" min="1" max="90" value="10" style="width:70px"></div>
+        <div><label for="cpMax">מקסימום שימושים (0 = ללא)</label><input id="cpMax" type="number" min="0" value="0" style="width:90px"></div>
+        <div><label for="cpUntil">תוקף עד</label><input id="cpUntil" type="date"></div>
+        <div><label for="cpNote">למי / למה</label><input id="cpNote" placeholder="למשל: משתתפי ההדרכה 5.10" style="width:200px"></div>
+        <button class="primary" id="cpAdd">צור קופון</button>
+      </div>
+      <div class="hint">הקופון מוריד את המחיר ב-PayPal בלחיצה (97 ← 87.30 ₪ לחודש, 970 ← 873 ₪ לשנה ב-10%). הלקוח מקבל קישור עם הקופון או מקליד אותו בדף המנוי. "שלח" פותח וואטסאפ/מייל עם הודעה מוכנה — אתה לוחץ שלח.</div>
+      <div class="scroll"><table id="admCoupons"><thead><tr><th>קוד</th><th>הנחה</th><th>חודשי</th><th>שנתי</th><th>שימושים</th><th>תוקף</th><th>הערה</th><th>מצב</th><th></th></tr></thead><tbody></tbody></table></div>
+    </div>
     <div class="sec"><h5>💳 אירועי PayPal אחרונים</h5><div class="scroll"><table id="admEvents"><thead><tr><th>זמן</th><th>סוג</th><th>מייל</th><th>סכום</th><th>חיוב הבא</th><th>מזהה</th></tr></thead><tbody></tbody></table></div>
       <div class="hint">מנויים נפתחים ונסגרים אוטומטית מ-PayPal דרך Webhook. הכתובת להגדרה ב-PayPal מופיעה במדריך, פרק 20.</div></div>
   </div>
@@ -2374,6 +2391,15 @@ async function check() {
   // every call to the audit server carries the session (the server requires it)
   const orig = window.fetchT;
   if (typeof orig === 'function') window.fetchT = (url, opts = {}, ms) => { if (String(url).startsWith(api())) { opts = Object.assign({}, opts, { headers: Object.assign({}, opts.headers || {}, { 'X-LR-Session': jwt() }) }); } return orig(url, opts, ms); };
+  // ⚙️ settings → "החשבון שלי"
+  try {
+    const kv = document.getElementById('acctKv'); const st = document.getElementById('stAcct');
+    const stHe = { admin: 'מנהל', active: 'מנוי פעיל', trial: 'ניסיון', free: 'גישה חינם', cancelled: 'בוטל' };
+    if (kv) kv.innerHTML = `<div>מחובר כ</div><div dir="ltr" style="text-align:right">${a.email}</div><div>תפקיד</div><div>${a.admin ? '<b>מנהל (אדמין)</b> — רואה את מסך ניהול המנויים' : 'מנוי'}</div><div>סטטוס מנוי</div><div>${stHe[a.status] || a.status}${a.until ? ' · עד ' + a.until : ''}${a.plan ? ' · ' + a.plan : ''}</div>${a.admins ? `<div>מנהלים מוגדרים</div><div dir="ltr" style="text-align:right">${a.admins.join(', ')}</div>` : ''}`;
+    if (st) { st.className = 'chip ok'; st.textContent = a.admin ? '✓ מנהל' : '✓ ' + (stHe[a.status] || a.status); }
+    const ab2 = document.getElementById('acctAdmin'); if (ab2) { ab2.hidden = !a.admin; ab2.onclick = () => { document.getElementById('dlgSettings').close(); openAdmin(); }; }
+    const lo2 = document.getElementById('acctLogout'); if (lo2) lo2.onclick = logout;
+  } catch (e) {}
   // header: who + logout (+ admin)
   const hdr = document.querySelector('header'); if (hdr) {
     const w = document.createElement('span'); w.className = 'chip'; w.style.cssText = 'font-size:11.5px'; w.title = 'מחובר'; w.innerHTML = `👤 <span dir="ltr">${a.email}</span>${a.status && a.status !== 'admin' && a.status !== 'active' ? ' · ' + ({ trial: 'ניסיון', free: 'חינם', cancelled: 'בוטל' }[a.status] || a.status) : ''}${a.until ? ' עד ' + a.until : ''}`;
@@ -2398,11 +2424,17 @@ async function loadAdmin(op) {
   $('admWho').textContent = d.admin; $('admCount').textContent = d.subscribers.length; $('admVisCount').textContent = d.visitors.length;
   const fmt = t => t ? String(t).slice(0, 16).replace('T', ' ') : '—'; const stClass = s => 'st-' + (s || '');
   $('admTable').querySelector('tbody').innerHTML = d.subscribers.map(s => { const u = s.usage || {}; const eff = (s.until && Date.parse(s.until) < Date.now()) ? 'expired' : s.status;
-    return `<tr><td dir="ltr">${esc2(s.email)}</td><td class="${stClass(eff)}">${STATUS_HE[eff] || eff}</td><td>${s.until || '∞'}</td><td>${esc2(s.plan)}</td><td>${s.source === 'paypal' ? 'PayPal' : 'ידני'}</td><td>${fmt(s.since)}</td><td>${fmt(u.lastLogin || u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td>${u.scan || 0}</td><td>${u.audit || 0}</td><td>${u.report || 0}</td><td title="${esc2(s.note)}">${esc2((s.note || '').slice(0, 30))}</td>
+    return `<tr><td dir="ltr">${esc2(s.email)}</td><td class="${stClass(eff)}">${STATUS_HE[eff] || eff}</td><td>${s.until || '∞'}</td><td>${esc2(s.plan)}${s.coupon ? ' 🎟️' + esc2(s.coupon) : ''}</td><td>${s.source === 'paypal' ? 'PayPal' : 'ידני'}</td><td>${fmt(s.since)}</td><td>${fmt(u.lastLogin || u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td>${u.scan || 0}</td><td>${u.audit || 0}</td><td>${u.report || 0}</td><td title="${esc2(s.note)}">${esc2((s.note || '').slice(0, 30))}</td>
       <td><button class="ghost" style="padding:2px 8px;font-size:12px" data-edit="${esc2(s.email)}">✏️</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-block="${esc2(s.email)}">${s.status === 'blocked' ? '🔓 שחרר' : '⛔ חסום'}</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-remove="${esc2(s.email)}">🗑️</button></td></tr>`; }).join('') || '<tr><td colspan="13">אין מנויים עדיין</td></tr>';
   $('admVisitors').querySelector('tbody').innerHTML = d.visitors.map(v => { const u = v.usage || {}; return `<tr><td dir="ltr">${esc2(v.email)}</td><td>${fmt(u.first)}</td><td>${fmt(u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td><button class="primary" style="padding:3px 10px;font-size:12px" data-grant="${esc2(v.email)}">✅ פתח גישה</button></td></tr>`; }).join('') || '<tr><td colspan="5">אין</td></tr>';
+  const P = d.prices || { monthly: 97, annual: 970 }; const pr = (v, pct) => (Math.round(v * (100 - pct)) / 100).toLocaleString('he-IL');
+  $('admCoupons').querySelector('tbody').innerHTML = (d.coupons || []).map(c => { const link = location.origin + location.pathname.replace(/[^/]*$/, '') + 'sales.html?coupon=' + encodeURIComponent(c.code);
+    const msg = encodeURIComponent(`היי, הכנתי לך קופון ${c.pct}% הנחה לרדאר מפת הלידים: ${c.code}\nמחיר אחרי הנחה: ${pr(P.monthly, c.pct)} ₪ לחודש או ${pr(P.annual, c.pct)} ₪ לשנה.\nלהצטרפות: ${link}${c.until ? '\nבתוקף עד ' + c.until : ''}`);
+    return `<tr><td dir="ltr"><b>${esc2(c.code)}</b></td><td>${c.pct}%</td><td>${pr(P.monthly, c.pct)} ₪</td><td>${pr(P.annual, c.pct)} ₪</td><td>${c.uses || 0}${c.max ? ' / ' + c.max : ''}</td><td>${c.until || '∞'}</td><td>${esc2(c.note || '')}</td><td class="${c.active === false ? 'st-blocked' : 'st-active'}">${c.active === false ? 'כבוי' : 'פעיל'}</td>
+      <td><button class="ghost" style="padding:2px 8px;font-size:12px" data-cplink="${esc2(link)}">🔗 העתק קישור</button> <a class="ghost" style="padding:2px 8px;font-size:12px;text-decoration:none;border:1px solid var(--line);border-radius:8px" href="https://wa.me/?text=${msg}" target="_blank" rel="noopener">📲 שלח בוואטסאפ</a> <a class="ghost" style="padding:2px 8px;font-size:12px;text-decoration:none;border:1px solid var(--line);border-radius:8px" href="mailto:?subject=${encodeURIComponent('קופון ' + c.pct + '% לרדאר מפת הלידים')}&body=${msg}">✉️ שלח במייל</a> <button class="ghost" style="padding:2px 8px;font-size:12px" data-cptoggle="${esc2(c.code)}">${c.active === false ? '▶️ הפעל' : '⏸️ כבה'}</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-cpremove="${esc2(c.code)}">🗑️</button></td></tr>`; }).join('') || '<tr><td colspan="9">אין קופונים עדיין</td></tr>';
   $('admEvents').querySelector('tbody').innerHTML = (d.events || []).map(e => `<tr><td>${fmt(e.t)}</td><td dir="ltr">${esc2(e.type)}</td><td dir="ltr">${esc2(e.email)}</td><td>${esc2(e.amount)}</td><td>${e.next ? e.next.slice(0, 10) : ''}</td><td dir="ltr">${esc2(e.id)}</td></tr>`).join('') || '<tr><td colspan="6">אין אירועים עדיין</td></tr>';
 }
+$('cpAdd').onclick = () => loadAdmin({ op: 'coupon_set', code: $('cpCode').value, pct: +$('cpPct').value || 10, max: +$('cpMax').value || 0, until: $('cpUntil').value, note: $('cpNote').value });
 $('admAdd').onclick = () => { const email = $('admEmail').value.trim(); if (!email) return $('admMsg').textContent = 'הזן מייל'; loadAdmin({ op: 'set', email, status: $('admStatus').value, until: $('admUntil').value, plan: $('admPlan').value, note: $('admNote').value }); };
 $('admRefresh').onclick = () => loadAdmin();
 $('dlgAdmin').addEventListener('click', e => {
@@ -2411,6 +2443,9 @@ $('dlgAdmin').addEventListener('click', e => {
   if (t.dataset.block) { const s = admData.subscribers.find(x => x.email === t.dataset.block); loadAdmin({ op: 'set', email: s.email, status: s.status === 'blocked' ? 'active' : 'blocked' }); }
   if (t.dataset.remove) { if (confirm('להסיר את ' + t.dataset.remove + ' מרשימת המנויים?')) loadAdmin({ op: 'remove', email: t.dataset.remove }); }
   if (t.dataset.grant) { loadAdmin({ op: 'set', email: t.dataset.grant, status: 'active', note: 'נפתח ידנית מהאדמין' }); }
+  if (t.dataset.cplink) { navigator.clipboard.writeText(t.dataset.cplink).then(() => { t.textContent = '✓ הועתק'; setTimeout(() => t.textContent = '🔗 העתק קישור', 1500); }); }
+  if (t.dataset.cptoggle) loadAdmin({ op: 'coupon_toggle', code: t.dataset.cptoggle });
+  if (t.dataset.cpremove) { if (confirm('למחוק את הקופון ' + t.dataset.cpremove + '?')) loadAdmin({ op: 'coupon_remove', code: t.dataset.cpremove }); }
 });
 $('admCsv').onclick = () => { if (!admData) return; const rows = [['מייל', 'סטטוס', 'עד', 'תוכנית', 'מקור', 'נרשם', 'כניסה אחרונה', 'כניסות', 'סריקות', 'ניתוחים', 'דוחות', 'הערה'], ...admData.subscribers.map(s => { const u = s.usage || {}; return [s.email, STATUS_HE[s.status] || s.status, s.until || '', s.plan || '', s.source || '', s.since || '', u.lastLogin || u.last || '', (u.login || 0) + (u.resume || 0), u.scan || 0, u.audit || 0, u.report || 0, s.note || '']; })];
   const csv = '﻿' + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'leads-radar-subscribers.csv'; a.click(); };

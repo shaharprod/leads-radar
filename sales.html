@@ -443,6 +443,10 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
       <div class="paybox" id="pp-annual"><div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div></div>
     </div>
   </div>
+  <div id="couponBox" style="max-width:560px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center">
+    <label for="couponIn" style="font-weight:700">🎟️ יש לך קופון?</label><input id="couponIn" placeholder="הקלד קוד" style="padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);width:150px;direction:ltr;text-transform:uppercase"><button type="button" id="couponBtn" style="padding:9px 16px;border-radius:10px;border:0;background:var(--acc);color:#fff;font:inherit;cursor:pointer">החל</button>
+    <div id="couponMsg" style="width:100%;text-align:center;font-size:.9rem;color:var(--mut)"></div>
+  </div>
   <label class="consent"><input type="checkbox" id="agree"><span>קראתי ואני מסכים/ה ל<a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank">תנאי השימוש ומדיניות הביטולים</a> ול<a href="https://shaharprod.github.io/leads-radar/legal/privacy.html" target="_blank">מדיניות הפרטיות</a>. אני מבין/ה שהכניסה לשירות נעשית עם כתובת המייל של חשבון PayPal שבו שילמתי, ושהשירות עובד עם מפתחות API שאני יוצר/ת בחשבון Google שלי.</span></label>
   <div id="thanks"><strong>תודה! המנוי פעיל.</strong><br>תוך דקה תקבל/י מייל עם הקישור לכניסה. אפשר גם להיכנס עכשיו: <a href="login.html">דף הכניסה</a>, עם המייל של חשבון PayPal.</div>
   <p class="note">התשלום מאובטח דרך PayPal. אנחנו לא רואים את פרטי הכרטיס שלך.</p>
@@ -467,6 +471,24 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 const API = "https://leads-radar-api.vercel.app";
+const AUDIT = "https://leads-radar-audit-scagoip22a-ew.a.run.app";   // coupons live on the audit server (admin creates them in the tool)
+let coupon = null; const BASE = { monthly: 97, annual: 970 };
+const fmt = v => Number(v).toLocaleString('he-IL', { maximumFractionDigits: 2 });
+async function applyCoupon(code, quiet) {
+  const msg = document.getElementById('couponMsg'); code = String(code || '').trim().toUpperCase(); if (!code) return;
+  try {
+    const r = await fetch(AUDIT + '?action=coupon&code=' + encodeURIComponent(code), { cache: 'no-store' }).then(x => x.json());
+    if (!r.ok) { coupon = null; msg.textContent = '✕ ' + (r.reason || 'קופון לא נמצא'); msg.style.color = '#ff6b6b'; return; }
+    coupon = r; document.getElementById('couponIn').value = r.code;
+    document.querySelector('#pricing .plan .price').innerHTML = `<s style="color:var(--mut);font-size:.6em">₪${BASE.monthly}</s> ₪${fmt(r.monthly)} <small>לחודש</small>`;
+    document.querySelector('#pricing .plan.best .price').innerHTML = `<s style="color:var(--mut);font-size:.6em">₪${BASE.annual}</s> ₪${fmt(r.annual)} <small>לשנה</small>`;
+    msg.textContent = `✓ קופון ${r.code}: ${r.pct}% הנחה הוחלה על המחירים`; msg.style.color = '#2fd48f';
+    if (agree.checked) { agree.checked = false; agree.dispatchEvent(new Event('change')); agree.checked = true; agree.dispatchEvent(new Event('change')); }
+  } catch (e) { if (!quiet) { msg.textContent = 'לא ניתן לבדוק את הקופון כרגע'; msg.style.color = '#ffc24d'; } }
+}
+document.getElementById('couponBtn').addEventListener('click', () => applyCoupon(document.getElementById('couponIn').value));
+document.getElementById('couponIn').addEventListener('keydown', e => { if (e.key === 'Enter') applyCoupon(e.target.value); });
+{ const c = new URLSearchParams(location.search).get('coupon'); if (c) { document.getElementById('couponIn').value = c; applyCoupon(c, true); } }
 const agree = document.getElementById('agree');
 let loaded = false;
 agree.addEventListener('change', async () => {
@@ -486,7 +508,7 @@ agree.addEventListener('change', async () => {
       const box = document.getElementById('pp-' + key); if (!box) continue; box.innerHTML = '';
       paypal.Buttons({
         style: { shape: 'pill', color: 'blue', layout: 'vertical', label: 'subscribe' },
-        createSubscription: (d, a) => a.subscription.create({ plan_id: planId }),
+        createSubscription: (d, a) => { const req = { plan_id: planId }; if (coupon) { req.custom_id = coupon.code; req.plan = { billing_cycles: [{ sequence: 1, pricing_scheme: { fixed_price: { value: String(key === 'annual' ? coupon.annual : coupon.monthly), currency_code: 'ILS' } } }] }; } return a.subscription.create(req); },
         onApprove: () => { document.getElementById('thanks').style.display = 'block'; document.getElementById('thanks').scrollIntoView({ behavior: 'smooth' }); },
         onError: () => { box.innerHTML = '<div class="locked">PayPal לא נטען. נסו לרענן את הדף.</div>'; }
       }).render(box);
