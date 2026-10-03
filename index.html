@@ -292,8 +292,8 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="hint">נשמר רק בדפדפן שלך. המפתח נוצר בחשבון Google שלך, בפרויקט <b>עם חשבון חיוב מקושר</b> (בלי חיוב גוגל לא מחזירה ביקורות ותמונות). השימוש הרגיל נשאר בתוך המכסה החינמית.</div>
       <div class="keylinks" style="margin-top:8px;display:grid;gap:4px;font-size:12.5px;line-height:1.6">
         <div>1️⃣ <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">צור פרויקט חדש</a> (או בחר קיים) · 2️⃣ <a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">קשר חשבון חיוב לפרויקט</a></div>
-        <div>3️⃣ הפעל (Enable) 5 שירותים: <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">Maps JavaScript API</a> · <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Places API (New)</a> · <a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a> · <a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a> · <a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a></div>
-        <div>4️⃣ <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials ← Create credentials ← API key</a>: הגבל ל-5 השירותים ולאתר <code style="direction:ltr;display:inline-block">https://shaharprod.github.io/*</code> · 5️⃣ <a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">תקרת מכסה יומית</a> (מומלץ) · <a href="https://console.cloud.google.com/billing/budgets" target="_blank" rel="noopener">התראת תקציב</a></div>
+        <div>3️⃣ הפעל (Enable) 5 שירותים: <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">Maps JavaScript API</a> · <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Places API (New)</a> · <a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a> · <a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a> · <a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a> · ואם רוצים AI עם אותו מפתח, גם: <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank" rel="noopener">Generative Language API (Gemini)</a></div>
+        <div>4️⃣ <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials ← Create credentials ← API key</a>: הגבל לשירותים שהפעלתם (5, או 6 עם Gemini) ולאתר <code style="direction:ltr;display:inline-block">https://shaharprod.github.io/*</code> · 5️⃣ <a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">תקרת מכסה יומית</a> (מומלץ) · <a href="https://console.cloud.google.com/billing/budgets" target="_blank" rel="noopener">התראת תקציב</a></div>
         <div>📖 הסבר מלא: <a href="help.html#keys" target="_blank" rel="noopener">מדריך ← פרק 2</a> · מה כל שירות נותן ומה עולה: <a href="help.html#apis" target="_blank" rel="noopener">פרק 21</a></div>
       </div>
     </div>
@@ -321,8 +321,8 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     <div class="sec"><h5>✨ ניסוח פניות ב-AI (אופציונלי) <span class="chip" id="stGemini"></span></h5>
       <div class="row row2">
         <div><label>Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
-        <div><label>מודל</label><input id="setModel" value="gemini-2.5-flash"></div></div>
-      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. השגת מפתח (חינם): <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio ← Create API key</a> · <a href="https://ai.dev/rate-limit" target="_blank" rel="noopener">מכסות ומגבלות</a> · <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">רשימת המודלים</a></div>
+        <div><label>מודל (ברירת מחדל: gemini-3.8-flash; אם המודל לא זמין למפתח שלכם הכלי עובר לבד למודל Flash אחר)</label><input id="setModel" value="gemini-3.8-flash"></div></div>
+      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. שתי דרכים למפתח: <b>(א)</b> מפתח נפרד וחינמי: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio ← Create API key</a>; <b>(ב)</b> אותו מפתח Google שלמעלה — בתנאי שהפעלתם בפרויקט את <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank" rel="noopener">Generative Language API</a> והוספתם אותו לרשימת ה-API המותרים של המפתח ב-<a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a> (השגיאה "are blocked" = השירות לא ברשימה) · <a href="https://ai.dev/rate-limit" target="_blank" rel="noopener">מכסות ומגבלות</a> · <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">רשימת המודלים</a></div>
     </div>
     <div class="sec"><h5>🔬 שרת ביקורת העומק <span class="chip" id="stApi"></span></h5>
       <div class="hint">זה השרת שמבצע את <b>«🔬 נתח» / «חפירה מלאה»</b>: ביקורת האתר, בדיקת נגישות · פרטיות · תקנון (ציון החשיפה המשפטית), רשם החברות ורישיונות. <b>הכתובת מוגדרת מראש ואין צורך לשנות אותה.</b> אם «נתח» מחזיר "לא הוגדר שרת ביקורת" — לחצו <b>בדוק חיבור</b> ואם צריך <b>שחזר ברירת מחדל</b>.</div>
@@ -455,13 +455,15 @@ function presenceOf(b){
   ].concat(NETS.map(n=>({t:n.t, ok:!!soc[n.k], url:soc[n.k]||'', net:n.k})));
   return {channels:ch, count:ch.filter(c=>c.ok).length, total:ch.length, social:soc};
 }
-let settings = Object.assign({api:DEFAULT_API, model:'gemini-2.5-flash', color:'#4f7cff',
+let settings = Object.assign({api:DEFAULT_API, model:'gemini-3.8-flash', color:'#4f7cff',
   brand:'', person:'', tagline:'',
   val:'300', monthly:'20', pkgs:['web|בניית אתר / דף נחיתה ממיר|3500','seo|קידום אורגני בסיסי (SEO) — הקמה|1800','legal|התאמת נגישות לאתר + הצהרת נגישות|1500|נגישות','legal|מדיניות פרטיות + הודעת עוגיות (תיקון 13)|900|פרטיות;עוגיות','legal|תנאי שימוש, תקנון ומדיניות ביטול|900|תנאי שימוש;תקנון;ביטול',
   'rev|מערכת איסוף ביקורות וניהול מוניטין (חודשי)|450','gbp|אופטימיזציה לפרופיל גוגל העסקי|900','mkt|הטמעת Analytics, Pixel ומדידת המרות|1200',
   'soc|הקמה ומיתוג רשתות חברתיות|1500','conv|כפתור וואטסאפ, טופס לידים ובוט מענה|1200'].join('\n')}, store.get(LS.set,{}));
 // migrate old key
 try{ const k=localStorage.getItem(LS.key); if(k && !k.startsWith('"')) settings.key = settings.key || k; }catch(e){}
+// migrate model name (Oct 2026): gemini-2.5-flash is closed to new keys
+try{ if(!settings.model || settings.model==='gemini-2.5-flash'){ settings.model='gemini-3.8-flash'; store.set(LS.set, settings); } }catch(e){}
 // migrate saved price list (Oct 2026): add the privacy / terms packages once, and a match-word to the accessibility package
 try{ if(settings.pkgs && !/פרטיות/.test(settings.pkgs)){
   settings.pkgs = settings.pkgs.split('\n').map(l=>/^legal\|[^|]*נגישות[^|]*\|\d+\s*$/.test(l.trim())?l.trim()+'|נגישות':l).join('\n')
@@ -1794,11 +1796,21 @@ function regHtml(b){
 }
 
 /* ---------- AI review summary ---------- */
-async function gemini(prompt){
-  const r=await fetchT('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(settings.model||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(settings.gemini),
+const GEMINI_FALLBACKS=['gemini-3.8-flash','gemini-flash-latest','gemini-3.5-flash','gemini-3.1-flash-lite','gemini-2.5-flash'];
+async function geminiOnce(model, prompt){
+  const r=await fetchT('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(settings.gemini),
     {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4}})},45000);
   const j=await r.json(); if(j.error) throw new Error(j.error.message);
   return ((j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text).join(''))||'').trim();
+}
+// tries the chosen model; if it is unavailable to this key (closed model, not found, quota) moves on to the next Flash model and remembers it
+async function gemini(prompt){
+  const first=settings.model||'gemini-3.8-flash'; const chain=[first, ...GEMINI_FALLBACKS.filter(m=>m!==first)]; let lastErr=null;
+  for(const m of chain){
+    try{ const t=await geminiOnce(m, prompt); if(m!==first){ settings.model=m; store.set(LS.set, settings); log('ℹ️ המודל '+first+' לא זמין למפתח שלך — עברתי ל-'+m+' (נשמר בהגדרות).'); } return t; }
+    catch(e){ lastErr=e; if(!/no longer available|not available|not found|not supported|NOT_FOUND|RESOURCE_EXHAUSTED|quota|429|deprecated/i.test(e.message)) throw e; }
+  }
+  throw lastErr||new Error('Gemini לא זמין');
 }
 window.summarizeReviews = async id=>{
   const b=findBiz(id); if(!b.rev||b.rev.error||!b.rev.list.length) return alert('קודם צריך «🔬 נתח» עם ניתוח ביקורות.');
