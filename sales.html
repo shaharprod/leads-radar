@@ -129,7 +129,7 @@ footer a{margin-inline-start:14px}
 
 <nav><div class="wrap">
   <div class="logo">LEADS <span>RADAR</span> MAP</div>
-  <ul><li><a href="#how">איך זה עובד</a></li><li><a href="#shots">הצצה למערכת</a></li><li><a href="#features">יכולות</a></li><li><a href="#pricing">מחירים</a></li><li><a href="#faq">שאלות</a></li></ul>
+  <ul><li><a href="#how">איך זה עובד</a></li><li><a href="#shots">הצצה למערכת</a></li><li><a href="#features">יכולות</a></li><li><a href="#keys">המפתח שלך</a></li><li><a href="#pricing">מחירים</a></li><li><a href="#faq">שאלות</a></li></ul>
   <a class="btn primary" href="#pricing" style="padding:10px 20px">לרכישה</a>
 </div></nav>
 
@@ -336,6 +336,23 @@ footer a{margin-inline-start:14px}
   </div>
 </div></section>
 
+<section id="keys"><div class="wrap">
+  <div class="eyebrow">המפתח שלך, השליטה שלך</div>
+  <h2>למה הכלי עובד עם מפתח API אישי שלך, ולא עם מפתח שלנו</h2>
+  <p class="lead">רוב הכלים בשוק מריצים את החיפושים שלך דרך השרת שלהם, עם מפתח שלהם. זה נוח, אבל זה אומר שהם רואים את כל הלקוחות שאתה מחפש, מגבילים לך את כמות הסריקות, ומגלגלים אליך את העלויות עם מרווח. ברדאר מפת הלידים בחרנו אחרת: אתה מקבל מפתח אישי ישירות מהחברות הרשמיות, והכלי עובד איתו בדפדפן שלך בלבד.</p>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="feat"><div class="ic">🔒</div><h3>אבטחה</h3><p>המפתח נוצר בחשבון Google שלך, נשמר רק בדפדפן שלך, ואפשר להגביל אותו לדומיין ול-API ספציפיים. אין לנו גישה אליו, ואין שרת באמצע שיכול להידלף.</p></div>
+    <div class="feat"><div class="ic">💸</div><h3>שליטה בהוצאות</h3><p>Google נותנת מכסה חודשית חינמית; רוב המשתמשים נשארים בתוכה. מעבר לה אתה רואה את החיוב המדויק בחשבון שלך, יכול לקבוע תקרה יומית, ואף אחד לא מוסיף עמלה על השימוש.</p></div>
+    <div class="feat"><div class="ic">🕵️</div><h3>פרטיות</h3><p>האזורים שאתה סורק, העסקים שאתה מוצא והלידים שאתה מסמן לא עוברים דרכנו. הם נשארים אצלך, בדפדפן, ולא בבסיס נתונים של מישהו אחר.</p></div>
+  </div>
+  <div class="steps" style="margin-top:24px">
+    <div class="step"><div class="n">1</div><h3>פותחים חשבון Google Cloud</h3><p>בחשבון Google הרגיל שלך. לוקח כמה דקות, ובתוך הכלי יש קישורים ישירים לכל מסך.</p></div>
+    <div class="step"><div class="n">2</div><h3>מפעילים 4 שירותים ויוצרים מפתח</h3><p>Maps, Places, Geocoding ו-PageSpeed. לוחצים "צור מפתח", מעתיקים.</p></div>
+    <div class="step"><div class="n">3</div><h3>מדביקים בהגדרות</h3><p>פעם אחת. מכאן הכלי עובד, ואתה הבעלים של הכול: הנתונים, המפתח והחשבון.</p></div>
+  </div>
+  <p class="note" style="margin-top:22px">אותו עיקרון חל על מפתח Gemini (אופציונלי, לניסוח פניות ב-AI): נוצר ב-Google AI Studio שלך, ונשאר אצלך.</p>
+</div></section>
+
 <section id="pricing"><div class="wrap">
   <div class="eyebrow">מחירים</div>
   <h2 style="text-align:center">מנוי אחד. כל היכולות.</h2>
@@ -366,7 +383,7 @@ footer a{margin-inline-start:14px}
   <div class="eyebrow">שאלות נפוצות</div>
   <h2>לפני שקונים</h2>
   <details><summary>מה צריך כדי להתחיל?</summary><p>דפדפן, ומפתח Google Maps Platform שיוצרים בחשבון Google Cloud שלך (יש הדרכה בתוך המערכת, לוקח כ-10 דקות). Google נותנת מכסה חודשית חינמית נדיבה; מעבר לה החיוב הוא לפי שימוש, ישירות מול Google.</p></details>
-  <details><summary>למה המפתח שלי ולא שלכם?</summary><p>כך הנתונים שלך לא עוברים דרך אף שרת, אין מגבלת סריקות מצדנו, ואתה שולט בעלויות. רוב המשתמשים נשארים במכסה החינמית של Google.</p></details>
+  <details><summary>למה המפתח שלי ולא שלכם?</summary><p>שלוש סיבות: אבטחה (המפתח נשאר בחשבון שלך ובדפדפן שלך), שליטה בהוצאות (אתה רואה כל חיוב אצל Google, בלי עמלה שלנו ובלי מגבלת סריקות), ופרטיות (הלידים שלך לא עוברים דרך השרת של אף אחד). ההסבר המלא ב<a href="#keys">סעיף "המפתח שלך"</a>.</p></details>
   <details><summary>איך נכנסים? יש סיסמה?</summary><p>אין סיסמה. מקלידים את המייל, מקבלים קוד בן 6 ספרות, ונכנסים. הכניסה תקפה 7 ימים. חשוב: נכנסים עם אותו מייל שבו שילמת ב-PayPal.</p></details>
   <details><summary>איך מבטלים?</summary><p>בכל עת, מחשבון PayPal שלך או במייל אלינו. במנוי חודשי הביטול חל מהחודש הבא. ב-14 הימים הראשונים אפשר לבטל ולקבל החזר לפי חוק הגנת הצרכן. הכול כתוב ב<a href="legal/terms.html">תנאי השימוש</a>.</p></details>
   <details><summary>הדוחות באמת על שמי?</summary><p>כן. הלוגו, הצבע, פרטי הקשר והתיאור שלך מופיעים בדוח ובהצעת המחיר. אין אזכור שלנו.</p></details>
