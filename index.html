@@ -480,7 +480,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
    Leads Radar v2 — סריקה · ביקורת · דוחות · פניות · משפך
    ============================================================ */
 const $ = id => document.getElementById(id);
-const DEFAULT_API = 'https://leads-radar-audit-scagoip22a-ew.a.run.app'; // אין שרת ברירת מחדל: כל משתמש מגדיר שרת משלו בהגדרות (אופציונלי)
+const DEFAULT_API = 'https://leads-radar-audit-scagoip22a-ew.a.run.app'; window.DEFAULT_API = DEFAULT_API; // שרת הביקורת המובנה (לקוח יכול להחליף בהגדרות)
 const LS = { key:'lr_apikey', leads:'lr_leads', last:'lr_last', results:'lr_results', set:'lr_settings' };
 const STAGES = [
   {id:'new',    t:'חדש'},
@@ -2263,5 +2263,113 @@ results.forEach(b=>{ if(b.astate==='run') b.astate=''; });
 render(); updateLeadsCount(); boot(); setTimeout(()=>{ refreshViews(); loadNewCount(); loadHist(results); },2500);
 if(results.length) log('נטענו '+results.length+' תוצאות מהסריקה הקודמת.');
 </script>
+<!-- ===== שער כניסה: Stytch (Live) + רשימת מנויים בשרת. מסך האדמין — רק למייל המנהל ===== -->
+<style id="lrGateCss">
+#lrGate{position:fixed;inset:0;z-index:20000;background:#0b1020;color:#eef2ff;display:flex;align-items:center;justify-content:center;font-family:inherit}
+#lrGate .gbox{width:min(460px,92vw);background:#161f3d;border:1px solid #2a3563;border-radius:16px;padding:26px 24px;text-align:center}
+#lrGate h2{margin:0 0 8px;font-size:20px}#lrGate p{color:#9aa7cf;margin:6px 0 14px;line-height:1.6}
+#lrGate a.gbtn,#lrGate button.gbtn{display:inline-block;margin:4px;padding:10px 18px;border-radius:10px;border:0;background:#4f7cff;color:#fff;text-decoration:none;font:inherit;cursor:pointer}
+#lrGate .ghost2{background:transparent;border:1px solid #2a3563;color:#9aa7cf}
+#lrGate[hidden]{display:none}
+#dlgAdmin table{width:100%;border-collapse:collapse;font-size:12.5px}#dlgAdmin th,#dlgAdmin td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle;white-space:nowrap}
+#dlgAdmin input,#dlgAdmin select{padding:4px 6px;font-size:12.5px;width:auto}#dlgAdmin .scroll{overflow:auto;max-height:52vh}
+#dlgAdmin .st-active{color:var(--good)}#dlgAdmin .st-blocked,#dlgAdmin .st-expired{color:var(--bad)}#dlgAdmin .st-trial,#dlgAdmin .st-free,#dlgAdmin .st-cancelled{color:var(--warn)}
+</style>
+<div id="lrGate"><div class="gbox"><h2>🔐 בודק כניסה…</h2><p>רגע אחד.</p></div></div>
+<dialog id="dlgAdmin" style="max-width:1100px;width:96vw;max-height:94vh">
+  <div class="dlg-h"><b>🛠️ ניהול מנויים</b><span class="chip" id="admWho" style="margin-inline-start:8px"></span><div class="spacer"></div><button class="ghost" id="admRefresh">↻ רענן</button><button class="ghost" id="admCsv">⬇️ CSV</button><button class="ghost" data-close>סגור</button></div>
+  <div class="dlg-b">
+    <div class="sec"><h5>➕ הוספה / עדכון ידני (מנוי ששילם מחוץ ל-PayPal, גישה חינם ללקוח הדרכה, חסימה)</h5>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+        <div><label for="admEmail">מייל</label><input id="admEmail" placeholder="name@domain.com" style="width:230px;direction:ltr"></div>
+        <div><label for="admStatus">סטטוס</label><select id="admStatus"><option value="active">פעיל</option><option value="trial">ניסיון</option><option value="free">חינם</option><option value="cancelled">בוטל</option><option value="blocked">חסום</option></select></div>
+        <div><label for="admUntil">עד תאריך (ריק = ללא הגבלה)</label><input id="admUntil" type="date"></div>
+        <div><label for="admPlan">תוכנית</label><input id="admPlan" placeholder="חודשי / שנתי / הדרכה" style="width:130px"></div>
+        <div><label for="admNote">הערה</label><input id="admNote" placeholder="למשל: לקוח קורס, שילם בביט" style="width:220px"></div>
+        <button class="primary" id="admAdd">שמור</button>
+      </div>
+      <div class="hint" id="admMsg" style="margin-top:6px"></div>
+    </div>
+    <div class="sec"><h5>👥 מנויים <span class="chip" id="admCount"></span></h5><div class="scroll"><table id="admTable"><thead><tr><th>מייל</th><th>סטטוס</th><th>עד</th><th>תוכנית</th><th>מקור</th><th>נרשם</th><th>כניסה אחרונה</th><th>כניסות</th><th>סריקות</th><th>ניתוחים</th><th>דוחות</th><th>הערה</th><th></th></tr></thead><tbody></tbody></table></div></div>
+    <div class="sec"><h5>🚪 נכנסו בלי מנוי <span class="chip" id="admVisCount"></span></h5><div class="hint">אנשים שהתחברו במייל אבל אין להם מנוי — מכאן אפשר לפתוח להם גישה בלחיצה.</div><div class="scroll"><table id="admVisitors"><thead><tr><th>מייל</th><th>ניסיון ראשון</th><th>ניסיון אחרון</th><th>ניסיונות</th><th></th></tr></thead><tbody></tbody></table></div></div>
+    <div class="sec"><h5>💳 אירועי PayPal אחרונים</h5><div class="scroll"><table id="admEvents"><thead><tr><th>זמן</th><th>סוג</th><th>מייל</th><th>סכום</th><th>חיוב הבא</th><th>מזהה</th></tr></thead><tbody></tbody></table></div>
+      <div class="hint">מנויים נפתחים ונסגרים אוטומטית מ-PayPal דרך Webhook. הכתובת להגדרה ב-PayPal מופיעה במדריך, פרק 20.</div></div>
+  </div>
+</dialog>
+<script type="module">
+import { StytchHeadlessClient } from "https://esm.sh/@stytch/vanilla-js@5.45.1/headless";
+const PUBLIC_TOKEN = "public-token-live-2d63e7da-99ba-47f6-9b06-14c03f61fb61"; // Stytch Live (public token, not a secret)
+const gate = document.getElementById('lrGate');
+const box = (h) => { gate.hidden = false; gate.querySelector('.gbox').innerHTML = h; };
+const toLogin = () => location.replace('login.html?next=' + encodeURIComponent(location.search || ''));
+let stytch; try { stytch = new StytchHeadlessClient(PUBLIC_TOKEN); } catch (e) { box(`<h2>⚠️ שירות הכניסה לא נטען</h2><p>${e.message}</p><a class="gbtn" href="login.html">לדף הכניסה</a>`); }
+const jwt = () => { try { const t = stytch.session.getTokens(); return t && t.session_jwt || ''; } catch (e) { return ''; } };
+const api = () => (window.settings && settings.api) || window.DEFAULT_API || '';
+async function post(action, bodyObj) { const r = await fetch(api() + '?action=' + action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jwt: jwt(), ...bodyObj }), cache: 'no-store' }); return r.json().catch(() => ({})); }
+async function logout() { try { await stytch.session.revoke(); } catch (e) {} toLogin(); }
+window.LR_USER = null;
+async function check() {
+  if (!stytch) return;
+  if (!stytch.session.getSync()) return toLogin();
+  let a; try { a = await post('access', { ev: sessionStorage.getItem('lr_seen') ? 'resume' : 'login' }); } catch (e) { a = { error: e.message }; }
+  if (!a || !a.ok) {
+    if (a && a.status === 'nologin') return toLogin();
+    return box(`<h2>⚠️ השרת לא זמין כרגע</h2><p>${(a && (a.reason || a.error)) || 'נסו שוב בעוד רגע'}</p><button class="gbtn" onclick="location.reload()">נסה שוב</button>`);
+  }
+  if (!a.allowed) {
+    return box(`<h2>🔒 אין מנוי פעיל</h2><p>מחובר כ-<b dir="ltr">${a.email}</b><br>${a.reason || ''}</p>
+      <a class="gbtn" href="sales.html">לרכישת מנוי</a> <a class="gbtn ghost2" href="mailto:shaharprod@gmail.com?subject=גישה לרדאר מפת הלידים - ${encodeURIComponent(a.email)}">כבר שילמתי — דברו איתי</a> <button class="gbtn ghost2" id="gLogout">התנתקות</button>`), document.getElementById('gLogout').onclick = logout;
+  }
+  sessionStorage.setItem('lr_seen', '1');
+  window.LR_USER = { email: a.email, admin: !!a.admin, status: a.status, until: a.until || '' };
+  gate.hidden = true;
+  // every call to the audit server carries the session (the server requires it)
+  const orig = window.fetchT;
+  if (typeof orig === 'function') window.fetchT = (url, opts = {}, ms) => { if (String(url).startsWith(api())) { opts = Object.assign({}, opts, { headers: Object.assign({}, opts.headers || {}, { 'X-LR-Session': jwt() }) }); } return orig(url, opts, ms); };
+  // header: who + logout (+ admin)
+  const hdr = document.querySelector('header'); if (hdr) {
+    const w = document.createElement('span'); w.className = 'chip'; w.style.cssText = 'font-size:11.5px'; w.title = 'מחובר'; w.innerHTML = `👤 <span dir="ltr">${a.email}</span>${a.status && a.status !== 'admin' && a.status !== 'active' ? ' · ' + ({ trial: 'ניסיון', free: 'חינם', cancelled: 'בוטל' }[a.status] || a.status) : ''}${a.until ? ' עד ' + a.until : ''}`;
+    const lo = document.createElement('button'); lo.className = 'ghost'; lo.textContent = '🚪 יציאה'; lo.onclick = logout;
+    const help = document.getElementById('btnHelp'); hdr.insertBefore(w, help); hdr.insertBefore(lo, help);
+    if (a.admin) { const ab = document.createElement('button'); ab.className = 'ghost'; ab.id = 'btnAdmin'; ab.textContent = '🛠️ אדמין'; ab.onclick = openAdmin; hdr.insertBefore(ab, help); }
+  }
+  // usage counters (fire and forget)
+  const use = ev => { post('usage', { ev }).catch(() => {}); };
+  const scanBtn = document.getElementById('btnScan'); if (scanBtn) scanBtn.addEventListener('click', () => use('scan'));
+  if (typeof window.analyzeBiz === 'function') { const o = window.analyzeBiz; window.analyzeBiz = async b => { use('audit'); return o(b); }; }
+  if (typeof window.openReport === 'function') { const o = window.openReport; window.openReport = async id => { use('report'); return o(id); }; }
+  if (typeof window.openQuote === 'function') { const o = window.openQuote; window.openQuote = id => { use('quote'); return o(id); }; }
+}
+/* ---------- admin screen ---------- */
+const $ = id => document.getElementById(id); const esc2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const STATUS_HE = { active: 'פעיל', trial: 'ניסיון', free: 'חינם', cancelled: 'בוטל', blocked: 'חסום', expired: 'פג' };
+let admData = null;
+async function openAdmin() { $('dlgAdmin').showModal(); await loadAdmin(); }
+async function loadAdmin(op) {
+  $('admMsg').textContent = 'טוען…'; const d = await post('admin', op || { op: 'list' }); if (!d.ok) { $('admMsg').textContent = '✕ ' + (d.error || 'שגיאה'); return; } admData = d; $('admMsg').textContent = '';
+  $('admWho').textContent = d.admin; $('admCount').textContent = d.subscribers.length; $('admVisCount').textContent = d.visitors.length;
+  const fmt = t => t ? String(t).slice(0, 16).replace('T', ' ') : '—'; const stClass = s => 'st-' + (s || '');
+  $('admTable').querySelector('tbody').innerHTML = d.subscribers.map(s => { const u = s.usage || {}; const eff = (s.until && Date.parse(s.until) < Date.now()) ? 'expired' : s.status;
+    return `<tr><td dir="ltr">${esc2(s.email)}</td><td class="${stClass(eff)}">${STATUS_HE[eff] || eff}</td><td>${s.until || '∞'}</td><td>${esc2(s.plan)}</td><td>${s.source === 'paypal' ? 'PayPal' : 'ידני'}</td><td>${fmt(s.since)}</td><td>${fmt(u.lastLogin || u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td>${u.scan || 0}</td><td>${u.audit || 0}</td><td>${u.report || 0}</td><td title="${esc2(s.note)}">${esc2((s.note || '').slice(0, 30))}</td>
+      <td><button class="ghost" style="padding:2px 8px;font-size:12px" data-edit="${esc2(s.email)}">✏️</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-block="${esc2(s.email)}">${s.status === 'blocked' ? '🔓 שחרר' : '⛔ חסום'}</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-remove="${esc2(s.email)}">🗑️</button></td></tr>`; }).join('') || '<tr><td colspan="13">אין מנויים עדיין</td></tr>';
+  $('admVisitors').querySelector('tbody').innerHTML = d.visitors.map(v => { const u = v.usage || {}; return `<tr><td dir="ltr">${esc2(v.email)}</td><td>${fmt(u.first)}</td><td>${fmt(u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td><button class="primary" style="padding:3px 10px;font-size:12px" data-grant="${esc2(v.email)}">✅ פתח גישה</button></td></tr>`; }).join('') || '<tr><td colspan="5">אין</td></tr>';
+  $('admEvents').querySelector('tbody').innerHTML = (d.events || []).map(e => `<tr><td>${fmt(e.t)}</td><td dir="ltr">${esc2(e.type)}</td><td dir="ltr">${esc2(e.email)}</td><td>${esc2(e.amount)}</td><td>${e.next ? e.next.slice(0, 10) : ''}</td><td dir="ltr">${esc2(e.id)}</td></tr>`).join('') || '<tr><td colspan="6">אין אירועים עדיין</td></tr>';
+}
+$('admAdd').onclick = () => { const email = $('admEmail').value.trim(); if (!email) return $('admMsg').textContent = 'הזן מייל'; loadAdmin({ op: 'set', email, status: $('admStatus').value, until: $('admUntil').value, plan: $('admPlan').value, note: $('admNote').value }); };
+$('admRefresh').onclick = () => loadAdmin();
+$('dlgAdmin').addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.edit) { const s = admData.subscribers.find(x => x.email === t.dataset.edit); $('admEmail').value = s.email; $('admStatus').value = s.status || 'active'; $('admUntil').value = s.until || ''; $('admPlan').value = s.plan || ''; $('admNote').value = s.note || ''; $('admEmail').scrollIntoView({ block: 'center' }); }
+  if (t.dataset.block) { const s = admData.subscribers.find(x => x.email === t.dataset.block); loadAdmin({ op: 'set', email: s.email, status: s.status === 'blocked' ? 'active' : 'blocked' }); }
+  if (t.dataset.remove) { if (confirm('להסיר את ' + t.dataset.remove + ' מרשימת המנויים?')) loadAdmin({ op: 'remove', email: t.dataset.remove }); }
+  if (t.dataset.grant) { loadAdmin({ op: 'set', email: t.dataset.grant, status: 'active', note: 'נפתח ידנית מהאדמין' }); }
+});
+$('admCsv').onclick = () => { if (!admData) return; const rows = [['מייל', 'סטטוס', 'עד', 'תוכנית', 'מקור', 'נרשם', 'כניסה אחרונה', 'כניסות', 'סריקות', 'ניתוחים', 'דוחות', 'הערה'], ...admData.subscribers.map(s => { const u = s.usage || {}; return [s.email, STATUS_HE[s.status] || s.status, s.until || '', s.plan || '', s.source || '', s.since || '', u.lastLogin || u.last || '', (u.login || 0) + (u.resume || 0), u.scan || 0, u.audit || 0, u.report || 0, s.note || '']; })];
+  const csv = '﻿' + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'leads-radar-subscribers.csv'; a.click(); };
+document.querySelectorAll('#dlgAdmin [data-close]').forEach(b => b.onclick = () => $('dlgAdmin').close());
+check();
+</script>
+<!-- ===== סוף שער כניסה ===== -->
+
 </body>
 </html>

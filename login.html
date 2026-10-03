@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>כניסה ל-Leads Radar</title>
+<title>כניסה — רדאר מפת הלידים</title>
 <meta name="robots" content="noindex">
 <style>
   body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F3F6FB;font-family:Arial,"Segoe UI",sans-serif;color:#13294B}
@@ -19,8 +19,8 @@
 </head>
 <body>
 <div class="box">
-  <h1>כניסה ל-Leads Radar</h1>
-  <p id="intro">הזן את כתובת המייל שלך. תקבל למייל קוד חד-פעמי בן 6 ספרות.</p>
+  <h1>כניסה לרדאר מפת הלידים</h1>
+  <p id="intro">הזן את כתובת המייל <b>ששילמת איתו</b>. תקבל למייל קוד חד-פעמי בן 6 ספרות — בלי סיסמה. עדיין אין מנוי? <a href="sales.html">לדף המנוי</a>.</p>
   <div id="stytch-login"></div>
   <div id="loggedin" hidden>
     <div id="status" class="ok"></div>
@@ -34,7 +34,7 @@
 <script type="module">
   import { StytchUIClient } from "https://esm.sh/@stytch/vanilla-js@5.45.1";
 
-  const PUBLIC_TOKEN = "public-token-test-efe23231-bde7-4005-89d7-fdd3c8b07ce2";
+  const PUBLIC_TOKEN = "public-token-live-2d63e7da-99ba-47f6-9b06-14c03f61fb61"; // Stytch Live
   const BACK = "https://shaharprod.github.io/leads-radar/login.html";
   const SESSION_MIN = 10080; // 7 ימים
 
@@ -83,12 +83,14 @@
     }
   });
 
-  stytch.session.onChange(render);
+  stytch.session.onChange(() => { render(); const s = stytch.session.getSync(); if (s && !params.get("stay")) location.replace("./" + (params.get("next") ? decodeURIComponent(params.get("next")) : "")); });
   $("logout").addEventListener("click", async () => {
     try { await stytch.session.revoke(); } catch (e) {}
     render();
   });
   render();
+  // already logged in and came here by mistake → straight to the tool
+  if (stytch.session.getSync() && !params.get("stay")) location.replace("./");
 </script>
 </body>
 </html>
