@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>כניסה ל-Leads Radar</title>
+<meta name="robots" content="noindex">
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F3F6FB;font-family:Arial,"Segoe UI",sans-serif;color:#13294B}
+  .box{width:min(420px,92vw);background:#fff;border:1px solid #C9D4E5;border-radius:14px;padding:28px 24px}
+  h1{margin:0 0 6px;font-size:1.5rem}
+  p{margin:0 0 18px;color:#43597C;line-height:1.6}
+  #status{margin-top:14px;font-weight:bold}
+  .ok{color:#1F8A5B}.bad{color:#C2412D}
+  a.btn,button{display:inline-block;margin-top:12px;padding:10px 18px;border-radius:8px;border:0;background:#13294B;color:#fff;text-decoration:none;font-size:1rem;cursor:pointer}
+  button.ghost{background:#fff;color:#13294B;border:1px solid #13294B;margin-inline-start:8px}
+  #stytch-login{direction:ltr}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>כניסה ל-Leads Radar</h1>
+  <p id="intro">הזן את כתובת המייל שלך. תקבל קישור כניסה או קוד חד-פעמי.</p>
+  <div id="stytch-login"></div>
+  <div id="loggedin" hidden>
+    <div id="status" class="ok"></div>
+    <a class="btn" href="./">כניסה לכלי</a>
+    <button class="ghost" id="logout" type="button">התנתקות</button>
+  </div>
+  <div id="error" class="bad" hidden></div>
+</div>
+
+<script type="module">
+  import { StytchUIClient } from "https://esm.sh/@stytch/vanilla-js@5.45.1";
+
+  const PUBLIC_TOKEN = "public-token-test-efe23231-bde7-4005-89d7-fdd3c8b07ce2";
+  const BACK = "https://shaharprod.github.io/leads-radar/login.html";
+  const SESSION_MIN = 10080; // 7 ימים
+
+  const $ = (id) => document.getElementById(id);
+  const stytch = new StytchUIClient(PUBLIC_TOKEN);
+
+  function render() {
+    const session = stytch.session.getSync();
+    const user = stytch.user.getSync();
+    if (session) {
+      $("stytch-login").hidden = true;
+      $("intro").hidden = true;
+      $("loggedin").hidden = false;
+      const mail = user && user.emails && user.emails[0] ? user.emails[0].email : "";
+      $("status").textContent = "מחובר" + (mail ? ": " + mail : "");
+    } else {
+      $("stytch-login").hidden = false;
+      $("intro").hidden = false;
+      $("loggedin").hidden = true;
+    }
+  }
+
+  function showError(msg) {
+    $("error").hidden = false;
+    $("error").textContent = msg;
+  }
+
+  // חזרה מקישור הכניסה במייל
+  const params = new URLSearchParams(location.search);
+  const token = params.get("token");
+  if (token && params.get("stytch_token_type") === "magic_links") {
+    try {
+      await stytch.magicLinks.authenticate(token, { session_duration_minutes: SESSION_MIN });
+      history.replaceState(null, "", location.pathname);
+    } catch (e) {
+      showError("קישור הכניסה לא תקף או שפג תוקפו. בקש קישור חדש.");
+    }
+  }
+
+  stytch.mountLogin({
+    elementId: "#stytch-login",
+    config: {
+      products: ["emailMagicLinks", "otp"],
+      emailMagicLinksOptions: {
+        loginRedirectURL: BACK,
+        signupRedirectURL: BACK,
+        loginExpirationMinutes: 30,
+        signupExpirationMinutes: 30
+      },
+      otpOptions: { methods: ["email"], expirationMinutes: 10 },
+      sessionOptions: { sessionDurationMinutes: SESSION_MIN }
+    }
+  });
+
+  stytch.session.onChange(render);
+  $("logout").addEventListener("click", async () => {
+    try { await stytch.session.revoke(); } catch (e) {}
+    render();
+  });
+  render();
+</script>
+</body>
+</html>
