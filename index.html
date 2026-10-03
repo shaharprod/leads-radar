@@ -224,7 +224,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     <div class="toolbar">
       <select id="sort" style="width:auto">
         <option value="best">🏆 מיון: ההזדמנויות הטובות ביותר</option><option value="opp">מיון: ציון הזדמנות בלבד</option><option value="vital">💓 מיון: חיוניות העסק</option><option value="rating">מיון: דירוג</option>
-        <option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
+        <option value="legal">🛡️ מיון: חשיפה משפטית (הגבוהה קודם)</option><option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
       <button id="btnCsv">⬇️ CSV לאקסל</button>
       <button id="btnJson">⬇️ JSON</button>
       <button id="btnQueue">📲 תור וואטסאפ</button>
@@ -1076,7 +1076,8 @@ let rTimer=null; function renderSoon(){ clearTimeout(rTimer); rTimer=setTimeout(
 function render(){
   const f=$('filt').value, s=$('sort').value;
   let list=filterList(f);
-  const cmp={best:(a,b)=>leadScore(b)-leadScore(a), vital:(a,b)=>(vitality(b).score||0)-(vitality(a).score||0), opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
+  const lgs=b=>{ const L=legalOf(b); return L? L.exposure.score + (L.exposure.level==='check'?-0.5:0) : -1; }; // no analysis / blocked site → last
+  const cmp={best:(a,b)=>leadScore(b)-leadScore(a), legal:(a,b)=>lgs(b)-lgs(a) || leadScore(b)-leadScore(a), vital:(a,b)=>(vitality(b).score||0)-(vitality(a).score||0), opp:(a,b)=>b._s.opp-a._s.opp, rating:(a,b)=>b.rating-a.rating, reviews:(a,b)=>b.reviews-a.reviews,
     dist:(a,b)=>(a.dist||0)-(b.dist||0), name:(a,b)=>a.name.localeCompare(b.name,'he')};
   list.sort(cmp[s]||cmp.best); if(s==='best'||!cmp[s]) list.forEach((b,i)=>b._rank=i+1); else list.forEach(b=>b._rank=null);
   $('stTotal').textContent=results.length;
