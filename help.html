@@ -83,15 +83,16 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <li><b>היכנסו ל-<a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a></b> עם חשבון Google הרגיל שלכם. אם זו הפעם הראשונה, אשרו את תנאי השימוש.</li>
 <li><b>צרו פרויקט.</b> בסרגל העליון, לחצו על רשימת הפרויקטים ← <span class="btn">New Project</span>. שם לדוגמה: "leads-radar". לחצו <span class="btn">Create</span> והמתינו כמה שניות עד שהפרויקט נבחר.</li>
 <li><b>הפעילו חשבון חיוב.</b> גוגל דורשת כרטיס אשראי כדי להפעיל את Maps, גם לשימוש בתוך המכסה החינמית. <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener">מסך החיוב</a> ← <span class="btn">Link a billing account</span> או <span class="btn">Create account</span>. אתם לא מחויבים כל עוד אתם בתוך המכסה החודשית.</li>
-<li><b>הפעילו 4 שירותים (API).</b> בכל אחד מהקישורים לחצו <span class="btn">Enable</span>:
+<li><b>הפעילו 5 שירותים (API).</b> בכל אחד מהקישורים לחצו <span class="btn">Enable</span> (אם כתוב <span class="btn">Manage</span>, השירות כבר מופעל):
   <ul>
   <li><a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">Maps JavaScript API</a>: המפה עצמה.</li>
   <li><a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Places API (New)</a>: פרטי העסקים, הדירוגים והביקורות.</li>
   <li><a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a>: הפיכת כתובת לנקודה על המפה.</li>
   <li><a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a>: מדידת מהירות האתרים (אופציונלי בסריקה).</li>
+  <li><a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a>: המדד "תנועה אמיתית לאתר" בציון החיוניות (חינמי).</li>
   </ul></li>
 <li><b>צרו מפתח.</b> <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">מסך Credentials</a> ← <span class="btn">+ Create credentials</span> ← <span class="btn">API key</span>. העתיקו את המפתח (מתחיל ב-AIza).</li>
-<li><b>הגבילו את המפתח</b> (מומלץ מאוד). באותו מסך לחצו על שם המפתח ← תחת <b>Application restrictions</b> בחרו <b>Websites</b> והוסיפו את כתובת הכלי (למשל <code>https://shaharprod.github.io/*</code>). תחת <b>API restrictions</b> בחרו <b>Restrict key</b> וסמנו רק את 4 השירותים מהסעיף הקודם. לחצו <span class="btn">Save</span>. כך גם אם המפתח ידלוף, אי אפשר להשתמש בו ממקום אחר.</li>
+<li><b>הגבילו את המפתח</b> (מומלץ מאוד). באותו מסך לחצו על שם המפתח ← תחת <b>Application restrictions</b> בחרו <b>Websites</b> והוסיפו את כתובת הכלי (למשל <code>https://shaharprod.github.io/*</code>). תחת <b>API restrictions</b> בחרו <b>Restrict key</b> וסמנו רק את 5 השירותים מהסעיף הקודם. לחצו <span class="btn">Save</span>. כך גם אם המפתח ידלוף, אי אפשר להשתמש בו ממקום אחר.</li>
 <li><b>הדביקו בכלי.</b> <span class="btn">⚙️ הגדרות</span> ← שדה <b>Google Maps API Key</b> ← <span class="btn">שמור</span>. המפה אמורה להיטען מיד.</li>
 </ol>
 <div class="box warn"><b>שליטה בהוצאות:</b> ב<a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">מסך המכסות של Maps</a> אפשר לקבוע תקרה יומית לכל שירות. הגדרה שמרנית לדוגמה: 2,000 בקשות ליום ל-Places. סריקה עמוקה (19 נקודות) יכולה לצרוך כמה עשרות בקשות, וביקורת עומק עוד כמה לכל עסק. ב<a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener">מסך החיוב</a> אפשר גם להגדיר התראת תקציב.</div>
@@ -242,6 +243,7 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <tr><td>"REQUEST_DENIED" או שגיאת הרשאה</td><td>חיוב לא מופעל בפרויקט</td><td><a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener">מסך החיוב</a> ← קשרו חשבון חיוב לפרויקט</td></tr>
 <tr><td>הכתובת לא נמצאת על המפה</td><td>Geocoding API לא מופעל</td><td>הפעילו אותו, או גררו את הסיכה ידנית</td></tr>
 <tr><td>הביקורת מדלגת על אתרים</td><td>האתר לא עונה בתוך 30 שניות</td><td>תקין. העסק מסומן "שגיאת ביקורת"; אפשר לנסות שוב מהכרטיס</td></tr>
+<tr><td>הסריקה מוצאת עסקים אבל ביקורות = 0, תמונות = 0, ו"מצא על המפה" נכשל</td><td>לפרויקט של המפתח אין חשבון חיוב מקושר (Billing is disabled). גוגל מחזירה אז רק נתונים בסיסיים</td><td><a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">מסך החיוב של הפרויקט</a> ← Link a billing account. אם גוגל כותבת שהגעתם למגבלת הפרויקטים לחיוב, צרו את המפתח בפרויקט שכבר מחויב</td></tr>
 <tr><td>הלוגו לא מופיע בדוח</td><td>הקישור אינו לתמונה ישירה</td><td>פתחו את הקישור בלשונית: אם רואים דף ולא תמונה, זה לא קישור ישיר</td></tr>
 <tr><td>"לא הוגדר שרת ביקורת בהגדרות"</td><td>תכונה שדורשת שרת (קישור חי, רשם החברות, מעקב שבועי)</td><td>תקין. שאר הכלי עובד. ראו <a href="#audit">פרק 7</a></td></tr>
 <tr><td>הנתונים נעלמו</td><td>ניקוי דפדפן, או דפדפן/פרופיל אחר</td><td>שחזרו מגיבוי JSON/CSV. ראו <a href="#data">פרק 17</a></td></tr>

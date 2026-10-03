@@ -288,7 +288,13 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="dlg-b">
     <div class="sec"><h5>🔑 Google</h5>
       <div class="row"><label>Google Maps API Key</label><input id="setKey" placeholder="AIza..."></div>
-      <div class="hint">נשמר רק בדפדפן שלך. דרוש: Maps JavaScript API, Places API (New), Geocoding API, PageSpeed Insights API.</div>
+      <div class="hint">נשמר רק בדפדפן שלך. המפתח נוצר בחשבון Google שלך, בפרויקט <b>עם חשבון חיוב מקושר</b> (בלי חיוב גוגל לא מחזירה ביקורות ותמונות). השימוש הרגיל נשאר בתוך המכסה החינמית.</div>
+      <div class="keylinks" style="margin-top:8px;display:grid;gap:4px;font-size:12.5px;line-height:1.6">
+        <div>1️⃣ <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">צור פרויקט חדש</a> (או בחר קיים) · 2️⃣ <a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">קשר חשבון חיוב לפרויקט</a></div>
+        <div>3️⃣ הפעל (Enable) 5 שירותים: <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">Maps JavaScript API</a> · <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Places API (New)</a> · <a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">Geocoding API</a> · <a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">PageSpeed Insights API</a> · <a href="https://console.cloud.google.com/apis/library/chromeuxreport.googleapis.com" target="_blank" rel="noopener">Chrome UX Report API</a></div>
+        <div>4️⃣ <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials ← Create credentials ← API key</a>: הגבל ל-5 השירותים ולאתר <code style="direction:ltr;display:inline-block">https://shaharprod.github.io/*</code> · 5️⃣ <a href="https://console.cloud.google.com/google/maps-apis/quotas" target="_blank" rel="noopener">תקרת מכסה יומית</a> (מומלץ) · <a href="https://console.cloud.google.com/billing/budgets" target="_blank" rel="noopener">התראת תקציב</a></div>
+        <div>📖 הסבר מלא עם צילומי מסך: <a href="help.html#keys" target="_blank" rel="noopener">מדריך ← פרק 2</a></div>
+      </div>
     </div>
     <div class="sec"><h5>🏷️ המיתוג שלך בדוחות (White-Label)</h5>
       <div class="row row2">
@@ -315,10 +321,11 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="row row2">
         <div><label>Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
         <div><label>מודל</label><input id="setModel" value="gemini-2.5-flash"></div></div>
-      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. מפתח: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div>
+      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. השגת מפתח (חינם): <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio ← Create API key</a> · <a href="https://ai.dev/rate-limit" target="_blank" rel="noopener">מכסות ומגבלות</a> · <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">רשימת המודלים</a></div>
     </div>
     <div class="sec"><h5>🔗 אינטגרציות</h5>
       <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
+      <div class="hint">איפה יוצרים כתובת Webhook: <a href="https://www.make.com/en/login" target="_blank" rel="noopener">Make</a> (תרחיש חדש ← מודול Webhooks ← Custom webhook ← Add) · <a href="https://zapier.com/app/zaps" target="_blank" rel="noopener">Zapier</a> (Zap חדש ← Trigger: Webhooks by Zapier ← Catch Hook) · n8n (Workflow ← Webhook node ← Production URL)</div>
       <div class="row"><label>שרת ביקורת האתרים</label><input id="setApi" placeholder="https://... (אופציונלי — לביקורות עומק, רישום חברות ורישיונות)"></div>
       <div class="row"><label>טוקן שרת (לקישורים חיים, מעקב צפיות ומעקב אזורים)</label><input id="setToken" placeholder="—"></div>
     </div>
