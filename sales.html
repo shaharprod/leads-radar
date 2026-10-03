@@ -126,8 +126,77 @@ footer a{margin-inline-start:14px}
 </style>
 </head>
 <body>
+<!-- ===== נגישות: תפריט נגישות צף (עצמאי, בלי צד שלישי), קישור דילוג, תוויות אוטומטיות ===== -->
+<style id="lrA11yCss">
+.lr-skip{position:absolute;top:-60px;right:12px;z-index:10000;background:#4f7cff;color:#fff;padding:10px 16px;border-radius:0 0 10px 10px;font-weight:700;text-decoration:none}
+.lr-skip:focus{top:0;outline:3px solid #ffd166}
+#lrA11yBtn{position:fixed;bottom:16px;left:16px;z-index:9998;width:52px;height:52px;border-radius:50%;border:2px solid #fff;background:#1a56db;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+#lrA11yBtn:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+#lrA11yMenu{position:fixed;bottom:76px;left:16px;z-index:9999;width:270px;background:#fff;color:#111;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);padding:12px;font-size:14px;direction:rtl;font-family:inherit}
+#lrA11yMenu[hidden]{display:none}
+#lrA11yMenu h2{margin:0 0 8px;font-size:16px;color:#1a56db}
+#lrA11yMenu button{display:block;width:100%;text-align:right;margin:4px 0;padding:9px 10px;border:1px solid #cfd6e6;border-radius:8px;background:#f6f8fc;color:#111;font:inherit;cursor:pointer}
+#lrA11yMenu button[aria-pressed="true"]{background:#1a56db;color:#fff;border-color:#1a56db}
+#lrA11yMenu button:focus-visible{outline:3px solid #ffd166}
+#lrA11yMenu a{display:block;margin-top:8px;font-size:12.5px;color:#1a56db}
+html.lr-a11y-big{font-size:118%}html.lr-a11y-bigger{font-size:136%}
+html.lr-a11y-contrast, html.lr-a11y-contrast body{background:#000!important;color:#fff!important}
+html.lr-a11y-contrast *{background-color:#000!important;color:#fff!important;border-color:#fff!important;box-shadow:none!important;text-shadow:none!important}
+html.lr-a11y-contrast a, html.lr-a11y-contrast button{color:#ffe400!important;text-decoration:underline}
+html.lr-a11y-contrast img, html.lr-a11y-contrast svg{filter:contrast(1.2)}
+html.lr-a11y-links a{text-decoration:underline!important;outline:1px dashed currentColor;outline-offset:2px}
+html.lr-a11y-font, html.lr-a11y-font *{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:.02em}
+html.lr-a11y-still *, html.lr-a11y-still *::before, html.lr-a11y-still *::after{animation:none!important;transition:none!important}
+html.lr-a11y-cursor, html.lr-a11y-cursor *{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><path d='M6 4 L6 40 L15 31 L21 44 L27 41 L21 29 L34 29 Z' fill='black' stroke='white' stroke-width='2'/></svg>") 6 4, auto!important}
+html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2px!important}
+@media print{#lrA11yBtn,#lrA11yMenu{display:none!important}}
+</style>
+<a href="#lrMain" class="lr-skip">דילוג לתוכן הראשי</a>
+<button id="lrA11yBtn" type="button" aria-label="תפריט נגישות" aria-haspopup="true" aria-expanded="false" aria-controls="lrA11yMenu" title="נגישות">♿</button>
+<div id="lrA11yMenu" role="dialog" aria-label="תפריט נגישות" hidden>
+  <h2>♿ נגישות</h2>
+  <button type="button" data-a11y="big" aria-pressed="false">🔠 הגדלת טקסט</button>
+  <button type="button" data-a11y="bigger" aria-pressed="false">🔠 הגדלת טקסט נוספת</button>
+  <button type="button" data-a11y="contrast" aria-pressed="false">🌓 ניגודיות גבוהה</button>
+  <button type="button" data-a11y="links" aria-pressed="false">🔗 הדגשת קישורים</button>
+  <button type="button" data-a11y="font" aria-pressed="false">🅰️ גופן קריא</button>
+  <button type="button" data-a11y="still" aria-pressed="false">⏸️ עצירת אנימציות</button>
+  <button type="button" data-a11y="cursor" aria-pressed="false">🖱️ סמן גדול</button>
+  <button type="button" data-a11y="focus" aria-pressed="false">⌨️ הדגשת מיקוד מקלדת</button>
+  <button type="button" data-a11y="reset">↺ איפוס</button>
+  <a href="legal/accessibility.html" target="_blank" rel="noopener">הצהרת הנגישות של האתר</a>
+  <a href="mailto:shaharprod@gmail.com?subject=נגישות - Leads Radar">דיווח על בעיית נגישות</a>
+</div>
+<script>
+(function(){
+  const KEY='lr_a11y'; const html=document.documentElement; const btn=document.getElementById('lrA11yBtn'); const menu=document.getElementById('lrA11yMenu');
+  const all=['big','bigger','contrast','links','font','still','cursor','focus'];
+  let st={}; try{ st=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  const apply=()=>{ all.forEach(k=>{ html.classList.toggle('lr-a11y-'+k, !!st[k]); const b=menu.querySelector('[data-a11y="'+k+'"]'); if(b) b.setAttribute('aria-pressed', st[k]?'true':'false'); }); try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} };
+  apply();
+  const open=o=>{ menu.hidden=!o; btn.setAttribute('aria-expanded', o?'true':'false'); if(o) menu.querySelector('button').focus(); else btn.focus(); };
+  btn.addEventListener('click',()=>open(menu.hidden));
+  menu.addEventListener('click',e=>{ const b=e.target.closest('[data-a11y]'); if(!b) return; const k=b.dataset.a11y;
+    if(k==='reset'){ st={}; } else if(k==='big'){ st.big=!st.big; if(st.big) st.bigger=false; } else if(k==='bigger'){ st.bigger=!st.bigger; if(st.bigger) st.big=false; } else st[k]=!st[k]; apply(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !menu.hidden) open(false); });
+  document.addEventListener('click',e=>{ if(!menu.hidden && !menu.contains(e.target) && e.target!==btn) open(false); });
+  // תוויות אוטומטיות: שדה בלי label/aria-label מקבל aria-label מה-label שלפניו או מה-placeholder
+  const labelFor=new Set([...document.querySelectorAll('label[for]')].map(l=>l.getAttribute('for')));
+  const fix=root=>{ (root.querySelectorAll?root:document).querySelectorAll('input:not([type=hidden]),select,textarea').forEach(el=>{
+    if(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||(el.id&&labelFor.has(el.id))||el.closest('label')) return;
+    let t=''; let p=el.previousElementSibling; while(p&&!t){ if(p.tagName==='LABEL') t=p.textContent.trim(); p=p.previousElementSibling; }
+    if(!t){ const row=el.parentElement; const l=row&&row.querySelector('label'); if(l) t=l.textContent.trim(); }
+    if(!t) t=el.getAttribute('placeholder')||el.getAttribute('title')||'';
+    if(t) el.setAttribute('aria-label', t.replace(/\s+/g,' ').slice(0,120)); }); };
+  fix(document); new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1) fix(n); }))).observe(document.body,{childList:true,subtree:true});
+  // iframes בלי title
+  document.querySelectorAll('iframe:not([title])').forEach(f=>f.setAttribute('title','תוכן משובץ'));
+})();
+</script>
+<!-- ===== סוף נגישות ===== -->
 
-<nav><div class="wrap">
+
+<nav><span id="lrMain" tabindex="-1"></span><div class="wrap">
   <div class="logo">LEADS <span>RADAR</span> MAP</div>
   <ul><li><a href="#how">איך זה עובד</a></li><li><a href="#shots">הצצה למערכת</a></li><li><a href="#features">יכולות</a></li><li><a href="#keys">המפתח שלך</a></li><li><a href="#pricing">מחירים</a></li><li><a href="#faq">שאלות</a></li></ul>
   <a class="btn primary" href="#pricing" style="padding:10px 20px">לרכישה</a>
@@ -213,8 +282,8 @@ footer a{margin-inline-start:14px}
             <g><circle cx="400" cy="320" r="11" fill="#2fd48f"/><text x="400" y="324" text-anchor="middle" fill="#13294B">18</text></g>
           </g>
           <g transform="translate(18 300)"><rect width="150" height="80" rx="10" fill="#161f3d" stroke="#2a3563"/>
-            <g font-family="Assistant" font-size="12" fill="#eef2ff"><circle cx="135" cy="20" r="6" fill="#ff6b6b"/><text x="125" y="24" text-anchor="end">ליד חם 70+</text><circle cx="135" cy="42" r="6" fill="#ffc24d"/><text x="125" y="46" text-anchor="end">בינוני 40–69</text><circle cx="135" cy="64" r="6" fill="#2fd48f"/><text x="125" y="68" text-anchor="end">נוכחות חזקה</text></g></g>
-          <g transform="translate(470 18)"><rect width="152" height="54" rx="10" fill="#161f3d" stroke="#2a3563"/><g font-family="Assistant" font-size="12" fill="#9aa7cf"><text x="142" y="22" text-anchor="end">נמצאו <tspan fill="#eef2ff" font-weight="700">47</tspan> עסקים</text><text x="142" y="42" text-anchor="end">לידים חמים <tspan fill="#ff6b6b" font-weight="700">14</tspan></text></g></g>
+            <g font-family="Assistant" font-size="12" fill="#eef2ff"><circle cx="135" cy="20" r="6" fill="#ff6b6b"/><text x="125" y="24" text-anchor="start">ליד חם 70+</text><circle cx="135" cy="42" r="6" fill="#ffc24d"/><text x="125" y="46" text-anchor="start">בינוני 40–69</text><circle cx="135" cy="64" r="6" fill="#2fd48f"/><text x="125" y="68" text-anchor="start">נוכחות חזקה</text></g></g>
+          <g transform="translate(470 18)"><rect width="152" height="54" rx="10" fill="#161f3d" stroke="#2a3563"/><g font-family="Assistant" font-size="12" fill="#9aa7cf"><text x="142" y="22" text-anchor="start">נמצאו <tspan fill="#eef2ff" font-weight="700">47</tspan> עסקים</text><text x="142" y="42" text-anchor="start">לידים חמים <tspan fill="#ff6b6b" font-weight="700">14</tspan></text></g></g>
         </svg>
         <div class="cap">הדמיה</div>
       </div>
@@ -249,28 +318,28 @@ footer a{margin-inline-start:14px}
         <svg viewBox="0 0 640 400" role="img" aria-label="הדמיית דוח ממותג והצעת מחיר">
           <rect width="640" height="400" fill="#f6f7fb"/>
           <rect x="0" y="0" width="640" height="64" fill="#4f7cff"/>
-          <g font-family="Rubik" font-weight="700" fill="#fff"><text x="620" y="30" text-anchor="end" font-size="18">דוח נוכחות דיגיטלית</text><text x="620" y="50" text-anchor="end" font-size="12" font-weight="400">מספרת "קוקו" · הוכן על ידי [העסק שלך]</text></g>
+          <g font-family="Rubik" font-weight="700" fill="#fff"><text x="620" y="30" text-anchor="start" font-size="18">דוח נוכחות דיגיטלית</text><text x="620" y="50" text-anchor="start" font-size="12" font-weight="400">מספרת "קוקו" · הוכן על ידי [העסק שלך]</text></g>
           <rect x="20" y="16" width="34" height="34" rx="8" fill="#fff" opacity=".9"/><text x="37" y="40" text-anchor="middle" font-size="16" font-family="Rubik" font-weight="900" fill="#4f7cff">LOGO</text>
           <g font-family="Assistant" font-size="13" fill="#13294B">
-            <text x="620" y="96" text-anchor="end" font-weight="700" font-size="15">ציון נוכחות: 16 / 100</text>
+            <text x="620" y="96" text-anchor="start" font-weight="700" font-size="15">ציון נוכחות: 16 / 100</text>
             <rect x="330" y="104" width="290" height="10" rx="5" fill="#e3e7f1"/><rect x="574" y="104" width="46" height="10" rx="5" fill="#ff6b6b"/>
-            <text x="620" y="140" text-anchor="end" font-weight="700">מה מצאנו</text>
-            <text x="620" y="162" text-anchor="end" fill="#C2412D">✗ אין אתר אינטרנט. לקוחות שמחפשים לא מוצאים</text>
-            <text x="620" y="182" text-anchor="end" fill="#C2412D">✗ אין פיקסל ואין מדידה. אי אפשר לפרסם ביעילות</text>
-            <text x="620" y="202" text-anchor="end" fill="#C2412D">✗ אין הצהרת נגישות (חשיפה משפטית)</text>
-            <text x="620" y="222" text-anchor="end" fill="#1F8A5B">✓ כרטיס גוגל פעיל עם 38 ביקורות</text>
-            <text x="620" y="258" text-anchor="end" font-weight="700">הערכת הפסד חודשי</text>
-            <text x="620" y="282" text-anchor="end" font-size="22" font-family="Rubik" font-weight="900" fill="#C2412D">₪ 6,000</text>
-            <text x="620" y="300" text-anchor="end" fill="#43597C" font-size="11">20 פניות בחודש × שווי לקוח ₪300 שלא מגיעות</text>
+            <text x="620" y="140" text-anchor="start" font-weight="700">מה מצאנו</text>
+            <text x="620" y="162" text-anchor="start" fill="#C2412D">✗ אין אתר אינטרנט. לקוחות שמחפשים לא מוצאים</text>
+            <text x="620" y="182" text-anchor="start" fill="#C2412D">✗ אין פיקסל ואין מדידה. אי אפשר לפרסם ביעילות</text>
+            <text x="620" y="202" text-anchor="start" fill="#C2412D">✗ אין הצהרת נגישות (חשיפה משפטית)</text>
+            <text x="620" y="222" text-anchor="start" fill="#1F8A5B">✓ כרטיס גוגל פעיל עם 38 ביקורות</text>
+            <text x="620" y="258" text-anchor="start" font-weight="700">הערכת הפסד חודשי</text>
+            <text x="620" y="282" text-anchor="start" font-size="22" font-family="Rubik" font-weight="900" fill="#C2412D">₪ 6,000</text>
+            <text x="620" y="300" text-anchor="start" fill="#43597C" font-size="11">20 פניות בחודש × שווי לקוח ₪300 שלא מגיעות</text>
           </g>
           <g transform="translate(20 130)"><rect width="290" height="250" rx="12" fill="#fff" stroke="#C9D4E5"/>
-            <g font-family="Assistant" font-size="12" fill="#13294B"><text x="275" y="26" text-anchor="end" font-weight="700" font-size="14">הצעת מחיר מותאמת</text>
-              <text x="275" y="56" text-anchor="end">בניית אתר / דף נחיתה ממיר</text><text x="16" y="56">₪ 3,500</text>
-              <text x="275" y="84" text-anchor="end">הטמעת Analytics ופיקסל</text><text x="16" y="84">₪ 1,200</text>
-              <text x="275" y="112" text-anchor="end">התאמת נגישות + הצהרה</text><text x="16" y="112">₪ 1,500</text>
-              <text x="275" y="140" text-anchor="end">מערכת תורים ובוט וואטסאפ</text><text x="16" y="140">₪ 1,200</text>
+            <g font-family="Assistant" font-size="12" fill="#13294B"><text x="275" y="26" text-anchor="start" font-weight="700" font-size="14">הצעת מחיר מותאמת</text>
+              <text x="275" y="56" text-anchor="start">בניית אתר / דף נחיתה ממיר</text><text x="16" y="56" text-anchor="end">₪ 3,500</text>
+              <text x="275" y="84" text-anchor="start">הטמעת Analytics ופיקסל</text><text x="16" y="84" text-anchor="end">₪ 1,200</text>
+              <text x="275" y="112" text-anchor="start">התאמת נגישות + הצהרה</text><text x="16" y="112" text-anchor="end">₪ 1,500</text>
+              <text x="275" y="140" text-anchor="start">מערכת תורים ובוט וואטסאפ</text><text x="16" y="140" text-anchor="end">₪ 1,200</text>
               <line x1="16" y1="160" x2="275" y2="160" stroke="#C9D4E5"/>
-              <text x="275" y="186" text-anchor="end" font-weight="700" font-size="14">סה"כ</text><text x="16" y="186" font-weight="700" font-size="14">₪ 7,400</text>
+              <text x="275" y="186" text-anchor="start" font-weight="700" font-size="14">סה"כ</text><text x="16" y="186" text-anchor="end" font-weight="700" font-size="14">₪ 7,400</text>
               <rect x="16" y="205" width="259" height="30" rx="8" fill="#4f7cff"/><text x="145" y="225" text-anchor="middle" fill="#fff" font-weight="700">לקביעת שיחה</text>
             </g></g>
         </svg>
@@ -288,16 +357,16 @@ footer a{margin-inline-start:14px}
           </g>
           <g stroke="#2a3563"><path d="M520 20V390M390 20V390M260 20V390M130 20V390"/></g>
           <g font-family="Assistant" font-size="12" fill="#eef2ff">
-            <g transform="translate(530 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="end">מוסך רמי</text><text x="100" y="37" text-anchor="end" fill="#ff6b6b">ציון 81</text></g>
-            <g transform="translate(530 104)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="end">קליניקת שן</text><text x="100" y="37" text-anchor="end" fill="#ff6b6b">ציון 77</text></g>
-            <g transform="translate(530 158)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#ffd166"/><text x="100" y="20" text-anchor="end">🆕 בית קפה לונה</text><text x="100" y="37" text-anchor="end" fill="#ffd166">חדש השבוע</text></g>
-            <g transform="translate(400 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="end">מספרת קוקו</text><text x="100" y="37" text-anchor="end" fill="#9aa7cf">וואטסאפ נשלח</text></g>
-            <g transform="translate(400 104)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="end">פרחי שרון</text><text x="100" y="37" text-anchor="end" fill="#9aa7cf">וואטסאפ נשלח</text></g>
-            <g transform="translate(270 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="end">סטודיו פילאטיס</text><text x="100" y="37" text-anchor="end" fill="#9aa7cf">שיחה ביום ג'</text></g>
-            <g transform="translate(140 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="end">נגריית אבי</text><text x="100" y="37" text-anchor="end" fill="#9aa7cf">הצעה ₪7,400</text></g>
-            <g transform="translate(10 50)"><rect width="110" height="46" rx="8" fill="rgba(47,212,143,.12)" stroke="#2fd48f"/><text x="100" y="20" text-anchor="end">וטרינר כפר</text><text x="100" y="37" text-anchor="end" fill="#2fd48f">נסגר ✓</text></g>
+            <g transform="translate(530 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="start">מוסך רמי</text><text x="100" y="37" text-anchor="start" fill="#ff6b6b">ציון 81</text></g>
+            <g transform="translate(530 104)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="start">קליניקת שן</text><text x="100" y="37" text-anchor="start" fill="#ff6b6b">ציון 77</text></g>
+            <g transform="translate(530 158)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#ffd166"/><text x="100" y="20" text-anchor="start">🆕 בית קפה לונה</text><text x="100" y="37" text-anchor="start" fill="#ffd166">חדש השבוע</text></g>
+            <g transform="translate(400 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="start">מספרת קוקו</text><text x="100" y="37" text-anchor="start" fill="#9aa7cf">וואטסאפ נשלח</text></g>
+            <g transform="translate(400 104)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="start">פרחי שרון</text><text x="100" y="37" text-anchor="start" fill="#9aa7cf">וואטסאפ נשלח</text></g>
+            <g transform="translate(270 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="start">סטודיו פילאטיס</text><text x="100" y="37" text-anchor="start" fill="#9aa7cf">שיחה ביום ג'</text></g>
+            <g transform="translate(140 50)"><rect width="110" height="46" rx="8" fill="#161f3d" stroke="#2a3563"/><text x="100" y="20" text-anchor="start">נגריית אבי</text><text x="100" y="37" text-anchor="start" fill="#9aa7cf">הצעה ₪7,400</text></g>
+            <g transform="translate(10 50)"><rect width="110" height="46" rx="8" fill="rgba(47,212,143,.12)" stroke="#2fd48f"/><text x="100" y="20" text-anchor="start">וטרינר כפר</text><text x="100" y="37" text-anchor="start" fill="#2fd48f">נסגר ✓</text></g>
           </g>
-          <g transform="translate(20 300)"><rect width="600" height="80" rx="12" fill="#161f3d" stroke="#2a3563"/><g font-family="Assistant" font-size="13" fill="#eef2ff"><text x="585" y="28" text-anchor="end" font-weight="700">🛰️ מעקב אזורים: תל אביב מרכז · רדיוס 3 ק"מ · מסעדות</text><text x="585" y="54" text-anchor="end" fill="#9aa7cf">הסריקה האחרונה: יום ראשון 06:00 · <tspan fill="#ffd166" font-weight="700">2 עסקים חדשים</tspan> שלא היו בשבוע שעבר</text></g></g>
+          <g transform="translate(20 300)"><rect width="600" height="80" rx="12" fill="#161f3d" stroke="#2a3563"/><g font-family="Assistant" font-size="13" fill="#eef2ff"><text x="585" y="28" text-anchor="start" font-weight="700">🛰️ מעקב אזורים: תל אביב מרכז · רדיוס 3 ק"מ · מסעדות</text><text x="585" y="54" text-anchor="start" fill="#9aa7cf">הסריקה האחרונה: יום ראשון 06:00 · <tspan fill="#ffd166" font-weight="700">2 עסקים חדשים</tspan> שלא היו בשבוע שעבר</text></g></g>
         </svg>
         <div class="cap">הדמיה</div>
       </div>

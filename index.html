@@ -138,9 +138,77 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
 </style>
 </head>
 <body>
+<!-- ===== נגישות: תפריט נגישות צף (עצמאי, בלי צד שלישי), קישור דילוג, תוויות אוטומטיות ===== -->
+<style id="lrA11yCss">
+.lr-skip{position:absolute;top:-60px;right:12px;z-index:10000;background:#4f7cff;color:#fff;padding:10px 16px;border-radius:0 0 10px 10px;font-weight:700;text-decoration:none}
+.lr-skip:focus{top:0;outline:3px solid #ffd166}
+#lrA11yBtn{position:fixed;bottom:16px;left:16px;z-index:9998;width:52px;height:52px;border-radius:50%;border:2px solid #fff;background:#1a56db;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+#lrA11yBtn:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+#lrA11yMenu{position:fixed;bottom:76px;left:16px;z-index:9999;width:270px;background:#fff;color:#111;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);padding:12px;font-size:14px;direction:rtl;font-family:inherit}
+#lrA11yMenu[hidden]{display:none}
+#lrA11yMenu h2{margin:0 0 8px;font-size:16px;color:#1a56db}
+#lrA11yMenu button{display:block;width:100%;text-align:right;margin:4px 0;padding:9px 10px;border:1px solid #cfd6e6;border-radius:8px;background:#f6f8fc;color:#111;font:inherit;cursor:pointer}
+#lrA11yMenu button[aria-pressed="true"]{background:#1a56db;color:#fff;border-color:#1a56db}
+#lrA11yMenu button:focus-visible{outline:3px solid #ffd166}
+#lrA11yMenu a{display:block;margin-top:8px;font-size:12.5px;color:#1a56db}
+html.lr-a11y-big{font-size:118%}html.lr-a11y-bigger{font-size:136%}
+html.lr-a11y-contrast, html.lr-a11y-contrast body{background:#000!important;color:#fff!important}
+html.lr-a11y-contrast *{background-color:#000!important;color:#fff!important;border-color:#fff!important;box-shadow:none!important;text-shadow:none!important}
+html.lr-a11y-contrast a, html.lr-a11y-contrast button{color:#ffe400!important;text-decoration:underline}
+html.lr-a11y-contrast img, html.lr-a11y-contrast svg{filter:contrast(1.2)}
+html.lr-a11y-links a{text-decoration:underline!important;outline:1px dashed currentColor;outline-offset:2px}
+html.lr-a11y-font, html.lr-a11y-font *{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:.02em}
+html.lr-a11y-still *, html.lr-a11y-still *::before, html.lr-a11y-still *::after{animation:none!important;transition:none!important}
+html.lr-a11y-cursor, html.lr-a11y-cursor *{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><path d='M6 4 L6 40 L15 31 L21 44 L27 41 L21 29 L34 29 Z' fill='black' stroke='white' stroke-width='2'/></svg>") 6 4, auto!important}
+html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2px!important}
+@media print{#lrA11yBtn,#lrA11yMenu{display:none!important}}
+</style>
+<a href="#viewScan" class="lr-skip">דילוג לתוכן הראשי</a>
+<button id="lrA11yBtn" type="button" aria-label="תפריט נגישות" aria-haspopup="true" aria-expanded="false" aria-controls="lrA11yMenu" title="נגישות">♿</button>
+<div id="lrA11yMenu" role="dialog" aria-label="תפריט נגישות" hidden>
+  <h2>♿ נגישות</h2>
+  <button type="button" data-a11y="big" aria-pressed="false">🔠 הגדלת טקסט</button>
+  <button type="button" data-a11y="bigger" aria-pressed="false">🔠 הגדלת טקסט נוספת</button>
+  <button type="button" data-a11y="contrast" aria-pressed="false">🌓 ניגודיות גבוהה</button>
+  <button type="button" data-a11y="links" aria-pressed="false">🔗 הדגשת קישורים</button>
+  <button type="button" data-a11y="font" aria-pressed="false">🅰️ גופן קריא</button>
+  <button type="button" data-a11y="still" aria-pressed="false">⏸️ עצירת אנימציות</button>
+  <button type="button" data-a11y="cursor" aria-pressed="false">🖱️ סמן גדול</button>
+  <button type="button" data-a11y="focus" aria-pressed="false">⌨️ הדגשת מיקוד מקלדת</button>
+  <button type="button" data-a11y="reset">↺ איפוס</button>
+  <a href="legal/accessibility.html" target="_blank" rel="noopener">הצהרת הנגישות של האתר</a>
+  <a href="mailto:shaharprod@gmail.com?subject=נגישות - Leads Radar">דיווח על בעיית נגישות</a>
+</div>
+<script>
+(function(){
+  const KEY='lr_a11y'; const html=document.documentElement; const btn=document.getElementById('lrA11yBtn'); const menu=document.getElementById('lrA11yMenu');
+  const all=['big','bigger','contrast','links','font','still','cursor','focus'];
+  let st={}; try{ st=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  const apply=()=>{ all.forEach(k=>{ html.classList.toggle('lr-a11y-'+k, !!st[k]); const b=menu.querySelector('[data-a11y="'+k+'"]'); if(b) b.setAttribute('aria-pressed', st[k]?'true':'false'); }); try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} };
+  apply();
+  const open=o=>{ menu.hidden=!o; btn.setAttribute('aria-expanded', o?'true':'false'); if(o) menu.querySelector('button').focus(); else btn.focus(); };
+  btn.addEventListener('click',()=>open(menu.hidden));
+  menu.addEventListener('click',e=>{ const b=e.target.closest('[data-a11y]'); if(!b) return; const k=b.dataset.a11y;
+    if(k==='reset'){ st={}; } else if(k==='big'){ st.big=!st.big; if(st.big) st.bigger=false; } else if(k==='bigger'){ st.bigger=!st.bigger; if(st.bigger) st.big=false; } else st[k]=!st[k]; apply(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !menu.hidden) open(false); });
+  document.addEventListener('click',e=>{ if(!menu.hidden && !menu.contains(e.target) && e.target!==btn) open(false); });
+  // תוויות אוטומטיות: שדה בלי label/aria-label מקבל aria-label מה-label שלפניו או מה-placeholder
+  const labelFor=new Set([...document.querySelectorAll('label[for]')].map(l=>l.getAttribute('for')));
+  const fix=root=>{ (root.querySelectorAll?root:document).querySelectorAll('input:not([type=hidden]),select,textarea').forEach(el=>{
+    if(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||(el.id&&labelFor.has(el.id))||el.closest('label')) return;
+    let t=''; let p=el.previousElementSibling; while(p&&!t){ if(p.tagName==='LABEL') t=p.textContent.trim(); p=p.previousElementSibling; }
+    if(!t){ const row=el.parentElement; const l=row&&row.querySelector('label'); if(l) t=l.textContent.trim(); }
+    if(!t) t=el.getAttribute('placeholder')||el.getAttribute('title')||'';
+    if(t) el.setAttribute('aria-label', t.replace(/\s+/g,' ').slice(0,120)); }); };
+  fix(document); new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1) fix(n); }))).observe(document.body,{childList:true,subtree:true});
+  // iframes בלי title
+  document.querySelectorAll('iframe:not([title])').forEach(f=>f.setAttribute('title','תוכן משובץ'));
+})();
+</script>
+<!-- ===== סוף נגישות ===== -->
 
 <header>
-  <div class="logo">Leads<span>Radar</span></div>
+  <h1 class="logo" style="margin:0">Leads<span>Radar</span></h1>
   <div class="tag">איתור לידים · ביקורת דיגיטלית · דוחות ממותגים</div>
   <div class="tabs">
     <button id="tabScan" class="on">🔍 סריקה</button>
@@ -152,11 +220,11 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
 </header>
 
 <!-- ================= SCAN VIEW ================= -->
-<div class="wrap" id="viewScan">
+<div class="wrap" id="viewScan" tabindex="-1">
   <div>
     <div class="panel" style="margin-bottom:14px">
       <h3>1 · אזור הסריקה</h3>
-      <div class="row"><label>כתובת / עיר / אזור</label>
+      <div class="row"><label for="addr">כתובת / עיר / אזור</label>
         <input id="addr" placeholder="לדוגמה: רחוב יפו 97, ירושלים" value="ירושלים"></div>
       <div class="row row2" style="grid-template-columns:1fr auto">
         <button id="btnGeo">📍 מצא על המפה</button><button id="btnMe" title="המיקום שלי">🎯</button></div>
@@ -164,14 +232,14 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="map-resize" id="mapResize" title="גרור למעלה/למטה לשינוי גובה המפה · לחיצה כפולה = גובה רגיל"><i></i></div>
       <div class="hint" style="margin-top:4px">גוררים את הסיכה או לוחצים על המפה כדי לקבוע מרכז.</div>
       <div class="row" style="margin-top:12px"><label>רדיוס סריקה: <b id="radLbl">5 ק״מ</b></label>
-        <input type="range" id="rad" min="500" max="30000" step="500" value="5000" style="padding:0"></div>
+        <input type="range" id="rad" aria-label="רדיוס הסריקה במטרים" min="500" max="30000" step="500" value="5000" style="padding:0"></div>
     </div>
 
     <div class="panel" style="margin-bottom:14px">
       <h3>2 · מה מחפשים</h3>
-      <div class="row"><label>מילת חיפוש חופשית (מומלץ)</label>
+      <div class="row"><label for="kw">מילת חיפוש חופשית (מומלץ)</label>
         <input id="kw" placeholder="לדוגמה: מספרה / מוסך / רואה חשבון / מסעדה"></div>
-      <div class="row"><label>או קטגוריה מוכנה</label>
+      <div class="row"><label for="cat">או קטגוריה מוכנה</label>
         <select id="cat">
           <option value="">— ללא (השתמש במילת החיפוש) —</option>
           <option value="restaurant">מסעדות</option><option value="cafe">בתי קפה</option><option value="bakery">מאפיות</option>
@@ -185,9 +253,9 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
           <option value="travel_agency">סוכנויות נסיעות</option><option value="school">בתי ספר</option><option value="storage">מחסנים</option>
         </select></div>
       <div class="row row2">
-        <div><label>עומק סריקה</label><select id="depth">
+        <div><label for="depth">עומק סריקה</label><select id="depth">
           <option value="1">מהיר (נקודה אחת)</option><option value="2" selected>בינוני (7 נקודות)</option><option value="3">עמוק (19 נקודות)</option></select></div>
-        <div><label>סינון תוצאות</label><select id="filt">
+        <div><label for="filt">סינון תוצאות</label><select id="filt">
           <option value="all">כל העסקים</option><option value="nosite">בלי אתר אינטרנט</option>
           <option value="weak">ציון הזדמנות 50+</option><option value="lowrev">פחות מ-20 ביקורות</option>
           <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="noprivacy">בלי מדיניות פרטיות (אחרי ניתוח)</option><option value="noterms">בלי תנאי שימוש / תקנון (אחרי ניתוח)</option><option value="legalhigh">🛡️ חשוף משפטית — חסר מסמך חובה (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option><option value="sweet">💎 עסק חי + נוכחות חלשה (הכי שווה)</option><option value="dormant">🔴 עסקים רדומים</option></select></div>
@@ -222,7 +290,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="stat"><b id="stAvg">0</b><small>ציון הזדמנות ממוצע</small></div>
     </div>
     <div class="toolbar">
-      <select id="sort" style="width:auto">
+      <select id="sort" style="width:auto" aria-label="מיון התוצאות">
         <option value="best">🏆 מיון: ההזדמנויות הטובות ביותר</option><option value="opp">מיון: ציון הזדמנות בלבד</option><option value="vital">💓 מיון: חיוניות העסק</option><option value="rating">מיון: דירוג</option>
         <option value="legal">🛡️ מיון: חשיפה משפטית (הגבוהה קודם)</option><option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
       <button id="btnCsv">⬇️ CSV לאקסל</button>
@@ -268,7 +336,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="toolbar">
     <b style="font-size:17px">📋 משפך הלידים</b>
     <div class="spacer"></div>
-    <input id="leadSearch" placeholder="חיפוש ליד..." style="width:220px">
+    <input id="leadSearch" aria-label="חיפוש ליד" placeholder="חיפוש ליד..." style="width:220px">
     <button id="btnLeadsCsv">⬇️ ייצוא הלידים ל-CSV</button>
   </div>
   <div class="hint" style="margin-bottom:10px">כל עסק שסימנת לו שלב (מעבר ל״חדש״) נשמר כאן לתמיד — גם אחרי סריקות חדשות. לחיצה על כרטיס פותחת אותו.</div>
@@ -288,7 +356,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="dlg-h"><b>⚙️ הגדרות</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
     <div class="sec"><h5>🔑 Google <span class="chip" id="stKey"></span></h5>
-      <div class="row"><label>Google Maps API Key (חובה — בלי זה הסריקה לא עובדת)</label><input id="setKey" placeholder="AIza..."></div>
+      <div class="row"><label for="setKey">Google Maps API Key (חובה — בלי זה הסריקה לא עובדת)</label><input id="setKey" placeholder="AIza..."></div>
       <div class="hint">נשמר רק בדפדפן שלך. המפתח נוצר בחשבון Google שלך, בפרויקט <b>עם חשבון חיוב מקושר</b> (בלי חיוב גוגל לא מחזירה ביקורות ותמונות). השימוש הרגיל נשאר בתוך המכסה החינמית.</div>
       <div class="keylinks" style="margin-top:8px;display:grid;gap:4px;font-size:12.5px;line-height:1.6">
         <div>1️⃣ <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">צור פרויקט חדש</a> (או בחר קיים) · 2️⃣ <a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">קשר חשבון חיוב לפרויקט</a></div>
@@ -299,34 +367,34 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
     </div>
     <div class="sec"><h5>🏷️ המיתוג שלך בדוחות (White-Label)</h5>
       <div class="row row2">
-        <div><label>שם העסק / הסוכנות</label><input id="setBrand" placeholder="שם העסק שלך"></div>
-        <div><label>שם איש הקשר</label><input id="setPerson" placeholder="ישראל ישראלי"></div></div>
+        <div><label for="setBrand">שם העסק / הסוכנות</label><input id="setBrand" placeholder="שם העסק שלך"></div>
+        <div><label for="setPerson">שם איש הקשר</label><input id="setPerson" placeholder="ישראל ישראלי"></div></div>
       <div class="row row2">
-        <div><label>טלפון / וואטסאפ</label><input id="setPhone" placeholder="050-0000000"></div>
-        <div><label>אימייל</label><input id="setEmail" placeholder="name@domain.com"></div></div>
+        <div><label for="setPhone">טלפון / וואטסאפ</label><input id="setPhone" placeholder="050-0000000"></div>
+        <div><label for="setEmail">אימייל</label><input id="setEmail" placeholder="name@domain.com"></div></div>
       <div class="row row2">
-        <div><label>קישור לקביעת שיחה / אתר</label><input id="setLink" placeholder="https://..."></div>
-        <div><label>צבע מותג</label><input id="setColor" type="color" value="#4f7cff" style="height:40px;padding:4px"></div></div>
+        <div><label for="setLink">קישור לקביעת שיחה / אתר</label><input id="setLink" placeholder="https://..."></div>
+        <div><label for="setColor">צבע מותג</label><input id="setColor" type="color" value="#4f7cff" style="height:40px;padding:4px"></div></div>
       <div class="row row2">
-        <div><label>אתר אינטרנט (אם קיים)</label><input id="setSite" placeholder="https://www.example.co.il"></div>
-        <div><label>כתובת העסק</label><input id="setAddress" placeholder="רח' הדוגמה 1, תל אביב"></div></div>
-      <div class="row"><label>תיאור קצר שלך (יופיע בדוח ובפניות)</label><input id="setTagline" placeholder="למשל: בניית אתרים ושיווק דיגיטלי לעסקים קטנים"></div>
+        <div><label for="setSite">אתר אינטרנט (אם קיים)</label><input id="setSite" placeholder="https://www.example.co.il"></div>
+        <div><label for="setAddress">כתובת העסק</label><input id="setAddress" placeholder="רח' הדוגמה 1, תל אביב"></div></div>
+      <div class="row"><label for="setTagline">תיאור קצר שלך (יופיע בדוח ובפניות)</label><input id="setTagline" placeholder="למשל: בניית אתרים ושיווק דיגיטלי לעסקים קטנים"></div>
       <div class="row row2">
-        <div><label>לוגו — העלאת קובץ מהמחשב (PNG / JPG / SVG)</label><input id="setLogoFile" type="file" accept="image/*" style="padding:7px"></div>
-        <div><label>או כתובת לוגו (URL לתמונה באינטרנט)</label><input id="setLogoUrl" placeholder="https://.../logo.png"><input id="setLogo" type="hidden"></div></div>
+        <div><label for="setLogoFile">לוגו — העלאת קובץ מהמחשב (PNG / JPG / SVG)</label><input id="setLogoFile" type="file" accept="image/*" style="padding:7px"></div>
+        <div><label for="setLogoUrl">או כתובת לוגו (URL לתמונה באינטרנט)</label><input id="setLogoUrl" placeholder="https://.../logo.png"><input id="setLogo" type="hidden"></div></div>
       <div class="hint">הלוגו מוקטן ונשמר בדפדפן שלך בלבד (עד 320 פיקסלים), ומופיע בדוח, בהצעת המחיר ובערכת התוכן. <button type="button" class="ghost" id="btnLogoClear" style="padding:2px 10px;font-size:12px">הסר לוגו</button></div>
       <div class="hint" style="margin-top:8px">תצוגה מקדימה של כותרת הדוח שלך:</div>
       <div id="brandPreview" style="margin-top:6px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;background:#fff;color:#111"></div>
     </div>
     <div class="sec"><h5>✨ ניסוח פניות ב-AI (אופציונלי) <span class="chip" id="stGemini"></span></h5>
       <div class="row row2">
-        <div><label>Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
-        <div><label>מודל (ברירת מחדל: gemini-3.8-flash; אם המודל לא זמין למפתח שלכם הכלי עובר לבד למודל Flash אחר)</label><input id="setModel" value="gemini-3.8-flash"></div></div>
+        <div><label for="setGemini">Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
+        <div><label for="setModel">מודל (ברירת מחדל: gemini-3.8-flash; אם המודל לא זמין למפתח שלכם הכלי עובר לבד למודל Flash אחר)</label><input id="setModel" value="gemini-3.8-flash"></div></div>
       <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. שתי דרכים למפתח: <b>(א)</b> מפתח נפרד וחינמי: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio ← Create API key</a>; <b>(ב)</b> אותו מפתח Google שלמעלה — בתנאי שהפעלתם בפרויקט את <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank" rel="noopener">Generative Language API</a> והוספתם אותו לרשימת ה-API המותרים של המפתח ב-<a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a> (השגיאה "are blocked" = השירות לא ברשימה) · <a href="https://ai.dev/rate-limit" target="_blank" rel="noopener">מכסות ומגבלות</a> · <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">רשימת המודלים</a></div>
     </div>
     <div class="sec"><h5>🔬 שרת ביקורת העומק <span class="chip" id="stApi"></span></h5>
       <div class="hint">זה השרת שמבצע את <b>«🔬 נתח» / «חפירה מלאה»</b>: ביקורת האתר, בדיקת נגישות · פרטיות · תקנון (ציון החשיפה המשפטית), רשם החברות ורישיונות. <b>הכתובת מוגדרת מראש ואין צורך לשנות אותה.</b> אם «נתח» מחזיר "לא הוגדר שרת ביקורת" — לחצו <b>בדוק חיבור</b> ואם צריך <b>שחזר ברירת מחדל</b>.</div>
-      <div class="row"><label>כתובת שרת הביקורת</label><input id="setApi" placeholder="https://leads-radar-audit-...a.run.app"></div>
+      <div class="row"><label for="setApi">כתובת שרת הביקורת</label><input id="setApi" placeholder="https://leads-radar-audit-...a.run.app"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px">
         <button type="button" class="ghost" id="btnApiTest" style="padding:5px 12px;font-size:12.5px">🔌 בדוק חיבור</button>
         <button type="button" class="ghost" id="btnApiDefault" style="padding:5px 12px;font-size:12.5px">↺ שחזר ברירת מחדל</button>
@@ -334,18 +402,18 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="hint" style="margin-top:8px"><b>עם ההגדרה הזו עובדים:</b> סריקה, «נתח» / «חפירה מלאה», ציון חשיפה משפטית, רשם החברות, רישיונות, דוח, הצעת מחיר, פנייה, וערכת תוכן ב-AI (עם מפתח Gemini שלכם למעלה). <b>לא כלולים:</b> 🔗 קישור חי עם מעקב צפיות, ⭐ מעקב שבועי על אזורים ו-🔎 חפירה ברשת — אלה דורשים שרת פרטי משלכם (ראו "מתקדם").</div>
       <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:var(--mut)">מתקדם: שרת ביקורת פרטי משלכם ב-Google Cloud (לקישור חי, מעקב שבועי וחפירה ברשת)</summary>
         <div class="hint" style="margin-top:6px">פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code style="direction:ltr;display:inline-block">leads-radar-audit</code>, בחשבון Google שלכם ועל חשבונכם. את הכתובת רואים בשורת <b>URL</b> למעלה בדף השירות ומדביקים בשדה "כתובת שרת הביקורת" למעלה; את הטוקן אתם קובעים כמשתנה סביבה <code style="direction:ltr;display:inline-block">LR_TOKEN</code> ב-<b>Containers ← Variables &amp; Secrets</b> (שינוי: <b>Edit &amp; deploy new revision</b>) ומדביקים כאן את אותו ערך בדיוק. הקמה צעד-אחר-צעד: <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a>.</div>
-        <div class="row" style="margin-top:8px"><label>טוקן שרת (רק לשרת פרטי משלכם)</label><input id="setToken" placeholder="הערך של LR_TOKEN בשרת שלכם"></div>
+        <div class="row" style="margin-top:8px"><label for="setToken">טוקן שרת (רק לשרת פרטי משלכם)</label><input id="setToken" placeholder="הערך של LR_TOKEN בשרת שלכם"></div>
       </details>
     </div>
     <div class="sec"><h5>🔗 אינטגרציות (אופציונלי)</h5>
-      <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים ל-CRM או לגיליון</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
+      <div class="row"><label for="setHook">Webhook (Make / Zapier / n8n) — לשליחת לידים ל-CRM או לגיליון</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
       <div class="hint">איפה יוצרים כתובת Webhook: <a href="https://www.make.com/en/login" target="_blank" rel="noopener">Make</a> (תרחיש חדש ← מודול Webhooks ← Custom webhook ← Add) · <a href="https://zapier.com/app/zaps" target="_blank" rel="noopener">Zapier</a> (Zap חדש ← Trigger: Webhooks by Zapier ← Catch Hook) · <a href="https://app.n8n.cloud/" target="_blank" rel="noopener">n8n</a> (Workflow ← Webhook node ← Production URL) · מה נשלח ואיך מחברים ל-CRM: <a href="help.html#export" target="_blank" rel="noopener">מדריך ← פרק 14</a></div>
     </div>
     <div class="sec"><h5>💰 הצעות מחיר והערכת הפסד</h5>
       <div class="row row2">
-        <div><label>שווי לקוח ממוצע לעסק (₪)</label><input id="setVal" type="number" placeholder="300"></div>
-        <div><label>פניות חודשיות משוערות מגוגל</label><input id="setMonthly" type="number" placeholder="20"></div></div>
-      <div class="row"><label>חבילות שירות — שורה לכל חבילה: קטגוריה|שם השירות|מחיר|מילות-התאמה (אופציונלי, מופרדות ב-;) — החבילה תוצע רק אם ליקוי בקטגוריה מכיל אחת מהמילים (קטגוריות: web, seo, legal, rev, gbp, mkt, soc, conv)</label>
+        <div><label for="setVal">שווי לקוח ממוצע לעסק (₪)</label><input id="setVal" type="number" placeholder="300"></div>
+        <div><label for="setMonthly">פניות חודשיות משוערות מגוגל</label><input id="setMonthly" type="number" placeholder="20"></div></div>
+      <div class="row"><label for="setPkgs">חבילות שירות — שורה לכל חבילה: קטגוריה|שם השירות|מחיר|מילות-התאמה (אופציונלי, מופרדות ב-;) — החבילה תוצע רק אם ליקוי בקטגוריה מכיל אחת מהמילים (קטגוריות: web, seo, legal, rev, gbp, mkt, soc, conv)</label>
         <textarea id="setPkgs" rows="8" style="direction:rtl;font-size:13px"></textarea></div>
       <div class="hint">המחירים כאן הם דוגמה — עדכן לפי המחירון שלך. הצעת המחיר בוחרת אוטומטית חבילות לפי הליקויים שנמצאו בעסק.</div>
     </div>
@@ -361,8 +429,8 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="dlg-b">
     <div class="subtabs" id="outTabs">
       <button data-ch="wa" class="on">💬 וואטסאפ</button><button data-ch="email">📧 אימייל</button><button data-ch="call">📞 תסריט שיחה</button><button data-ch="dm">📱 הודעה ברשתות</button></div>
-    <div class="row hidden" id="outSubjRow"><label>נושא</label><input id="outSubj"></div>
-    <textarea class="msg" id="outText"></textarea>
+    <div class="row hidden" id="outSubjRow"><label for="outSubj">נושא</label><input id="outSubj"></div>
+    <textarea class="msg" id="outText" aria-label="טקסט הפנייה"></textarea>
     <div class="toolbar" style="margin-top:10px">
       <button id="outAi" class="primary">✨ נסח מחדש עם AI</button>
       <button id="outCopy">📋 העתק</button>
@@ -377,7 +445,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="dlg-b">
     <div class="hint" id="qInfo"></div>
     <div class="sec" style="margin-top:10px"><h5 id="qName"></h5><div class="hint" id="qMeta"></div></div>
-    <textarea class="msg" id="qText"></textarea>
+    <textarea class="msg" id="qText" aria-label="טקסט ההודעה בתור"></textarea>
     <div class="toolbar" style="margin-top:10px">
       <button class="primary" id="qSend">📲 פתח וואטסאפ ← הבא</button><button id="qSkip">⏭ דלג</button>
       <span class="hint">לחיצה פותחת את וואטסאפ עם ההודעה מוכנה, מעבירה את הליד לשלב «📞 נוצר קשר» ועוברת לבא. השליחה עצמה — בוואטסאפ, ממך.</span></div>
@@ -1153,7 +1221,7 @@ function cardHtml(b){
       <button onclick="openOutreach('${b.id}')">✉️ פנייה</button>
       ${b.maps?`<a href="${esc(b.maps)}" target="_blank">🗺️</a>`:''}
       ${b.website?`<a href="${esc(b.website)}" target="_blank">🌐</a>`:''}
-      <select class="stage-sel" onchange="setStage('${b.id}',this.value)">${STAGES.map(x=>`<option value="${x.id}" ${x.id===st?'selected':''}>${x.t}</option>`).join('')}</select>
+      <select class="stage-sel" aria-label="שלב במשפך" onchange="setStage('${b.id}',this.value)">${STAGES.map(x=>`<option value="${x.id}" ${x.id===st?'selected':''}>${x.t}</option>`).join('')}</select>
     </div></div>`;
 }
 $('filt').onchange=render; $('sort').onchange=render;
@@ -1193,7 +1261,7 @@ window.openBiz = id=>{
     <div class="hint" style="margin-bottom:8px">${b.rev.list.length} אחרונות · ${b.rev.negative} שליליות · האחרונה: ${b.rev.daysSince!=null?'לפני '+b.rev.daysSince+' ימים':'—'}</div>
     ${b.rev.list.map(r=>`<div style="border-top:1px solid var(--line);padding:7px 0;font-size:13px"><b style="color:${r.rating<=3?'var(--bad)':'var(--good)'}">${'★'.repeat(r.rating||0)}</b> <span class="hint">${esc(r.when)} · ${esc(r.author)}</span><br>${esc(r.text)}</div>`).join('')}</div>`;
   $('bizBody').innerHTML=`
-    ${b.pv===2&&b.photoUrl?`<img src="${esc(b.photoUrl)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px">`:''}
+    ${b.pv===2&&b.photoUrl?`<img src="${esc(b.photoUrl)}" alt="תמונת העסק ${esc(b.name)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px">`:''}
     <div class="sec"><h5>🎯 ציון הזדמנות</h5>
       <div style="display:flex;align-items:center;gap:14px"><div style="font-size:40px;font-weight:800">${sc.opp}</div>
       <div style="flex:1"><div class="bar"><i style="width:${sc.opp}%"></i></div>
@@ -1209,12 +1277,12 @@ window.openBiz = id=>{
       <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
     ${vitalHtml(b)}${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${signalsHtml(b)}${regHtml(b)}${licHtml(b)}${digHtml(b)}
     <div class="sec"><h5>📋 ניהול הליד</h5>
-      <div class="row row2"><div><label>שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
-        <div><label>תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
-      <div class="row row2" style="grid-template-columns:1fr 1fr 1fr"><div><label>👤 איש קשר (שם)</label><input id="ldContact" value="${esc(L.contact||'')}" placeholder="מי דיבר איתך"></div>
-        <div><label>תפקיד</label><input id="ldRole" value="${esc(L.role||'')}" placeholder="בעלים / מנהל"></div>
-        <div><label>טלפון ישיר</label><input id="ldDirect" value="${esc(L.direct||'')}" placeholder="050-..."></div></div>
-      <div class="row"><label>הערות</label><textarea id="ldNote" rows="3">${esc(L.note||'')}</textarea></div>
+      <div class="row row2"><div><label for="ldStage">שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
+        <div><label for="ldDue">תאריך מעקב</label><input type="date" id="ldDue" value="${esc(L.due||'')}"></div></div>
+      <div class="row row2" style="grid-template-columns:1fr 1fr 1fr"><div><label for="ldContact">👤 איש קשר (שם)</label><input id="ldContact" value="${esc(L.contact||'')}" placeholder="מי דיבר איתך"></div>
+        <div><label for="ldRole">תפקיד</label><input id="ldRole" value="${esc(L.role||'')}" placeholder="בעלים / מנהל"></div>
+        <div><label for="ldDirect">טלפון ישיר</label><input id="ldDirect" value="${esc(L.direct||'')}" placeholder="050-..."></div></div>
+      <div class="row"><label for="ldNote">הערות</label><textarea id="ldNote" rows="3">${esc(L.note||'')}</textarea></div>
       <div class="toolbar"><button class="primary" onclick="saveLead('${id}')">שמור ליד</button>
         ${settings.hook?`<button onclick="sendHook(['${id}'])">🔗 שלח ל-Webhook</button>`:''}
         <button onclick="analyzeOne('${id}')">🔬 ${b.astate==='done'?'נתח שוב':'נתח עכשיו'}</button></div></div>`;
@@ -1613,9 +1681,9 @@ function rankHtml(b){
       ${rankGridHtml(rk)}<div class="hint">כל משבצת = נקודה בשטח, והמספר = המקום של העסק בתוצאות גוגל מפות למי שמחפש משם. המשבצת עם המסגרת = העסק עצמו. 🟩 1–3 · 🟨 4–10 · 🟧 11–20 · 🟥 לא בטופ 20</div>`
       :'<div class="hint">בודק באיזה מקום העסק מופיע בגוגל מפות כשמחפשים אותו מנקודות שונות סביבו.</div>'}
     <div class="row row2" style="grid-template-columns:2fr 1fr 1fr;margin-top:8px">
-      <input id="rkKw" value="${esc((rk&&rk.kw)||b.type||'')}" placeholder="מילת חיפוש">
-      <select id="rkR">${[1000,2000,3000,5000].map(v=>`<option value="${v}" ${(rk?rk.radius:2000)===v?'selected':''}>${v/1000} ק״מ</option>`).join('')}</select>
-      <select id="rkN"><option value="3">3×3 (9)</option><option value="5" ${(!rk||rk.n===5)?'selected':''}>5×5 (25)</option></select></div>
+      <input id="rkKw" aria-label="מילת חיפוש לבדיקת דירוג" value="${esc((rk&&rk.kw)||b.type||'')}" placeholder="מילת חיפוש">
+      <select id="rkR" aria-label="רדיוס בדיקת הדירוג">${[1000,2000,3000,5000].map(v=>`<option value="${v}" ${(rk?rk.radius:2000)===v?'selected':''}>${v/1000} ק״מ</option>`).join('')}</select>
+      <select id="rkN" aria-label="מספר נקודות הבדיקה"><option value="3">3×3 (9)</option><option value="5" ${(!rk||rk.n===5)?'selected':''}>5×5 (25)</option></select></div>
     <button onclick="runRank('${b.id}')">📍 ${rk?'בדוק שוב':'בדוק דירוג מקומי'}</button></div>`;
 }
 
@@ -1935,7 +2003,7 @@ function legalReportHtml(b){
 }
 function reportExtras(b, row){
   let out='';
-  if(shots[b.id]) out+=`<h2>איך האתר נראה בטלפון</h2><div style="text-align:center"><img src="${shots[b.id]}" style="max-height:520px;border:8px solid #1b2440;border-radius:26px;box-shadow:0 8px 30px rgba(0,0,0,.2)"></div>`;
+  if(shots[b.id]) out+=`<h2>איך האתר נראה בטלפון</h2><div style="text-align:center"><img src="${shots[b.id]}" alt="צילום מסך של האתר בנייד" style="max-height:520px;border:8px solid #1b2440;border-radius:26px;box-shadow:0 8px 30px rgba(0,0,0,.2)"></div>`;
   const cs=competitorsOf(b);
   if(cs.length) out+=`<h2>השוואה למתחרים באזור</h2><table><tr><td></td><td><b>עסק</b></td><td class="n"><b>דירוג · ביקורות · תמונות · אתר</b></td></tr>
     <tr style="background:#eef2ff"><td class="st">⬅️</td><td><b>${esc(b.name)}</b></td><td class="n">⭐ ${b.rating||'—'} · ${b.reviews} · ${b.photos} · ${b.website?'יש':'אין'}</td></tr>
@@ -1972,7 +2040,7 @@ td.p{white-space:nowrap;font-weight:700}.why{font-size:12px;color:#778}.tot td{b
 @media print{.tb{display:none}body{background:#fff}.page{padding:0}}[contenteditable]:hover{outline:1px dashed #aab}</style></head><body>
 <div class="tb"><button onclick="print()">🖨️ שמור כ-PDF</button></div>
 <div class="page" contenteditable="true">
-<div class="top">${settings.logo?`<img src="${esc(settings.logo)}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="note">${esc(settings.tagline||'')}</div></div><div class="sp"></div><div class="note">מס׳ ${num}<br>${new Date().toLocaleDateString('he-IL')}</div></div>
+<div class="top">${settings.logo?`<img src="${esc(settings.logo)}" alt="לוגו ${esc(settings.brand||'')}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="note">${esc(settings.tagline||'')}</div></div><div class="sp"></div><div class="note">מס׳ ${num}<br>${new Date().toLocaleDateString('he-IL')}</div></div>
 <h1>הצעת מחיר</h1><div>לכבוד: <b>${esc(b.name)}</b> · ${esc(b.address)}</div>
 <p>בהמשך לבדיקת הנוכחות הדיגיטלית של העסק (ציון נוכחות נוכחי: <b>${sc.presence}/100</b>), להלן השירותים המומלצים לתיקון הליקויים שנמצאו:</p>
 <table><tr><th>#</th><th>שירות</th><th>מחיר (₪)</th></tr>
@@ -2097,7 +2165,7 @@ function kitGiftHtml(b){
 .top{display:flex;align-items:center;gap:14px;border-bottom:4px solid ${c};padding-bottom:14px;margin-bottom:18px}.top img{max-height:50px}.brand{font-weight:800;color:${c}}
 .sec{border:1px solid #e3e7f3;border-radius:12px;padding:14px 16px;margin:14px 0}h5{margin:0 0 8px;color:${c};font-size:16px}.hint{color:#667;font-size:13px}
 @media print{body{background:#fff}.page{padding:0}}</style></head><body><div class="page">
-<div class="top">${settings.logo?`<img src="${esc(settings.logo)}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="hint">${esc(settings.tagline||'')}</div></div></div>
+<div class="top">${settings.logo?`<img src="${esc(settings.logo)}" alt="לוגו ${esc(settings.brand||'')}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="hint">${esc(settings.tagline||'')}</div></div></div>
 <h1 style="margin:0">🎁 הכנו עבורכם — ${esc(b.name)}</h1><p>תוכן מוכן לשימוש, בחינם, בלי התחייבות. אפשר להעתיק ולהדביק כבר היום.</p>
 ${kitHtml(b,true).replace(/var\(--line\)/g,'#e3e7f3')}
 <p class="hint">רוצים שנטפל בזה בשבילכם באופן קבוע? ${esc(settings.person||'')} ${settings.phone?'· '+esc(settings.phone):''} ${settings.site?'· '+esc(settings.site):''} ${settings.link?'· '+esc(settings.link):''}</p></div></body></html>`;

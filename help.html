@@ -40,7 +40,76 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 </style>
 </head>
 <body>
-<div class="top"><b>📖 מדריך למשתמש · רדאר מפת הלידים</b><a href="./" target="_top">← חזרה לכלי</a></div>
+<!-- ===== נגישות: תפריט נגישות צף (עצמאי, בלי צד שלישי), קישור דילוג, תוויות אוטומטיות ===== -->
+<style id="lrA11yCss">
+.lr-skip{position:absolute;top:-60px;right:12px;z-index:10000;background:#4f7cff;color:#fff;padding:10px 16px;border-radius:0 0 10px 10px;font-weight:700;text-decoration:none}
+.lr-skip:focus{top:0;outline:3px solid #ffd166}
+#lrA11yBtn{position:fixed;bottom:16px;left:16px;z-index:9998;width:52px;height:52px;border-radius:50%;border:2px solid #fff;background:#1a56db;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+#lrA11yBtn:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+#lrA11yMenu{position:fixed;bottom:76px;left:16px;z-index:9999;width:270px;background:#fff;color:#111;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);padding:12px;font-size:14px;direction:rtl;font-family:inherit}
+#lrA11yMenu[hidden]{display:none}
+#lrA11yMenu h2{margin:0 0 8px;font-size:16px;color:#1a56db}
+#lrA11yMenu button{display:block;width:100%;text-align:right;margin:4px 0;padding:9px 10px;border:1px solid #cfd6e6;border-radius:8px;background:#f6f8fc;color:#111;font:inherit;cursor:pointer}
+#lrA11yMenu button[aria-pressed="true"]{background:#1a56db;color:#fff;border-color:#1a56db}
+#lrA11yMenu button:focus-visible{outline:3px solid #ffd166}
+#lrA11yMenu a{display:block;margin-top:8px;font-size:12.5px;color:#1a56db}
+html.lr-a11y-big{font-size:118%}html.lr-a11y-bigger{font-size:136%}
+html.lr-a11y-contrast, html.lr-a11y-contrast body{background:#000!important;color:#fff!important}
+html.lr-a11y-contrast *{background-color:#000!important;color:#fff!important;border-color:#fff!important;box-shadow:none!important;text-shadow:none!important}
+html.lr-a11y-contrast a, html.lr-a11y-contrast button{color:#ffe400!important;text-decoration:underline}
+html.lr-a11y-contrast img, html.lr-a11y-contrast svg{filter:contrast(1.2)}
+html.lr-a11y-links a{text-decoration:underline!important;outline:1px dashed currentColor;outline-offset:2px}
+html.lr-a11y-font, html.lr-a11y-font *{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:.02em}
+html.lr-a11y-still *, html.lr-a11y-still *::before, html.lr-a11y-still *::after{animation:none!important;transition:none!important}
+html.lr-a11y-cursor, html.lr-a11y-cursor *{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><path d='M6 4 L6 40 L15 31 L21 44 L27 41 L21 29 L34 29 Z' fill='black' stroke='white' stroke-width='2'/></svg>") 6 4, auto!important}
+html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2px!important}
+@media print{#lrA11yBtn,#lrA11yMenu{display:none!important}}
+</style>
+<a href="#lrMain" class="lr-skip">דילוג לתוכן הראשי</a>
+<button id="lrA11yBtn" type="button" aria-label="תפריט נגישות" aria-haspopup="true" aria-expanded="false" aria-controls="lrA11yMenu" title="נגישות">♿</button>
+<div id="lrA11yMenu" role="dialog" aria-label="תפריט נגישות" hidden>
+  <h2>♿ נגישות</h2>
+  <button type="button" data-a11y="big" aria-pressed="false">🔠 הגדלת טקסט</button>
+  <button type="button" data-a11y="bigger" aria-pressed="false">🔠 הגדלת טקסט נוספת</button>
+  <button type="button" data-a11y="contrast" aria-pressed="false">🌓 ניגודיות גבוהה</button>
+  <button type="button" data-a11y="links" aria-pressed="false">🔗 הדגשת קישורים</button>
+  <button type="button" data-a11y="font" aria-pressed="false">🅰️ גופן קריא</button>
+  <button type="button" data-a11y="still" aria-pressed="false">⏸️ עצירת אנימציות</button>
+  <button type="button" data-a11y="cursor" aria-pressed="false">🖱️ סמן גדול</button>
+  <button type="button" data-a11y="focus" aria-pressed="false">⌨️ הדגשת מיקוד מקלדת</button>
+  <button type="button" data-a11y="reset">↺ איפוס</button>
+  <a href="legal/accessibility.html" target="_blank" rel="noopener">הצהרת הנגישות של האתר</a>
+  <a href="mailto:shaharprod@gmail.com?subject=נגישות - Leads Radar">דיווח על בעיית נגישות</a>
+</div>
+<script>
+(function(){
+  const KEY='lr_a11y'; const html=document.documentElement; const btn=document.getElementById('lrA11yBtn'); const menu=document.getElementById('lrA11yMenu');
+  const all=['big','bigger','contrast','links','font','still','cursor','focus'];
+  let st={}; try{ st=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  const apply=()=>{ all.forEach(k=>{ html.classList.toggle('lr-a11y-'+k, !!st[k]); const b=menu.querySelector('[data-a11y="'+k+'"]'); if(b) b.setAttribute('aria-pressed', st[k]?'true':'false'); }); try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} };
+  apply();
+  const open=o=>{ menu.hidden=!o; btn.setAttribute('aria-expanded', o?'true':'false'); if(o) menu.querySelector('button').focus(); else btn.focus(); };
+  btn.addEventListener('click',()=>open(menu.hidden));
+  menu.addEventListener('click',e=>{ const b=e.target.closest('[data-a11y]'); if(!b) return; const k=b.dataset.a11y;
+    if(k==='reset'){ st={}; } else if(k==='big'){ st.big=!st.big; if(st.big) st.bigger=false; } else if(k==='bigger'){ st.bigger=!st.bigger; if(st.bigger) st.big=false; } else st[k]=!st[k]; apply(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !menu.hidden) open(false); });
+  document.addEventListener('click',e=>{ if(!menu.hidden && !menu.contains(e.target) && e.target!==btn) open(false); });
+  // תוויות אוטומטיות: שדה בלי label/aria-label מקבל aria-label מה-label שלפניו או מה-placeholder
+  const labelFor=new Set([...document.querySelectorAll('label[for]')].map(l=>l.getAttribute('for')));
+  const fix=root=>{ (root.querySelectorAll?root:document).querySelectorAll('input:not([type=hidden]),select,textarea').forEach(el=>{
+    if(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||(el.id&&labelFor.has(el.id))||el.closest('label')) return;
+    let t=''; let p=el.previousElementSibling; while(p&&!t){ if(p.tagName==='LABEL') t=p.textContent.trim(); p=p.previousElementSibling; }
+    if(!t){ const row=el.parentElement; const l=row&&row.querySelector('label'); if(l) t=l.textContent.trim(); }
+    if(!t) t=el.getAttribute('placeholder')||el.getAttribute('title')||'';
+    if(t) el.setAttribute('aria-label', t.replace(/\s+/g,' ').slice(0,120)); }); };
+  fix(document); new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1) fix(n); }))).observe(document.body,{childList:true,subtree:true});
+  // iframes בלי title
+  document.querySelectorAll('iframe:not([title])').forEach(f=>f.setAttribute('title','תוכן משובץ'));
+})();
+</script>
+<!-- ===== סוף נגישות ===== -->
+
+<span id="lrMain" tabindex="-1"></span><div class="top"><b>📖 מדריך למשתמש · רדאר מפת הלידים</b><a href="./" target="_top">← חזרה לכלי</a></div>
 <div class="wrap">
 <h1>מדריך למשתמש</h1>
 <p class="sub">כל מה שצריך כדי להתחיל, מהמפתח הראשון ועד הליד הראשון שנסגר. המדריך בנוי לפי סדר העבודה. אפשר לקרוא אותו ברצף או לקפוץ לפרק שצריך.</p>
