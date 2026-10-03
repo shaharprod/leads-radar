@@ -20,7 +20,7 @@
 <body>
 <div class="box">
   <h1>כניסה ל-Leads Radar</h1>
-  <p id="intro">הזן את כתובת המייל שלך. תקבל קישור כניסה או קוד חד-פעמי.</p>
+  <p id="intro">הזן את כתובת המייל שלך. תקבל למייל קוד חד-פעמי בן 6 ספרות.</p>
   <div id="stytch-login"></div>
   <div id="loggedin" hidden>
     <div id="status" class="ok"></div>
@@ -76,13 +76,7 @@
   stytch.mountLogin({
     elementId: "#stytch-login",
     config: {
-      products: ["emailMagicLinks", "otp"],
-      emailMagicLinksOptions: {
-        loginRedirectURL: BACK,
-        signupRedirectURL: BACK,
-        loginExpirationMinutes: 30,
-        signupExpirationMinutes: 30
-      },
+      products: ["otp"],
       otpOptions: { methods: ["email"], expirationMinutes: 10 },
       sessionOptions: { sessionDurationMinutes: SESSION_MIN }
     }
