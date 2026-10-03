@@ -300,6 +300,9 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="row row2">
         <div><label>קישור לקביעת שיחה / אתר</label><input id="setLink" placeholder="https://..."></div>
         <div><label>צבע מותג</label><input id="setColor" type="color" value="#4f7cff" style="height:40px;padding:4px"></div></div>
+      <div class="row row2">
+        <div><label>אתר אינטרנט (אם קיים)</label><input id="setSite" placeholder="https://www.example.co.il"></div>
+        <div><label>כתובת העסק</label><input id="setAddress" placeholder="רח' הדוגמה 1, תל אביב"></div></div>
       <div class="row"><label>כתובת לוגו (URL לתמונה)</label><input id="setLogo" placeholder="https://.../logo.png"></div>
       <div class="row"><label>תיאור קצר שלך (יופיע בדוח ובפניות)</label><input id="setTagline" placeholder="למשל: בניית אתרים ושיווק דיגיטלי לעסקים קטנים"></div>
     </div>
@@ -362,6 +365,8 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
 
 <dialog id="dlgHelp"><div class="dlg-h"><b>❓ איך זה עובד</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
+    <div class="sec" style="border-color:var(--acc)"><h5>📖 המדריך המלא למשתמש</h5><div class="hint">הסבר צעד-אחר-צעד: השגת המפתחות, המיתוג, סריקה, ציונים, דוחות, הצעות מחיר, פניות, משפך לידים, שימוש חוקי ופתרון תקלות.</div>
+      <div style="margin-top:8px"><a class="keylinks-big" href="help.html" target="_blank" rel="noopener" style="display:inline-block;padding:8px 16px;border-radius:10px;background:var(--acc);color:#fff;text-decoration:none;font-weight:700">פתח את המדריך המלא ↗</a></div></div>
     <div class="sec"><h5>1. הגדרות</h5><div class="hint">⚙️ הגדרות → מפתח Google, המיתוג שלך לדוחות, ואופציונלית מפתח Gemini ו-Webhook.</div></div>
     <div class="sec"><h5>2. סריקה</h5><div class="hint">בוחרים מרכז ורדיוס, מילת חיפוש או קטגוריה → «התחל סריקה». עומק סריקה = לכמה תת-אזורים מחלקים (יותר עסקים, יותר קריאות API).</div></div>
     <div class="sec"><h5>3. ביקורת מעמיקה</h5><div class="hint">«🔬 נתח» בכרטיס או «נתח את כל העסקים». כל אתר נבדק בשרת ביקורת ייעודי עם מגבלת זמן — אתר שלא עונה מסומן כשגיאה ולא תוקע את התהליך. אפשר לעצור בכל רגע.</div></div>
@@ -452,7 +457,7 @@ document.querySelectorAll('dialog').forEach(d=>{
 });
 
 /* ---------- settings ---------- */
-const SET_FIELDS = {key:'setKey',brand:'setBrand',person:'setPerson',phone:'setPhone',email:'setEmail',link:'setLink',
+const SET_FIELDS = {key:'setKey',brand:'setBrand',person:'setPerson',phone:'setPhone',email:'setEmail',link:'setLink',site:'setSite',address:'setAddress',
   color:'setColor',logo:'setLogo',tagline:'setTagline',gemini:'setGemini',model:'setModel',hook:'setHook',api:'setApi',
   token:'setToken',val:'setVal',monthly:'setMonthly',pkgs:'setPkgs'};
 $('btnSettings').onclick = ()=>{ for(const k in SET_FIELDS) $(SET_FIELDS[k]).value = settings[k]||''; if(!settings.color) $('setColor').value='#4f7cff'; dlgSettings.showModal(); };
@@ -1120,7 +1125,7 @@ function reportHtml(b){
   const cats={gbp:'פרופיל גוגל',rev:'ביקורות ומוניטין',web:'אתר',seo:'קידום בגוגל (SEO)',legal:'נגישות וחוק',conv:'המרת גולשים ללקוחות',mkt:'שיווק ומעקב',soc:'רשתות חברתיות'};
   const sections = Object.keys(cats).map(k=>{ const items=sc.fix.filter(f=>f.cat===k); if(!items.length) return '';
     return `<h3>${cats[k]}</h3><ul>${items.map(f=>`<li>${esc(f.t)} <span class="imp">פוטנציאל ${f.imp}%</span></li>`).join('')}</ul>`; }).join('');
-  const contact=[settings.person, settings.phone, settings.email].filter(Boolean).map(esc).join(' · ');
+  const contact=[settings.person, settings.phone, settings.email, settings.site, settings.address].filter(Boolean).map(esc).join(' · ');
   const cta = settings.link ? `<a class="cta" href="${esc(settings.link)}">לתיאום שיחת ייעוץ חינם ←</a>` :
     (settings.phone?`<a class="cta" href="https://wa.me/${waNum(settings.phone)}?text=${encodeURIComponent('היי, קיבלתי את דוח הביקורת של '+b.name+' ואשמח לשמוע עוד')}">לשיחה בוואטסאפ ←</a>`:'');
   return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1812,7 +1817,7 @@ ${items.map((p,i)=>`<tr><td>${i+1}</td><td><b>${esc(p.name)}</b><div class="why"
 <tr class="tot"><td></td><td>מע״מ 18%</td><td class="p">${vat.toLocaleString('he-IL')}</td></tr>
 <tr class="grand"><td></td><td>סה״כ לתשלום</td><td class="p">₪${(sub+vat).toLocaleString('he-IL')}</td></tr></table>
 <p class="note">ההצעה בתוקף ל-30 יום. אפשר לבחור חלק מהשירותים. תנאי תשלום: 50% בתחילת העבודה, 50% במסירה.</p>
-<p><b>${esc(settings.person||'')}</b> · ${esc(settings.brand||'')}${settings.phone?' · '+esc(settings.phone):''}${settings.email?' · '+esc(settings.email):''}</p>
+<p><b>${esc(settings.person||'')}</b> · ${esc(settings.brand||'')}${settings.phone?' · '+esc(settings.phone):''}${settings.email?' · '+esc(settings.email):''}${settings.site?' · '+esc(settings.site):''}${settings.address?'<br>'+esc(settings.address):''}</p>
 <p class="note">💡 אפשר ללחוץ על כל טקסט או מחיר בעמוד הזה ולערוך אותו לפני השמירה כ-PDF (הסכומים לא מתעדכנים אוטומטית אחרי עריכה).</p>
 </div></body></html>`;
 }
@@ -1931,7 +1936,7 @@ function kitGiftHtml(b){
 <div class="top">${settings.logo?`<img src="${esc(settings.logo)}">`:''}<div><div class="brand">${esc(settings.brand||'')}</div><div class="hint">${esc(settings.tagline||'')}</div></div></div>
 <h1 style="margin:0">🎁 הכנו עבורכם — ${esc(b.name)}</h1><p>תוכן מוכן לשימוש, בחינם, בלי התחייבות. אפשר להעתיק ולהדביק כבר היום.</p>
 ${kitHtml(b,true).replace(/var\(--line\)/g,'#e3e7f3')}
-<p class="hint">רוצים שנטפל בזה בשבילכם באופן קבוע? ${esc(settings.person||'')} ${settings.phone?'· '+esc(settings.phone):''} ${settings.link?'· '+esc(settings.link):''}</p></div></body></html>`;
+<p class="hint">רוצים שנטפל בזה בשבילכם באופן קבוע? ${esc(settings.person||'')} ${settings.phone?'· '+esc(settings.phone):''} ${settings.site?'· '+esc(settings.site):''} ${settings.link?'· '+esc(settings.link):''}</p></div></body></html>`;
 }
 
 /* ---------- 🔁 follow-up sequences ---------- */
