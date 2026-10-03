@@ -110,7 +110,6 @@ ul.fix li b{color:var(--gold)}
 .sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
 .sec h5{margin:0 0 10px;font-size:14px;color:var(--acc2)}
 .hint{font-size:12px;color:var(--mut);line-height:1.7}
-.keylinks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.keylinks a{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);color:var(--acc2);font-size:12px;text-decoration:none}.keylinks a:hover{background:#26325f}
 .err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.5);color:#ffb3b3;padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
 .okbox{background:rgba(47,212,143,.08);border:1px solid rgba(47,212,143,.4);padding:10px 12px;border-radius:12px;font-size:13px;margin-bottom:12px;line-height:1.7}
 .center{text-align:center}
@@ -289,15 +288,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="dlg-b">
     <div class="sec"><h5>🔑 Google</h5>
       <div class="row"><label>Google Maps API Key</label><input id="setKey" placeholder="AIza..."></div>
-      <div class="keylinks">
-        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">🔑 יצירת מפתח (Credentials)</a>
-        <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noopener">הפעלת Maps JavaScript API</a>
-        <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">הפעלת Places API (New)</a>
-        <a href="https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com" target="_blank" rel="noopener">הפעלת Geocoding API</a>
-        <a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener">הפעלת PageSpeed Insights API</a>
-        <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener">חיוב (נדרש להפעלת Maps)</a>
-      </div>
-      <div class="hint">נשמר רק בדפדפן שלך. הסדר: פותחים פרויקט ב-Google Cloud, מפעילים את 4 ה-API, יוצרים מפתח ומדביקים כאן.</div>
+      <div class="hint">נשמר רק בדפדפן שלך. דרוש: Maps JavaScript API, Places API (New), Geocoding API, PageSpeed Insights API.</div>
     </div>
     <div class="sec"><h5>🏷️ המיתוג שלך בדוחות (White-Label)</h5>
       <div class="row row2">
@@ -310,25 +301,16 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
         <div><label>קישור לקביעת שיחה / אתר</label><input id="setLink" placeholder="https://..."></div>
         <div><label>צבע מותג</label><input id="setColor" type="color" value="#4f7cff" style="height:40px;padding:4px"></div></div>
       <div class="row"><label>כתובת לוגו (URL לתמונה)</label><input id="setLogo" placeholder="https://.../logo.png"></div>
-      <div class="row"><label>תיאור קצר שלך (יופיע בדוח ובפניות)</label><input id="setTagline" placeholder="ייעוץ והטמעת בינה מלאכותית לעסקים ולבעלי מקצוע"></div>
+      <div class="row"><label>תיאור קצר שלך (יופיע בדוח ובפניות)</label><input id="setTagline" placeholder="למשל: בניית אתרים ושיווק דיגיטלי לעסקים קטנים"></div>
     </div>
     <div class="sec"><h5>✨ ניסוח פניות ב-AI (אופציונלי)</h5>
       <div class="row row2">
         <div><label>Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
         <div><label>מודל</label><input id="setModel" value="gemini-2.5-flash"></div></div>
-      <div class="keylinks">
-        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">🔑 יצירת מפתח Gemini (Google AI Studio)</a>
-        <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">רשימת המודלים</a>
-      </div>
-      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו.</div>
+      <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. מפתח: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div>
     </div>
     <div class="sec"><h5>🔗 אינטגרציות</h5>
       <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
-      <div class="keylinks">
-        <a href="https://www.make.com/en/help/tools/webhooks" target="_blank" rel="noopener">Webhook ב-Make</a>
-        <a href="https://zapier.com/apps/webhook/integrations" target="_blank" rel="noopener">Webhook ב-Zapier</a>
-        <a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/" target="_blank" rel="noopener">Webhook ב-n8n</a>
-      </div>
       <div class="row"><label>שרת ביקורת האתרים</label><input id="setApi" placeholder="https://... (אופציונלי — לביקורות עומק, רישום חברות ורישיונות)"></div>
       <div class="row"><label>טוקן שרת (לקישורים חיים, מעקב צפיות ומעקב אזורים)</label><input id="setToken" placeholder="—"></div>
     </div>
