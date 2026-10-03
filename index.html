@@ -190,7 +190,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
         <div><label>סינון תוצאות</label><select id="filt">
           <option value="all">כל העסקים</option><option value="nosite">בלי אתר אינטרנט</option>
           <option value="weak">ציון הזדמנות 50+</option><option value="lowrev">פחות מ-20 ביקורות</option>
-          <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="noprivacy">בלי מדיניות פרטיות (אחרי ניתוח)</option><option value="noterms">בלי תנאי שימוש / תקנון (אחרי ניתוח)</option><option value="legalhigh">🛡️ חשיפה משפטית גבוהה (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option><option value="sweet">💎 עסק חי + נוכחות חלשה (הכי שווה)</option><option value="dormant">🔴 עסקים רדומים</option></select></div>
+          <option value="nopixel">בלי פיקסל / Analytics (אחרי ניתוח)</option><option value="noaccess">בלי הצהרת נגישות (אחרי ניתוח)</option><option value="noprivacy">בלי מדיניות פרטיות (אחרי ניתוח)</option><option value="noterms">בלי תנאי שימוש / תקנון (אחרי ניתוח)</option><option value="legalhigh">🛡️ חשוף משפטית — חסר מסמך חובה (אחרי ניתוח)</option><option value="nosocial">בלי רשתות חברתיות</option><option value="sweet">💎 עסק חי + נוכחות חלשה (הכי שווה)</option><option value="dormant">🔴 עסקים רדומים</option></select></div>
       </div>
       <button class="primary" id="btnScan" style="width:100%;padding:12px;font-size:15px">🔍 התחל סריקה</button>
       <button id="btnWatch" style="width:100%;margin-top:8px">⭐ מעקב שבועי על האזור הזה — התראה על עסקים חדשים</button>
@@ -818,20 +818,32 @@ window.analyzeOne = async id=>{ const b=results.find(x=>x.id===id); if(b){ await
 /* ---------- 🛡️ legal exposure (privacy / terms / accessibility) — data comes from the audit server (site.legal) ---------- */
 function legalOf(b){ const L=b.site&&!b.site.error&&b.site.legal; return (L&&!L.unavailable)?L:null; }
 const LEGAL_LEVEL={high:{t:'חשיפה משפטית גבוהה',c:'no',e:'🛡️'},med:{t:'חשיפה משפטית בינונית',c:'w',e:'🛡️'},low:{t:'חשיפה משפטית נמוכה',c:'ok',e:'🛡️'},check:{t:'חשיפה משפטית — לבדיקה ידנית',c:'w',e:'🛡️'}};
-function legalBadge(b){ const L=legalOf(b); if(!L) return ''; const lv=LEGAL_LEVEL[L.exposure.level]||LEGAL_LEVEL.check;
-  return `<span class="chip ${lv.c}" title="ציון חשיפה ${L.exposure.score}/100 — סימני חשיפה לפי בדיקה אוטומטית, לא ייעוץ משפטי">${lv.e} ${lv.t} · ${L.exposure.score}</span>`; }
+// the three documents the law requires; a site missing any one of them is "חשוף משפטית"
+function legalFlags(b){ const L=legalOf(b); if(!L) return []; const f=[];
+  if(!L.accessibility.statement.found) f.push({t:'הצהרת נגישות', law:'תקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), תקנה 35'});
+  if(!L.privacy.found) f.push({t:'מדיניות פרטיות', law:'חוק הגנת הפרטיות, סעיף 11 + תיקון 13'});
+  if(!L.terms.found) f.push({t:'תקנון / תנאי שימוש', law:'חוק הגנת הצרכן, סעיף 14ג (עסקה מרחוק)'+((L.sellsOnline||L.booking)?' — האתר מוכר/מתאם תורים':'')});
+  return f; }
+function legalBadge(b){ const L=legalOf(b);
+  if(!L){ const U=b.site&&!b.site.error&&b.site.legal; if(U&&U.unavailable) return `<span class="chip w" title="${esc(U.reason)}">🛡️ ${U.social?'דף רשת חברתית — אין אתר לבדוק':(b.site.status>=400?'האתר חוסם בדיקה אוטומטית — לבדוק ידנית':'אתר דינמי — לבדוק ידנית')}</span>`; return ''; }
+  const F=legalFlags(b); const chk=L.exposure.level==='check';
+  if(F.length) return `<span class="chip no" title="${esc(F.map(x=>x.t+' — '+x.law).join(' | '))} · ציון ${L.exposure.score}/100 · בדיקה אוטומטית, לא ייעוץ משפטי">🛡️ חשוף משפטית${chk?' (לאימות)':''}: חסר ${esc(F.map(x=>x.t).join(' · '))} · ${L.exposure.score}</span>`;
+  const minor=L.exposure.findings.filter(f=>f.pts>0).length;
+  return minor? `<span class="chip w" title="ציון ${L.exposure.score}/100">🛡️ שלושת המסמכים קיימים · ${minor} ליקויים משניים · ${L.exposure.score}</span>` : `<span class="chip ok">🛡️ מסמכים משפטיים תקינים</span>`; }
 function legalHtml(b){
   const s=b.site; if(!s||s.error) return '';
   const L=s.legal; if(!L) return '';
   if(L.unavailable) return `<div class="sec"><h5>🛡️ חשיפה משפטית</h5><div class="hint">⚠️ לא ניתן לבדוק אוטומטית: ${esc(L.reason||'')}</div></div>`;
-  const lv=LEGAL_LEVEL[L.exposure.level]||LEGAL_LEVEL.check;
+  const lv=LEGAL_LEVEL[L.exposure.level]||LEGAL_LEVEL.check; const F=legalFlags(b);
+  const head=F.length?`<span class="chip no">🛡️ חשוף משפטית${L.exposure.level==='check'?' (לאימות ידני)':''}: חסר ${esc(F.map(x=>x.t).join(' · '))} · ${L.exposure.score}/100</span>`:`<span class="chip ${lv.c}">${lv.t} · ${L.exposure.score}/100</span>`;
   const yn=(v,t,url,extra)=>`<span class="chip ${v?'ok':'no'}">${v?'✓':'✕'} ${t}${url?` <a href="${esc(url)}" target="_blank" rel="noopener" style="color:inherit">↗</a>`:''}${extra||''}</span>`;
   const a=L.accessibility.statement, w=L.accessibility.widget;
   const sev={high:'no',med:'w',low:''};
-  return `<div class="sec"><h5>🛡️ חשיפה משפטית <span class="chip ${lv.c}">${lv.t} · ${L.exposure.score}/100</span></h5>
+  return `<div class="sec"><h5>🛡️ חשיפה משפטית ${head}</h5>
+    ${F.length?`<div style="font-size:13px;margin-bottom:8px"><b>סעיפי החוק הרלוונטיים:</b><ul style="margin:4px 0 0;padding-inline-start:18px">${F.map(x=>`<li><b>${esc(x.t)}</b> — ${esc(x.law)}</li>`).join('')}</ul></div>`:''}
     <div class="chips" style="margin-bottom:8px">${yn(a.found,'הצהרת נגישות',a.url,a.verified===false?' (לא אומת)':'')} ${yn(w.found,'רכיב נגישות'+(w.names&&w.names.length?': '+esc(w.names.join(', ')):''))} ${yn(L.privacy.found,'מדיניות פרטיות',L.privacy.url)} ${yn(L.terms.found,'תנאי שימוש / תקנון',L.terms.url)}</div>
     <div class="chips" style="margin-bottom:8px"><span class="chip ${L.collectsPII?'w':''}">${L.collectsPII?'אוסף פרטים אישיים (טופס/תורים/דיוור)':'לא זוהה איסוף פרטים'}</span><span class="chip ${L.sellsOnline?'w':''}">${L.sellsOnline?'מכירה / תשלום אונליין':'אין מכירה אונליין'}</span><span class="chip">${L.tracking?'יש כלי מעקב':'אין כלי מעקב'}${L.tracking?(L.cookieBanner?' + הודעת עוגיות':' · בלי הודעת עוגיות'):''}</span></div>
-    ${L.exposure.findings.length?`<ul style="margin:4px 0 0;padding-inline-start:18px;font-size:13px">${L.exposure.findings.map(f=>`<li><span class="chip ${sev[f.sev]||''}" style="font-size:11px">${f.pts?'+'+f.pts:'ℹ️'}</span> ${esc(f.t)}${f.law?`<div class="hint" style="font-size:11.5px">${esc(f.law)}</div>`:''}</li>`).join('')}</ul>`:'<div class="hint">לא נמצאו סימני חשיפה.</div>'}
+    ${L.exposure.findings.length?`<ul style="margin:4px 0 0;padding-inline-start:18px;font-size:13px">${L.exposure.findings.map(f=>`<li><span class="chip ${sev[f.sev]||''}" style="font-size:11px">${f.pts?'+'+f.pts:'ℹ️'}</span> ${esc(f.t)}${f.law?`<div class="hint" style="font-size:11.5px"><b>הבסיס בחוק:</b> ${esc(f.law)}</div>`:''}</li>`).join('')}</ul>`:'<div class="hint">לא נמצאו סימני חשיפה.</div>'}
     <div class="hint" style="margin-top:6px">הבדיקה אוטומטית ומצביעה על מה <b>לא נמצא</b> באתר. היא אינה ייעוץ משפטי ואינה קובעת שהעסק מפר חוק.</div></div>`;
 }
 function scoreBiz(b){
@@ -1048,7 +1060,7 @@ function filterList(f){
   if(f==='noaccess') list=list.filter(b=>b.site&&!b.site.error&&b.site.ok!==false&&!b.site.accessibility);
   if(f==='noprivacy') list=list.filter(b=>legalOf(b)&&!legalOf(b).privacy.found);
   if(f==='noterms') list=list.filter(b=>legalOf(b)&&!legalOf(b).terms.found);
-  if(f==='legalhigh') list=list.filter(b=>legalOf(b)&&legalOf(b).exposure.level==='high');
+  if(f==='legalhigh') list=list.filter(b=>legalFlags(b).length>0);
   if(f==='nosocial') list=list.filter(b=>!Object.keys(socialOf(b)).length);
   if(f==='sweet') list=list.filter(b=>{ const V=vitality(b); return b._s.opp>=45 && V.score!=null && V.score>=55; });
   if(f==='dormant') list=list.filter(b=>{ const V=vitality(b); return V.score!=null && V.score<45; });
@@ -1492,7 +1504,7 @@ function rowsOf(list){
     return {'שם העסק':b.name,'קטגוריה':b.type,'כתובת':b.address,'טלפון':b.phone,'אתר':b.website,'דירוג':b.rating,'ביקורות':b.reviews,
       'תמונות':b.photos,'מרחק (מ׳)':b.dist,'ציון הזדמנות':s.opp,'נוכחות דיגיטלית':s.presence,'ליקוי מוביל':s.fix[0]?s.fix[0].t:'',
       'כל הליקויים':s.fix.map(f=>f.t).join(' | '),'HTTPS':w.https?'כן':'','מובייל':w.mobile?'כן':'','Analytics':(t.ga4||t.gtm)?'כן':'',
-      'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','מדיניות פרטיות':legalOf(b)?(legalOf(b).privacy.found?'כן':'לא'):'','תנאי שימוש':legalOf(b)?(legalOf(b).terms.found?'כן':'לא'):'','הצהרת נגישות':legalOf(b)?(legalOf(b).accessibility.statement.found?'כן':'לא'):'','ציון חשיפה משפטית':legalOf(b)?legalOf(b).exposure.score:'','רמת חשיפה משפטית':legalOf(b)?(LEGAL_LEVEL[legalOf(b).exposure.level]||{}).t||'':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
+      'Meta Pixel':t.metaPixel?'כן':'','נגישות':w.accessibility?'כן':'','מדיניות פרטיות':legalOf(b)?(legalOf(b).privacy.found?'כן':'לא'):'','תנאי שימוש':legalOf(b)?(legalOf(b).terms.found?'כן':'לא'):'','הצהרת נגישות':legalOf(b)?(legalOf(b).accessibility.statement.found?'כן':'לא'):'','ציון חשיפה משפטית':legalOf(b)?legalOf(b).exposure.score:'','חשוף משפטית':legalOf(b)?(legalFlags(b).length?'כן — חסר: '+legalFlags(b).map(x=>x.t).join(' · '):'לא'):'','רמת חשיפה משפטית':legalOf(b)?(LEGAL_LEVEL[legalOf(b).exposure.level]||{}).t||'':'','וואטסאפ':(w.whatsapp||[]).join(' '),'מייל':(w.emails||[]).join(' '),
       'ערוצים דיגיטליים':presenceOf(b).count+'/'+presenceOf(b).total,
       'פייסבוק':socialOf(b).facebook||'','אינסטגרם':socialOf(b).instagram||'','טיקטוק':socialOf(b).tiktok||'','יוטיוב':socialOf(b).youtube||'','לינקדאין':socialOf(b).linkedin||'','פלטפורמה':w.platform||'',
       'ביקורות שליליות אחרונות':b.rev&&!b.rev.error?b.rev.negative:'','ציון ליד (סדר)':leadScore(b),'חיוניות':vitality(b).score??'','רמת חיוניות':(vitality(b).level||{}).t||'','קצב ביקורות לחודש':(velocityOf(b)||{}).perMonth??'','שעות פתיחה בשבוע':hoursWeekOf(b)??'','תנועה לאתר (CrUX)':b.site&&b.site.crux?(b.site.crux.hasData?'יש':'אין'):'','איש קשר':L.contact||'','תפקיד':L.role||'','טלפון ישיר':L.direct||'','נייד/וואטסאפ':hasMobile(b)?'כן':'','מפרסם':(t.googleAds||t.metaPixel)?'כן':'','מייל תקין':bestEmail(b),'שלב':stageName(stageOf(b.id)),'תאריך מעקב':L.due||'','הערות':L.note||'','גוגל מפות':b.maps};
@@ -1908,8 +1920,9 @@ function lossHtml(b){
 function legalReportHtml(b){
   const L=legalOf(b); if(!L) return '';
   const lv={high:['גבוהה','#c62828'],med:['בינונית','#e08a00'],low:['נמוכה','#2e7d32'],check:['לבדיקה ידנית','#e08a00']}[L.exposure.level]||['לבדיקה ידנית','#e08a00'];
-  const items=L.exposure.findings.filter(f=>f.pts>0);
-  return `<h2>🛡️ חשיפה משפטית של האתר — רמה ${lv[0]}</h2>
+  const items=L.exposure.findings.filter(f=>f.pts>0); const F=legalFlags(b);
+  return `<h2>🛡️ ${F.length?'האתר חשוף משפטית — חסר: '+esc(F.map(x=>x.t).join(', ')):'חשיפה משפטית של האתר — רמה '+lv[0]}</h2>
+  ${F.length?`<table><tr><th>מסמך חובה שלא נמצא</th><th>הבסיס בחוק</th></tr>${F.map(x=>`<tr><td><b>${esc(x.t)}</b></td><td>${esc(x.law)}</td></tr>`).join('')}</table>`:''}
   <div style="display:flex;gap:16px;align-items:center;margin:8px 0 12px"><div style="width:72px;height:72px;border-radius:50%;border:6px solid ${lv[1]};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:${lv[1]}">${L.exposure.score}</div>
   <div style="font-size:14px">שלושה מסמכים שכל אתר עסקי בישראל צריך להציג: <b>הצהרת נגישות</b> (תקנות שוויון זכויות לאנשים עם מוגבלות), <b>מדיניות פרטיות</b> (חוק הגנת הפרטיות, תיקון 13) ו<b>תנאי שימוש</b> (חוק הגנת הצרכן, לאתר שמוכר או מתאם תורים).<br>
   ${L.accessibility.statement.found?'✓':'✕'} הצהרת נגישות · ${L.privacy.found?'✓':'✕'} מדיניות פרטיות · ${L.terms.found?'✓':'✕'} תנאי שימוש${L.accessibility.widget.found?' · ✓ רכיב נגישות':''}</div></div>
