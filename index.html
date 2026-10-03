@@ -747,7 +747,7 @@ $('btnScan').onclick = async ()=>{
 async function auditSite(url){
   if(!settings.api) return {error:'לא הוגדר שרת ביקורת בהגדרות'};
   try{
-    const r = await fetchT((settings.api||DEFAULT_API)+'?url='+encodeURIComponent(url), {}, 30000);
+    const r = await fetchT((settings.api||DEFAULT_API)+'?url='+encodeURIComponent(url), {cache:'no-store'}, 45000);
     if(!r.ok) return {error:'שרת הביקורת החזיר '+r.status};
     return await r.json();
   }catch(e){ return {error: e.name==='AbortError' ? 'פג הזמן (30 שניות) — האתר איטי מאוד או חסום' : 'שגיאת רשת: '+e.message}; }
