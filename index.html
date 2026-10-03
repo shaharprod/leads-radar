@@ -800,8 +800,9 @@ async function analyzeBiz(b){
 let stopFlag=false;
 $('btnStop').onclick=()=>{ stopFlag=true; log('⏹ עוצר אחרי העסקים שבתהליך...'); };
 $('btnAnalyzeAll').onclick = async ()=>{
-  const list=results.filter(b=>b.astate!=='done');
-  if(!list.length) return log('כל העסקים כבר נותחו.');
+  // not analyzed yet, or analyzed before the legal check existed (site audit without a legal section) → analyze again
+  const list=results.filter(b=>b.astate!=='done' || (b.website && b.site && !b.site.error && (!b.site.legal || (b.site.legal.unavailable && !b.site.legal.social && !(b.site.status>=400)))));
+  if(!list.length) return log('כל העסקים כבר נותחו (כולל בדיקת נגישות · פרטיות · תקנון).');
   stopFlag=false; const btn=$('btnAnalyzeAll'); btn.disabled=true; $('btnStop').classList.remove('hidden');
   const prog=$('prog'); prog.style.display='block'; let done=0; const CONC=4; let idx=0;
   const worker = async ()=>{ while(idx<list.length && !stopFlag){ const b=list[idx++]; await analyzeBiz(b); done++;
