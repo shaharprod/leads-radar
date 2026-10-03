@@ -287,8 +287,8 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
 <dialog id="dlgSettings">
   <div class="dlg-h"><b>⚙️ הגדרות</b><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
-    <div class="sec"><h5>🔑 Google</h5>
-      <div class="row"><label>Google Maps API Key</label><input id="setKey" placeholder="AIza..."></div>
+    <div class="sec"><h5>🔑 Google <span class="chip" id="stKey"></span></h5>
+      <div class="row"><label>Google Maps API Key (חובה — בלי זה הסריקה לא עובדת)</label><input id="setKey" placeholder="AIza..."></div>
       <div class="hint">נשמר רק בדפדפן שלך. המפתח נוצר בחשבון Google שלך, בפרויקט <b>עם חשבון חיוב מקושר</b> (בלי חיוב גוגל לא מחזירה ביקורות ותמונות). השימוש הרגיל נשאר בתוך המכסה החינמית.</div>
       <div class="keylinks" style="margin-top:8px;display:grid;gap:4px;font-size:12.5px;line-height:1.6">
         <div>1️⃣ <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">צור פרויקט חדש</a> (או בחר קיים) · 2️⃣ <a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">קשר חשבון חיוב לפרויקט</a></div>
@@ -318,19 +318,28 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
       <div class="hint" style="margin-top:8px">תצוגה מקדימה של כותרת הדוח שלך:</div>
       <div id="brandPreview" style="margin-top:6px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;background:#fff;color:#111"></div>
     </div>
-    <div class="sec"><h5>✨ ניסוח פניות ב-AI (אופציונלי)</h5>
+    <div class="sec"><h5>✨ ניסוח פניות ב-AI (אופציונלי) <span class="chip" id="stGemini"></span></h5>
       <div class="row row2">
         <div><label>Gemini API Key</label><input id="setGemini" placeholder="AIza... (מ-Google AI Studio)"></div>
         <div><label>מודל</label><input id="setModel" value="gemini-2.5-flash"></div></div>
       <div class="hint">בלי מפתח — הפניות נבנות מתבניות חכמות לפי הליקויים שנמצאו. השגת מפתח (חינם): <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio ← Create API key</a> · <a href="https://ai.dev/rate-limit" target="_blank" rel="noopener">מכסות ומגבלות</a> · <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">רשימת המודלים</a></div>
     </div>
-    <div class="sec"><h5>🔗 אינטגרציות</h5>
-      <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
-      <div class="hint">איפה יוצרים כתובת Webhook: <a href="https://www.make.com/en/login" target="_blank" rel="noopener">Make</a> (תרחיש חדש ← מודול Webhooks ← Custom webhook ← Add) · <a href="https://zapier.com/app/zaps" target="_blank" rel="noopener">Zapier</a> (Zap חדש ← Trigger: Webhooks by Zapier ← Catch Hook) · <a href="https://app.n8n.cloud/" target="_blank" rel="noopener">n8n</a> (Workflow ← Webhook node ← Production URL)</div>
-      <div class="row"><label>שרת ביקורת האתרים (אופציונלי)</label><input id="setApi" placeholder="https://europe-west1-<project>.cloudfunctions.net/leads-radar-audit"></div>
-      <div class="hint">שרת קטן שאתם מפעילים ב-Google Cloud (Cloud Run Function) בשם <code style="direction:ltr;display:inline-block">leads-radar-audit</code>. הוא מוסיף: ביקורת אתר מעמיקה, רשם החברות ורישיונות, קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים וערכת תוכן ב-AI. בלי שרת, כל השאר עובד. איפה רואים את הכתובת: <a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> ← השירות leads-radar-audit ← שורת <b>URL</b> למעלה · הקמה צעד-אחר-צעד: <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a></div>
-      <div class="row"><label>טוקן שרת (לקישורים חיים, מעקב צפיות ומעקב אזורים)</label><input id="setToken" placeholder="הערך של משתנה הסביבה LR_TOKEN בשרת"></div>
-      <div class="hint">סיסמה פנימית בינכם לבין השרת שלכם — אתם קובעים אותה בעת ההקמה. איפה רואים/משנים: <a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Cloud Run</a> ← השירות leads-radar-audit ← לשונית <b>Containers</b> ← <b>Variables &amp; Secrets</b> ← <code style="direction:ltr;display:inline-block">LR_TOKEN</code> (שינוי: <b>Edit &amp; deploy new revision</b>). מדביקים כאן את אותו ערך בדיוק.</div>
+    <div class="sec"><h5>🔬 שרת ביקורת העומק <span class="chip" id="stApi"></span></h5>
+      <div class="hint">זה השרת שמבצע את <b>«🔬 נתח» / «חפירה מלאה»</b>: ביקורת האתר, בדיקת נגישות · פרטיות · תקנון (ציון החשיפה המשפטית), רשם החברות ורישיונות. <b>הכתובת מוגדרת מראש ואין צורך לשנות אותה.</b> אם «נתח» מחזיר "לא הוגדר שרת ביקורת" — לחצו <b>בדוק חיבור</b> ואם צריך <b>שחזר ברירת מחדל</b>.</div>
+      <div class="row"><label>כתובת שרת הביקורת</label><input id="setApi" placeholder="https://leads-radar-audit-...a.run.app"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px">
+        <button type="button" class="ghost" id="btnApiTest" style="padding:5px 12px;font-size:12.5px">🔌 בדוק חיבור</button>
+        <button type="button" class="ghost" id="btnApiDefault" style="padding:5px 12px;font-size:12.5px">↺ שחזר ברירת מחדל</button>
+        <span class="hint" id="apiTestOut" style="margin:0"></span></div>
+      <div class="row" style="margin-top:10px"><label>טוקן שרת (אופציונלי — לתכונות המתקדמות)</label><input id="setToken" placeholder="טוקן שקיבלתם מאיתנו (או ה-LR_TOKEN של השרת שלכם)"></div>
+      <div class="hint"><b>בלי טוקן עובדים:</b> סריקה, «נתח» / «חפירה מלאה» מלאה, ציון חשיפה משפטית, רשם החברות, רישיונות, דוח, הצעת מחיר ופנייה. <b>עם טוקן נוספים:</b> 🔗 קישור חי לדוח עם מעקב צפיות, ⭐ מעקב שבועי על אזורים, 🎁 ערכת תוכן ב-AI דרך השרת ו-🔎 חפירה ברשת. אם אין לכם טוקן ואתם רוצים את התכונות האלה: <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המנוי</a> · <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a>.</div>
+      <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:var(--mut)">מתקדם: הפעלת שרת ביקורת משלכם ב-Google Cloud</summary>
+        <div class="hint" style="margin-top:6px">למי שרוצה שרת פרטי (לא נדרש למנוי הרגיל): פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code style="direction:ltr;display:inline-block">leads-radar-audit</code>. את הכתובת רואים בשורת <b>URL</b> למעלה בדף השירות; את הטוקן קובעים כמשתנה סביבה <code style="direction:ltr;display:inline-block">LR_TOKEN</code> ב-<b>Containers ← Variables &amp; Secrets</b> (שינוי: <b>Edit &amp; deploy new revision</b>). מדביקים כאן את הכתובת ואת אותו טוקן בדיוק. הקמה צעד-אחר-צעד: <a href="help.html#audit" target="_blank" rel="noopener">מדריך ← פרק 7</a>.</div>
+      </details>
+    </div>
+    <div class="sec"><h5>🔗 אינטגרציות (אופציונלי)</h5>
+      <div class="row"><label>Webhook (Make / Zapier / n8n) — לשליחת לידים ל-CRM או לגיליון</label><input id="setHook" placeholder="https://hook.eu1.make.com/..."></div>
+      <div class="hint">איפה יוצרים כתובת Webhook: <a href="https://www.make.com/en/login" target="_blank" rel="noopener">Make</a> (תרחיש חדש ← מודול Webhooks ← Custom webhook ← Add) · <a href="https://zapier.com/app/zaps" target="_blank" rel="noopener">Zapier</a> (Zap חדש ← Trigger: Webhooks by Zapier ← Catch Hook) · <a href="https://app.n8n.cloud/" target="_blank" rel="noopener">n8n</a> (Workflow ← Webhook node ← Production URL) · מה נשלח ואיך מחברים ל-CRM: <a href="help.html#export" target="_blank" rel="noopener">מדריך ← פרק 14</a></div>
     </div>
     <div class="sec"><h5>💰 הצעות מחיר והערכת הפסד</h5>
       <div class="row row2">
@@ -385,7 +394,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
   <div class="dlg-b" id="helpFallback" style="display:none">
     <div class="sec" style="border-color:var(--acc)"><h5>📖 המדריך המלא למשתמש</h5><div class="hint">הסבר צעד-אחר-צעד: השגת המפתחות, המיתוג, סריקה, ציונים, דוחות, הצעות מחיר, פניות, משפך לידים, שימוש חוקי ופתרון תקלות.</div>
       <div style="margin-top:8px"><a class="keylinks-big" href="help.html" target="_blank" rel="noopener" style="display:inline-block;padding:8px 16px;border-radius:10px;background:var(--acc);color:#fff;text-decoration:none;font-weight:700">פתח את המדריך המלא ↗</a></div></div>
-    <div class="sec"><h5>1. הגדרות</h5><div class="hint">⚙️ הגדרות → מפתח Google, המיתוג שלך לדוחות, ואופציונלית מפתח Gemini ו-Webhook.</div></div>
+    <div class="sec"><h5>1. הגדרות</h5><div class="hint">⚙️ הגדרות → מפתח Google (חובה), המיתוג שלך לדוחות, ואופציונלית מפתח Gemini, טוקן שרת ו-Webhook. שרת ביקורת העומק מוגדר מראש — «🔌 בדוק חיבור» מראה שהוא מגיב.</div></div>
     <div class="sec"><h5>2. סריקה</h5><div class="hint">בוחרים מרכז ורדיוס, מילת חיפוש או קטגוריה → «התחל סריקה». עומק סריקה = לכמה תת-אזורים מחלקים (יותר עסקים, יותר קריאות API).</div></div>
     <div class="sec"><h5>3. ביקורת מעמיקה</h5><div class="hint">«🔬 נתח» בכרטיס או «נתח את כל העסקים». כל אתר נבדק בשרת ביקורת ייעודי עם מגבלת זמן — אתר שלא עונה מסומן כשגיאה ולא תוקע את התהליך. אפשר לעצור בכל רגע.</div></div>
     <div class="sec"><h5>4. ציון הזדמנות</h5><div class="hint">0–100. <b>גבוה = ליד טוב יותר</b>. בכרטיס המלא — כל ליקוי עם פוטנציאל השיפור שלו. האחוזים הם משקלות לתעדוף, לא מדידה של גוגל.</div></div>
@@ -403,7 +412,7 @@ table.cmp tr.me{background:rgba(79,124,255,.12)}table.cmp th{color:var(--mut);fo
    Leads Radar v2 — סריקה · ביקורת · דוחות · פניות · משפך
    ============================================================ */
 const $ = id => document.getElementById(id);
-const DEFAULT_API = ''; // אין שרת ברירת מחדל: כל משתמש מגדיר שרת משלו בהגדרות (אופציונלי)
+const DEFAULT_API = 'https://leads-radar-audit-scagoip22a-ew.a.run.app'; // אין שרת ברירת מחדל: כל משתמש מגדיר שרת משלו בהגדרות (אופציונלי)
 const LS = { key:'lr_apikey', leads:'lr_leads', last:'lr_last', results:'lr_results', set:'lr_settings' };
 const STAGES = [
   {id:'new',    t:'חדש'},
@@ -484,7 +493,26 @@ document.querySelectorAll('dialog').forEach(d=>{
 const SET_FIELDS = {key:'setKey',brand:'setBrand',person:'setPerson',phone:'setPhone',email:'setEmail',link:'setLink',site:'setSite',address:'setAddress',
   color:'setColor',logo:'setLogo',tagline:'setTagline',gemini:'setGemini',model:'setModel',hook:'setHook',api:'setApi',
   token:'setToken',val:'setVal',monthly:'setMonthly',pkgs:'setPkgs'};
-$('btnSettings').onclick = ()=>{ for(const k in SET_FIELDS) $(SET_FIELDS[k]).value = settings[k]||''; if(!settings.color) $('setColor').value='#4f7cff'; dlgSettings.showModal(); };
+function settingsStatus(){
+  const chip=(id,ok,t)=>{ const el=$(id); if(!el) return; el.className='chip '+(ok?'ok':'no'); el.textContent=(ok?'✓ ':'✕ ')+t; };
+  chip('stKey', !!$('setKey').value.trim(), $('setKey').value.trim()?'מפתח שמור':'חסר מפתח — הסריקה לא תעבוד');
+  chip('stGemini', !!$('setGemini').value.trim(), $('setGemini').value.trim()?'מפתח שמור':'בלי AI (תבניות בלבד)');
+  const api=$('setApi').value.trim(); chip('stApi', !!api, api?(api===DEFAULT_API?'ברירת מחדל':'שרת מותאם')+($('setToken').value.trim()?' + טוקן':' · בלי טוקן'):'חסר — «נתח» לא יעבוד');
+}
+$('btnSettings').onclick = ()=>{ for(const k in SET_FIELDS) $(SET_FIELDS[k]).value = settings[k]||''; if(!settings.color) $('setColor').value='#4f7cff'; if(!$('setApi').value.trim()) $('setApi').value=DEFAULT_API; $('apiTestOut').textContent=''; settingsStatus(); dlgSettings.showModal(); };
+['setKey','setGemini','setApi','setToken'].forEach(id=>$(id).addEventListener('input',settingsStatus));
+$('btnApiDefault').onclick = ()=>{ $('setApi').value=DEFAULT_API; settingsStatus(); $('apiTestOut').textContent='הכתובת שוחזרה — לחצו «שמור» למטה.'; };
+$('btnApiTest').onclick = async ()=>{
+  const api=$('setApi').value.trim().replace(/\/+$/,''), tok=$('setToken').value.trim(), out=$('apiTestOut'); if(!api){ out.textContent='אין כתובת.'; return; }
+  out.textContent='בודק...';
+  try{
+    const r=await fetchT(api+'?url=example.com',{},25000); const j=await r.json().catch(()=>({}));
+    if(!r.ok || !('ok' in j)){ out.textContent='✕ השרת ענה אבל לא כמו שרת ביקורת ('+r.status+'). בדקו את הכתובת.'; return; }
+    let t='✓ שרת הביקורת מגיב ('+(j.legal?'כולל בדיקה משפטית':'גרסה ישנה — בלי בדיקה משפטית')+')';
+    if(tok){ const p=await fetchT(api+'?action=ping',{headers:{'X-LR-Token':tok}},15000); t+= p.ok?' · ✓ הטוקן תקין':' · ✕ הטוקן לא מתקבל ('+p.status+')'; }
+    out.textContent=t;
+  }catch(e){ out.textContent='✕ אין חיבור: '+(e.name==='AbortError'?'פג הזמן':e.message); }
+};
 $('btnSaveSettings').onclick = async ()=>{
   const hadKey = settings.key;
   for(const k in SET_FIELDS) settings[k] = $(SET_FIELDS[k]).value.trim();

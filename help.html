@@ -169,11 +169,10 @@ ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;rig
 <li><b>ניתוח ביקורות גוגל</b>: קריאת API נוספת לעסק. נותן את הטענות החוזרות של הלקוחות.</li>
 <li>אפשר <span class="btn">⏹ עצור</span> בכל רגע. אתר שלא עונה מסומן כשגיאה ולא תוקע את התהליך.</li>
 </ul>
-<div class="box"><b>שרת ביקורת (אופציונלי):</b> חלק מהבדיקות המעמיקות (ביקורת אתר מעמיקה, רשם החברות, רישיונות, קישור חי עם מעקב צפיות, מעקב שבועי, ערכת תוכן ב-AI) דורשות שרת קטן שלכם ב-Google Cloud: פונקציית Cloud Run בשם <code>leads-radar-audit</code>. בלי שרת, שאר הכלי עובד במלואו, והתכונות האלה מציגות "לא הוגדר שרת ביקורת".
+<div class="box"><b>שרת ביקורת העומק:</b> הוא זה שמבצע את «🔬 נתח» / «חפירה מלאה», את בדיקת הנגישות · פרטיות · תקנון, רשם החברות והרישיונות. <b>הכתובת מוגדרת מראש בכלי ואין צורך לעשות כלום.</b> אם «נתח» מחזיר "לא הוגדר שרת ביקורת": <span class="btn">⚙️ הגדרות</span> ← «שרת ביקורת העומק» ← <span class="btn">🔌 בדוק חיבור</span>; אם השדה ריק — <span class="btn">↺ שחזר ברירת מחדל</span> ← <span class="btn">שמור</span>.
 <ul>
-<li><b>שרת ביקורת האתרים</b> (בהגדרות): כתובת הפונקציה. רואים אותה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> ← לחיצה על השירות <code>leads-radar-audit</code> ← שורת <b>URL</b> בראש העמוד (נראית כמו <code>https://europe-west1-&lt;project&gt;.cloudfunctions.net/leads-radar-audit</code>).</li>
-<li><b>טוקן שרת</b> (בהגדרות): סיסמה פנימית שאתם קובעים בעת ההקמה, נשמרת בשרת כמשתנה סביבה <code>LR_TOKEN</code>. רואים/משנים אותה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Cloud Run</a> ← השירות ← לשונית <b>Containers</b> ← <b>Variables &amp; Secrets</b> (שינוי דרך <b>Edit &amp; deploy new revision</b>). בהגדרות הכלי מדביקים בדיוק את אותו ערך — אחרת קישור חי, מעקב צפיות ומעקב אזורים יחזירו שגיאת הרשאה.</li>
-<li>ההקמה עצמה (קוד הפונקציה והפריסה) אינה חלק מהמנוי הבסיסי; פנו אלינו דרך <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המכירה</a> ונחזור עם הצעה.</li>
+<li><b>טוקן שרת</b> (אופציונלי): נדרש רק לתכונות המתקדמות — קישור חי לדוח עם מעקב צפיות, מעקב שבועי על אזורים, ערכת תוכן ב-AI דרך השרת וחפירה ברשת. כל השאר עובד בלי טוקן. לקבלת טוקן: <a href="https://shaharprod.github.io/leads-radar/sales.html" target="_blank" rel="noopener">דף המנוי</a>.</li>
+<li><b>שרת פרטי משלכם</b> (מתקדם, לא נדרש): פונקציה ב-<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Google Cloud ← Cloud Run</a> בשם <code>leads-radar-audit</code>. הכתובת בשורת <b>URL</b> בדף השירות; הטוקן הוא משתנה הסביבה <code>LR_TOKEN</code> (<a href="https://console.cloud.google.com/run" target="_blank" rel="noopener">Cloud Run</a> ← השירות ← Containers ← Variables &amp; Secrets). מדביקים את שניהם בהגדרות.</li>
 </ul></div>
 
 <h3 id="legal-check">🛡️ חשיפה משפטית: נגישות, פרטיות ותקנון</h3>
