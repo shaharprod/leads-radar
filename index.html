@@ -272,6 +272,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
         רשתות חברתיות, מיילים, וואטסאפ, נגישות, ו-5 הביקורות האחרונות בגוגל.</div>
       <div class="row" style="margin-top:10px"><label><input type="checkbox" id="usePsi" style="width:auto;vertical-align:-2px"> כלול מדידת מהירות Google PageSpeed (מוסיף ~20 שניות לעסק)</label></div>
       <div class="row"><label><input type="checkbox" id="useReviews" checked style="width:auto;vertical-align:-2px"> כלול ניתוח ביקורות גוגל (עולה קריאת API נוספת לעסק)</label></div>
+      <div class="row"><label><input type="checkbox" id="autoAnalyze" checked style="width:auto;vertical-align:-2px"> ניתוח אוטומטי מיד אחרי כל סריקה (בלי זה הסינון והמיון המשפטיים ריקים עד שלוחצים «נתח»)</label></div>
       <div class="row row2" style="grid-template-columns:1fr auto">
         <button id="btnAnalyzeAll">🔬 נתח את כל העסקים</button>
         <button id="btnStop" class="danger hidden">⏹ עצור</button></div>
@@ -813,6 +814,7 @@ $('btnScan').onclick = async ()=>{
     saveResults(); store.set(LS.last,{center,R,kw,cat,ts:Date.now()});
     pushSnaps(results).then(()=>loadHist(results));
     render(); drawMarkers(); log('✔ נמצאו '+results.length+' עסקים.');
+    if($('autoAnalyze').checked && results.some(b=>b.astate!=='done')){ log('🔬 מתחיל ניתוח אוטומטי של העסקים שנמצאו…'); setTimeout(()=>$('btnAnalyzeAll').click(), 300); }
   }catch(e){ alertBox('הסריקה נכשלה: '+esc(e.message)+'<br>בדרך כלל: Places API (New) לא מופעל, או שהחיוב לא פעיל.'); }
   btn.disabled=false; btn.innerHTML='🔍 התחל סריקה';
 };
@@ -911,15 +913,15 @@ $('btnStop').onclick=()=>{ stopFlag=true; log('⏹ עוצר אחרי העסקי�
 $('btnAnalyzeAll').onclick = async ()=>{
   // not analyzed yet, or analyzed before the legal check existed (site audit without a legal section) → analyze again
   const list=results.filter(b=>b.astate!=='done' || (b.website && b.site && !b.site.error && (!b.site.legal || (!b.site.legal.unavailable && !(b.site.legal.accessibility&&b.site.legal.accessibility.checks)) || (b.site.legal.unavailable && !b.site.legal.social && !(b.site.status>=400)))));
-  if(!list.length) return log('כל העסקים כבר נותחו (כולל בדיקת נגישות · פרטיות · תקנון).');
+  if(!list.length){ render(); return log('כל העסקים כבר נותחו (כולל בדיקת נגישות · פרטיות · תקנון).'); }
   stopFlag=false; const btn=$('btnAnalyzeAll'); btn.disabled=true; $('btnStop').classList.remove('hidden');
   const prog=$('prog'); prog.style.display='block'; let done=0; const CONC=4; let idx=0;
   const worker = async ()=>{ while(idx<list.length && !stopFlag){ const b=list[idx++]; await analyzeBiz(b); done++;
     prog.firstElementChild.style.width=(100*done/list.length)+'%'; btn.innerHTML='<span class="sp"></span> מנתח '+done+'/'+list.length; } };
   await Promise.all(Array.from({length:CONC}, worker));
   btn.disabled=false; btn.innerHTML='🔬 נתח את כל העסקים'; $('btnStop').classList.add('hidden');
-  setTimeout(()=>prog.style.display='none',1500); drawMarkers();
-  log(stopFlag?'⏹ נעצר. נותחו '+done+' עסקים.':'✔ הביקורת הסתיימה ('+done+' עסקים).');
+  setTimeout(()=>prog.style.display='none',1500); drawMarkers(); render();
+  log(stopFlag?'⏹ נעצר. נותחו '+done+' עסקים.':'✔ הביקורת הסתיימה ('+done+' עסקים). הסינון והמיון המשפטיים מעודכנים.');
 };
 window.analyzeOne = async id=>{ const b=results.find(x=>x.id===id); if(b){ await analyzeBiz(b); drawMarkers(); if(dlgBiz.open && curBiz===id) openBiz(id); } };
 
@@ -1213,6 +1215,12 @@ function render(){
   $('stHot').textContent=results.filter(b=>scoreBiz(b).opp>=70).length;
   $('stAvg').textContent=results.length?Math.round(results.reduce((t,b)=>t+scoreBiz(b).opp,0)/results.length):0;
   $('empty').style.display=list.length?'none':'block';
+  { const legalView=/^(legalhigh|noprivacy|noterms|noaccess|nopixel)$/.test(f)||s==='legal'; const pending=results.filter(b=>b.website&&b.astate!=='done'&&b.astate!=='run').length; const running=results.filter(b=>b.astate==='run').length;
+    let bar=$('viewHint'); if(!bar){ bar=document.createElement('div'); bar.id='viewHint'; bar.className='hint'; bar.style.cssText='margin:0 0 10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)'; $('grid').parentElement.insertBefore(bar,$('grid')); }
+    if(legalView && (pending||running)) { bar.innerHTML=(running?`⏳ ${running} עסקים בניתוח כרגע… `:'')+(pending?`⚠️ <b>${pending}</b> עסקים עם אתר עדיין לא נותחו, ולכן לא מופיעים בסינון/מיון הזה. <button class="primary" style="padding:4px 12px;font-size:12.5px" onclick="$('btnAnalyzeAll').click()">🔬 נתח אותם עכשיו</button>`:''); bar.style.display='block'; }
+    else if(legalView && !list.length && results.length) { bar.innerHTML='✓ כל העסקים נותחו — אין עסקים שעונים לסינון הזה.'; bar.style.display='block'; }
+    else bar.style.display='none'; }
+  try{ localStorage.setItem('lr_view', JSON.stringify({f,s})); }catch(e){}
   $('grid').innerHTML=list.map(cardHtml).join('');
   if(map && markerKeyOf(list)!==markerKey) drawMarkers(list);
 }
@@ -1271,6 +1279,8 @@ function cardHtml(b){
     </div></div>`;
 }
 $('filt').onchange=render; $('sort').onchange=render;
+try{ const v=JSON.parse(localStorage.getItem('lr_view')||'{}'); if(v.f&&[...$('filt').options].some(o=>o.value===v.f)) $('filt').value=v.f; if(v.s&&[...$('sort').options].some(o=>o.value===v.s)) $('sort').value=v.s; }catch(e){}
+try{ const a=localStorage.getItem('lr_autoAnalyze'); if(a!==null) $('autoAnalyze').checked=a==='1'; $('autoAnalyze').onchange=()=>{ try{ localStorage.setItem('lr_autoAnalyze',$('autoAnalyze').checked?'1':'0'); }catch(e){} }; }catch(e){}
 
 /* ---------- business dialog ---------- */
 let curBiz=null;
