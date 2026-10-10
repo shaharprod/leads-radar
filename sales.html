@@ -116,6 +116,8 @@ nav ul a:hover{color:var(--txt)}
 .consent{max-width:864px;margin:24px auto 0;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:flex;gap:12px;align-items:flex-start}
 .consent input{width:22px;height:22px;margin-top:4px;accent-color:var(--acc)}
 .paybox{min-height:60px;margin-top:8px}
+.paybtn{display:block;text-align:center;background:var(--acc);color:#fff;font-weight:700;padding:14px;border-radius:999px;text-decoration:none}
+.paybtn:hover{filter:brightness(1.08)}
 .paybox .locked{color:var(--mut);font-size:.9rem;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:10px}
 .note{color:var(--mut);font-size:.9rem;text-align:center;margin-top:18px}
 #thanks{display:none;max-width:700px;margin:24px auto 0;background:rgba(47,212,143,.1);border:1px solid var(--good);border-radius:14px;padding:20px;text-align:center}
@@ -430,12 +432,12 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
 <section id="pricing"><div class="wrap">
   <div class="eyebrow">מחירים</div>
   <h2 style="text-align:center">מנוי אחד. כל היכולות.</h2>
-  <p class="lead" style="text-align:center;margin:0 auto">המחירים כוללים מע"מ. חשבונית מס/קבלה נשלחת אוטומטית במייל. מבטלים בכל עת.</p>
+  <p class="lead" style="text-align:center;margin:0 auto">המחירים כוללים מע"מ. חשבונית מס/קבלה נשלחת אוטומטית במייל מיד אחרי התשלום.</p>
   <div class="plans">
     <div class="plan">
       <h3>חודשי</h3>
       <div class="price">₪97 <small>לחודש</small></div>
-      <div class="per">מתחדש אוטומטית. ביטול בכל עת.</div>
+      <div class="per">תשלום אחד לחודש גישה. בלי חיוב אוטומטי: מחדשים רק כשרוצים.</div>
       <ul><li>כל היכולות, ללא הגבלת סריקות</li><li>דוחות ממותגים והצעות מחיר</li><li>מעקב שבועי על אזורים</li><li>עדכונים שוטפים</li></ul>
       <div class="paybox" id="pp-monthly"><div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div></div>
     </div>
@@ -443,8 +445,8 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
       <div class="badge">חודשיים חינם · חוסך ₪194</div>
       <h3>שנתי</h3>
       <div class="price">₪970 <small>לשנה</small></div>
-      <div class="per">תשלום אחד. משלמים על 10 חודשים ומקבלים 12.</div>
-      <ul><li>כל מה שבחודשי</li><li>שנה שלמה במחיר של 10 חודשים: חודשיים חינם</li><li>בלי חיובים חודשיים</li><li>עדיפות בתמיכה</li></ul>
+      <div class="per">משלמים על 10 חודשים ומקבלים 12. אפשר לחלק עד 10 תשלומים בכרטיס אשראי.</div>
+      <ul><li>כל מה שבחודשי</li><li>שנה שלמה במחיר של 10 חודשים: חודשיים חינם</li><li>עד 10 תשלומים</li><li>עדיפות בתמיכה</li></ul>
       <div class="paybox" id="pp-annual"><div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div></div>
     </div>
   </div>
@@ -467,9 +469,8 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
     <label for="couponIn" style="font-weight:700">🎟️ יש לך קופון?</label><input id="couponIn" placeholder="הקלד קוד" style="padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);width:150px;direction:ltr;text-transform:uppercase"><button type="button" id="couponBtn" style="padding:9px 16px;border-radius:10px;border:0;background:var(--acc);color:#fff;font:inherit;cursor:pointer">החל</button>
     <div id="couponMsg" style="width:100%;text-align:center;font-size:.9rem;color:var(--mut)"></div>
   </div>
-  <label class="consent"><input type="checkbox" id="agree"><span>קראתי ואני מסכים/ה ל<a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank">תנאי השימוש ומדיניות הביטולים</a> ול<a href="https://shaharprod.github.io/leads-radar/legal/privacy.html" target="_blank">מדיניות הפרטיות</a>. אני מבין/ה שהכניסה לשירות נעשית עם כתובת המייל של חשבון PayPal שבו שילמתי, ושהשירות עובד עם מפתחות API שאני יוצר/ת בחשבון Google שלי.</span></label>
-  <div id="thanks"><strong>תודה! המנוי פעיל.</strong><br>תוך דקה תקבל/י מייל עם הקישור לכניסה. אפשר גם להיכנס עכשיו: <a href="login.html">דף הכניסה</a>, עם המייל של חשבון PayPal.</div>
-  <p class="note">התשלום מאובטח דרך PayPal. אנחנו לא רואים את פרטי הכרטיס שלך.</p>
+  <label class="consent"><input type="checkbox" id="agree"><span>קראתי ואני מסכים/ה ל<a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank">תנאי השימוש ומדיניות הביטולים</a> ול<a href="https://shaharprod.github.io/leads-radar/legal/privacy.html" target="_blank">מדיניות הפרטיות</a>. אני מבין/ה שהכניסה לשירות נעשית עם כתובת המייל שאמסור בטופס התשלום, ושהשירות עובד עם מפתחות API שאני יוצר/ת בחשבון Google שלי.</span></label>
+    <p class="note">התשלום מאובטח בדף הסליקה של מורנינג (משולם). אנחנו לא רואים את פרטי הכרטיס שלך.</p>
 </div></section>
 
 <section id="faq" style="background:var(--bg2)"><div class="wrap">
@@ -478,8 +479,8 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
   <details><summary>מה צריך כדי להתחיל?</summary><p>דפדפן, ומפתח Google Maps Platform שיוצרים בחשבון Google Cloud שלך (יש הדרכה בתוך המערכת, לוקח כ-10 דקות). Google נותנת מכסה חודשית חינמית נדיבה; מעבר לה החיוב הוא לפי שימוש, ישירות מול Google.</p></details>
   <details><summary>למה המפתח שלי ולא שלכם?</summary><p>שלוש סיבות: אבטחה (המפתח נשאר בחשבון שלך ובדפדפן שלך), שליטה בהוצאות (אתה רואה כל חיוב אצל Google, בלי עמלה שלנו ובלי מגבלת סריקות), ופרטיות (הלידים שלך לא עוברים דרך השרת של אף אחד). ההסבר המלא ב<a href="#keys">סעיף "המפתח שלך"</a>.</p></details>
   <details><summary>אפשר שתנהלו את המפתחות והחשבון בשבילי?</summary><p>כן, במסגרת <a href="#managed">המנוי המנוהל</a>: המפתחות והשרתים שלנו, ניהול החשבון כולל הוצאות טוקנים, אחזקת המערכת וריטיינר שעות תכנות. ההצעה מותאמת לכל ארגון: שלחו את הפרטים במייל דרך הכפתור בכרטיס המנוי המנוהל.</p></details>
-  <details><summary>איך נכנסים? יש סיסמה?</summary><p>אין סיסמה. מקלידים את המייל, מקבלים קוד בן 6 ספרות, ונכנסים. הכניסה תקפה 7 ימים. חשוב: נכנסים עם אותו מייל שבו שילמת ב-PayPal.</p></details>
-  <details><summary>איך מבטלים?</summary><p>בכל עת, מחשבון PayPal שלך או במייל אלינו. במנוי חודשי הביטול חל מהחודש הבא. ב-14 הימים הראשונים אפשר לבטל ולקבל החזר לפי חוק הגנת הצרכן. הכול כתוב ב<a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank" rel="noopener">תנאי השימוש</a>.</p></details>
+  <details><summary>איך נכנסים? יש סיסמה?</summary><p>אין סיסמה. מקלידים את המייל, מקבלים קוד בן 6 ספרות, ונכנסים. הכניסה תקפה 7 ימים. חשוב: נכנסים עם אותו מייל שמסרת בטופס התשלום.</p></details>
+  <details><summary>איך מבטלים?</summary><p>אין חיוב אוטומטי, כך שאין מה לבטל: מנוי חודשי פשוט לא מתחדש אם לא משלמים שוב. לבקשת ביטול והחזר כתבו לנו במייל. ב-14 הימים הראשונים אפשר לבטל ולקבל החזר לפי חוק הגנת הצרכן. הכול כתוב ב<a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank" rel="noopener">תנאי השימוש</a>.</p></details>
   <details><summary>הדוחות באמת על שמי?</summary><p>כן. הלוגו, הצבע, פרטי הקשר והתיאור שלך מופיעים בדוח ובהצעת המחיר. אין אזכור שלנו.</p></details>
   <details><summary>האם מותר לפנות לעסקים שנמצאו?</summary><p>הפרטים שהמערכת מציגה הם פרטים ציבוריים מגוגל מפות. האחריות לפנייה כדין (למשל חוק הספאם) היא על המשתמש. אנו ממליצים על פנייה אישית ולא על דיוור המוני.</p></details>
 </div></section>
@@ -491,7 +492,6 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
 
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
-const API = "https://leads-radar-api.vercel.app";
 const AUDIT = "https://leads-radar-audit-scagoip22a-ew.a.run.app";   // coupons live on the audit server (admin creates them in the tool)
 let coupon = null; const BASE = { monthly: 97, annual: 970 };
 const fmt = v => Number(v).toLocaleString('he-IL', { maximumFractionDigits: 2 });
@@ -504,41 +504,29 @@ async function applyCoupon(code, quiet) {
     document.querySelector('#pricing .plan .price').innerHTML = `<s style="color:var(--mut);font-size:.6em">₪${BASE.monthly}</s> ₪${fmt(r.monthly)} <small>לחודש</small>`;
     document.querySelector('#pricing .plan.best .price').innerHTML = `<s style="color:var(--mut);font-size:.6em">₪${BASE.annual}</s> ₪${fmt(r.annual)} <small>לשנה</small>`;
     msg.textContent = `✓ קופון ${r.code}: ${r.pct}% הנחה הוחלה על המחירים`; msg.style.color = '#2fd48f';
-    if (agree.checked) { agree.checked = false; agree.dispatchEvent(new Event('change')); agree.checked = true; agree.dispatchEvent(new Event('change')); }
+    renderPay();
   } catch (e) { if (!quiet) { msg.textContent = 'לא ניתן לבדוק את הקופון כרגע'; msg.style.color = '#ffc24d'; } }
 }
 document.getElementById('couponBtn').addEventListener('click', () => applyCoupon(document.getElementById('couponIn').value));
 document.getElementById('couponIn').addEventListener('keydown', e => { if (e.key === 'Enter') applyCoupon(e.target.value); });
 { const c = new URLSearchParams(location.search).get('coupon'); if (c) { document.getElementById('couponIn').value = c; applyCoupon(c, true); } }
 const agree = document.getElementById('agree');
-let loaded = false;
-agree.addEventListener('change', async () => {
-  const boxes = ['pp-monthly','pp-annual'].map(id => document.getElementById(id));
-  if (!agree.checked) { boxes.forEach(b => b.innerHTML = '<div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div>'); return; }
-  boxes.forEach(b => b.innerHTML = '<div class="locked">טוען את PayPal…</div>');
-  try {
-    const cfg = await fetch(API + '/api/paypal-config').then(r => r.json());
-    if (!cfg.client_id) throw new Error('no config');
-    if (!loaded) {
-      await new Promise((res, rej) => { const s = document.createElement('script');
-        s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(cfg.client_id) + '&vault=true&intent=subscription&currency=ILS&locale=he_IL';
-        s.onload = res; s.onerror = rej; document.head.appendChild(s); });
-      loaded = true;
-    }
-    for (const [key, planId] of Object.entries(cfg.plans)) {
-      const box = document.getElementById('pp-' + key); if (!box) continue; box.innerHTML = '';
-      paypal.Buttons({
-        style: { shape: 'pill', color: 'blue', layout: 'vertical', label: 'subscribe' },
-        createSubscription: (d, a) => { const req = { plan_id: planId }; if (coupon) { req.custom_id = coupon.code; req.plan = { billing_cycles: [{ sequence: 1, pricing_scheme: { fixed_price: { value: String(key === 'annual' ? coupon.annual : coupon.monthly), currency_code: 'ILS' } } }] }; } return a.subscription.create(req); },
-        onApprove: () => { document.getElementById('thanks').style.display = 'block'; document.getElementById('thanks').scrollIntoView({ behavior: 'smooth' }); },
-        onError: () => { box.innerHTML = '<div class="locked">PayPal לא נטען. נסו לרענן את הדף.</div>'; }
-      }).render(box);
-    }
-    if (cfg.env !== 'live') document.querySelector('.note').textContent = 'סביבת בדיקה (Sandbox): לא מתבצע חיוב אמיתי.';
-  } catch (e) {
-    boxes.forEach(b => b.innerHTML = '<div class="locked">כפתור התשלום לא זמין כרגע. נסו שוב בעוד רגע.</div>');
-  }
-});
+// Morning (משולם) payment pages. Base links below; a coupon can carry its own pair of links (set in the admin screen).
+const MORNING = { monthly: '', annual: '' };
+const THANKS = 'https://shaharprod.github.io/leads-radar/thanks.html';
+function payLink(key) { return (coupon && coupon.morning && coupon.morning[key]) || MORNING[key] || ''; }
+function renderPay() {
+  ['monthly', 'annual'].forEach(key => {
+    const box = document.getElementById('pp-' + key);
+    if (!agree.checked) { box.innerHTML = '<div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div>'; return; }
+    if (coupon && !(coupon.morning && coupon.morning[key])) { box.innerHTML = '<div class="locked">הקופון הזה עדיין לא זמין לתשלום. כתבו לנו ונשלח קישור.</div>'; return; }
+    const url = payLink(key);
+    if (!url) { box.innerHTML = '<div class="locked">דף התשלום יעלה בקרוב.</div>'; return; }
+    const label = key === 'annual' ? 'לתשלום השנתי (עד 10 תשלומים)' : 'לתשלום החודשי';
+    box.innerHTML = '<a class="paybtn" href="' + url + '" rel="noopener">💳 ' + label + '</a>';
+  });
+}
+agree.addEventListener('change', renderPay);
 </script>
 </body>
 </html>

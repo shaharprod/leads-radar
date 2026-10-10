@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>תודה על הרכישה — רדאר מפת הלידים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1020;--bg2:#121935;--card:#161f3d;--card2:#1d2850;--line:#2a3563;--txt:#eef2ff;--mut:#9aa7cf;--acc:#4f7cff;--acc2:#7aa2ff;--good:#2fd48f;--warn:#ffc24d;--bad:#ff6b6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"Assistant","Segoe UI",Arial,sans-serif;font-size:18px;line-height:1.7}
+a{color:var(--acc2)}
+h1,h2{font-family:"Rubik",sans-serif;line-height:1.2;margin:0}
+.wrap{max-width:720px;margin:0 auto;padding:40px 16px 60px}
+.logo{font-family:"Rubik";font-weight:900;font-size:1.2rem;margin-bottom:28px}
+.logo span{color:var(--acc2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;margin-top:18px}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);font-weight:900}
+.mut{color:var(--mut)}
+ol{padding-inline-start:22px;margin:10px 0 0}
+ol li{margin:10px 0}
+.status{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}
+.status.ok{border-color:var(--good);background:rgba(47,212,143,.1)}
+.status.wait{border-color:var(--warn)}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--warn);flex:none;animation:p 1.2s infinite}
+.ok .dot{background:var(--good);animation:none}
+@keyframes p{50%{opacity:.3}}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+input{flex:1;min-width:200px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;direction:ltr}
+.btn{display:inline-block;padding:12px 22px;border-radius:999px;font-family:"Rubik";font-weight:700;text-decoration:none;border:0;cursor:pointer;font-size:1rem}
+.btn.primary{background:linear-gradient(135deg,#4f7cff,#7a4dff);color:#fff}
+.btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.btn[aria-disabled=true]{opacity:.5;pointer-events:none}
+small{color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">📡 רדאר <span>מפת הלידים</span></div>
+  <h1>תודה! התשלום התקבל 🎉</h1>
+  <p class="mut">חשבונית מס/קבלה נשלחה אליך במייל ממורנינג. עכשיו נפתח לך את הגישה.</p>
+
+  <div class="card">
+    <h2 style="font-size:1.25rem">1. בדיקת הגישה</h2>
+    <p class="mut" style="margin:6px 0 0">הקלד/י את המייל שמסרת בטופס התשלום. הגישה נפתחת בדרך כלל תוך דקה.</p>
+    <div class="row"><input id="em" type="email" placeholder="name@example.com" autocomplete="email"><button class="btn primary" id="chk" type="button">בדוק</button></div>
+    <div id="st" class="status wait" style="margin-top:14px;display:none"><span class="dot"></span><span id="stx">בודק…</span></div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1.25rem">2. כניסה למערכת</h2>
+    <ol>
+      <li>לוחצים על <a href="login.html">דף הכניסה</a>.</li>
+      <li>מקלידים את <b>אותו מייל</b> שמסרת בתשלום ולוחצים «שלח קוד».</li>
+      <li>מקבלים במייל קוד בן 6 ספרות, מקלידים אותו, ונכנסים. אין סיסמה.</li>
+    </ol>
+    <div class="row"><a class="btn primary" id="go" href="login.html" aria-disabled="true">לכניסה למערכת ←</a><a class="btn ghost" href="help.html">המדריך למשתמש</a></div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1.25rem">3. לפני הסריקה הראשונה</h2>
+    <p class="mut" style="margin:6px 0 0">המערכת עובדת עם מפתח Google Maps שיוצרים בחשבון Google שלך (כ-10 דקות, יש הדרכה בתוך המערכת תחת ⚙️ הגדרות). כך החיובים מול Google אצלך, בשקיפות מלאה.</p>
+  </div>
+
+  <p style="margin-top:22px"><small>לא קיבלת חשבונית או שהגישה לא נפתחה תוך 15 דקות? השב/י למייל החשבונית ונטפל בזה.</small></p>
+</div>
+<script>
+const AUDIT = 'https://leads-radar-audit-scagoip22a-ew.a.run.app';
+const em = document.getElementById('em'), st = document.getElementById('st'), stx = document.getElementById('stx'), go = document.getElementById('go');
+let tries = 0, timer = null;
+try { const saved = localStorage.getItem('lr_buyer_email'); if (saved) em.value = saved; } catch (e) {}
+function show(ok, text) { st.style.display = 'flex'; st.className = 'status ' + (ok ? 'ok' : 'wait'); stx.textContent = text; }
+async function check() {
+  const email = em.value.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { show(false, 'נא להקליד כתובת מייל תקינה'); return; }
+  try { localStorage.setItem('lr_buyer_email', email); } catch (e) {}
+  clearTimeout(timer); show(false, 'בודק את התשלום מול מורנינג…');
+  try {
+    await fetch(AUDIT + '?action=morning_sync', { cache: 'no-store' }).catch(() => {});
+    const r = await fetch(AUDIT + '?action=paid&email=' + encodeURIComponent(email), { cache: 'no-store' }).then(x => x.json());
+    if (r.active) {
+      show(true, '✓ הגישה פתוחה' + (r.until ? ' עד ' + r.until.split('-').reverse().join('.') : '') + '. אפשר להיכנס.');
+      go.setAttribute('aria-disabled', 'false'); return;
+    }
+  } catch (e) {}
+  tries++;
+  if (tries < 12) { show(false, 'התשלום עוד לא הגיע אלינו. בודק שוב בעוד 20 שניות… (' + tries + '/12)'); timer = setTimeout(check, 20000); }
+  else show(false, 'עדיין לא רואים את התשלום במייל הזה. ודא/י שזה המייל מטופס התשלום, או השב/י למייל החשבונית.');
+}
+document.getElementById('chk').addEventListener('click', () => { tries = 0; check(); });
+em.addEventListener('keydown', e => { if (e.key === 'Enter') { tries = 0; check(); } });
+if (em.value) check();
+</script>
+</body>
+</html>
