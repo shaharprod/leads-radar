@@ -232,6 +232,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
       <div class="mapwrap" id="mapWrap"><div id="map"></div><button id="btnBig" type="button">⛶ הגדל מפה</button><div id="mapCount" style="display:none"></div></div>
       <div class="map-resize" id="mapResize" title="גרור למעלה/למטה לשינוי גובה המפה · לחיצה כפולה = גובה רגיל"><i></i></div>
       <div class="hint" style="margin-top:4px">גוררים את הסיכה או לוחצים על המפה כדי לקבוע מרכז.</div>
+      <div class="hint" id="madlanArea" style="margin-top:2px;display:none"></div>
       <div class="row" style="margin-top:12px"><label>רדיוס סריקה: <b id="radLbl">5 ק״מ</b></label>
         <input type="range" id="rad" aria-label="רדיוס הסריקה במטרים" min="500" max="30000" step="500" value="5000" style="padding:0"></div>
     </div>
@@ -563,6 +564,19 @@ function log(msg){ const el=$('log'); el.textContent = msg + "\n" + el.textConte
 function alertBox(html,type='err'){ $('alert').innerHTML = html ? `<div class="${type}">${html}</div>` : ''; }
 function dist(a,b){ const R=6371000,t=x=>x*Math.PI/180; const dLat=t(b.lat-a.lat), dLng=t(b.lng-a.lng);
   const h=Math.sin(dLat/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
+/* ---------- Madlan (real-estate deals) links from a Google address ---------- */
+function madlanLinks(addr){
+  const parts=String(addr||'').split(',').map(s=>s.trim()).filter(s=>s && !/^(ישראל|israel)$/i.test(s) && !/^\d{5,7}$/.test(s));
+  if(parts.length<2) return null;
+  const city=parts[parts.length-1].replace(/\s*\d{5,7}\s*/g,'').trim(), first=parts[0];
+  const m=first.match(/^(.*?)\s+(\d+[א-ת]?)$/); const street=(m?m[1]:first).trim(), num=m?m[2]:'';
+  if(!/[א-ת]/.test(city) || !/[א-ת]/.test(street)) return null;
+  const u=(k,s)=>'https://www.madlan.co.il/'+k+'/'+encodeURIComponent(s.trim().replace(/\s+/g,'-'));
+  return { city, street, num,
+    address: num ? u('address', street+' '+num+' '+city+' ישראל') : '',
+    street_url: u('street-info', street+' '+city+' ישראל'),
+    city_url: u('area-info', city+' ישראל') };
+}
 const fmtDist = d => d==null?'':(d>=1000?(d/1000).toFixed(1)+' ק״מ':d+' מ׳');
 const waNum = p => String(p||'').replace(/\D/g,'').replace(/^0/,'972');
 const saveResults = ()=> store.set(LS.results, results.map(b=>Object.assign({},b,{_s:undefined})));
@@ -703,7 +717,13 @@ function showMini(b,m){
   miniFor=b.id; miniIW.setContent(miniHtml(b)); miniIW.open({map, anchor:m, shouldFocus:false});
 }
 function hideMiniSoon(){ clearTimeout(miniTimer); miniTimer=setTimeout(()=>{ if(miniIW) miniIW.close(); miniFor=null; },400); }
+function madlanAreaUpdate(){ const el=$('madlanArea'); if(!el) return; const cnt={};
+  results.forEach(b=>{ const ml=madlanLinks(b.address); if(ml){ (cnt[ml.city]=cnt[ml.city]||{n:0,ml}).n++; } });
+  const top=Object.values(cnt).sort((a,b)=>b.n-a.n).slice(0,3);
+  if(!top.length){ el.style.display='none'; return; } el.style.display='block';
+  el.innerHTML='🏠 עסקאות נדל&quot;ן באזור הסריקה (מדלן): '+top.map(x=>`<a href="${esc(x.ml.city_url)}" target="_blank" rel="noopener">${esc(x.ml.city)}</a>`).join(' · '); }
 function drawMarkers(list){
+  try{ madlanAreaUpdate(); }catch(e){}
   if(!map) return; markers.forEach(m=>m.setMap(null)); markers=[]; if(miniIW){ miniIW.close(); miniFor=null; }
   list=list||filterList($('filt').value); markerKey=markerKeyOf(list);
   const f=$('filt'), fl=f.options[f.selectedIndex]?f.options[f.selectedIndex].text:'', mc=$('mapCount');
@@ -1282,6 +1302,7 @@ function cardHtml(b){
       <button onclick="openReport('${b.id}')">📄 דוח</button>
       <button onclick="openOutreach('${b.id}')">✉️ פנייה</button>
       ${b.maps?`<a href="${esc(b.maps)}" target="_blank">🗺️</a>`:''}
+      ${(()=>{ const ml=madlanLinks(b.address); return ml?`<a href="${esc(ml.street_url)}" target="_blank" rel="noopener" title="עסקאות נדל&quot;ן ברחוב ${esc(ml.street)} (מדלן)">🏠</a>`:''; })()}
       ${b.website?`<a href="${esc(b.website)}" target="_blank">🌐</a>`:''}
       <select class="stage-sel" aria-label="שלב במשפך" onchange="setStage('${b.id}',this.value)">${STAGES.map(x=>`<option value="${x.id}" ${x.id===st?'selected':''}>${x.t}</option>`).join('')}</select>
     </div></div>`;
@@ -1341,7 +1362,8 @@ window.openBiz = id=>{
       <div>אתר</div><div>${b.website?`<a href="${esc(b.website)}" target="_blank">${esc(b.website)}</a>`:'— אין —'}</div>
       <div>דירוג</div><div>⭐ ${b.rating||'—'} · ${b.reviews} ביקורות</div><div>תמונות</div><div>${b.photos}</div>
       <div>שעות פתיחה</div><div>${b.hours.length?b.hours.map(esc).join('<br>'):'— לא הוגדרו —'}</div>
-      <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div></div></div>
+      <div>גוגל מפות</div><div>${b.maps?`<a href="${esc(b.maps)}" target="_blank">פתח את הכרטיס</a>`:'—'}</div>
+      <div>נדל&quot;ן (מדלן)</div><div>${(()=>{ const ml=madlanLinks(b.address); if(!ml) return '— לא זוהתה כתובת —'; return [ml.address?`<a href="${esc(ml.address)}" target="_blank" rel="noopener">עסקאות בכתובת</a>`:'', `<a href="${esc(ml.street_url)}" target="_blank" rel="noopener">ברחוב ${esc(ml.street)}</a>`, `<a href="${esc(ml.city_url)}" target="_blank" rel="noopener">ב${esc(ml.city)}</a>`].filter(Boolean).join(' · ')+'<div class="hint" style="margin-top:2px">מחירי דירות שנמכרו והיסטוריית עסקאות, באתר מדלן</div>'; })()}</div></div></div>
     ${vitalHtml(b)}${presenceHtml(b)}${gextraHtml(b)}${liveHtml(b)}${compHtml(b)}${rankHtml(b)}${revH}${revSumHtml(b)}${site}${domainHtml(b)}${psiH}${signalsHtml(b)}${regHtml(b)}${licHtml(b)}${digHtml(b)}
     <div class="sec"><h5>📋 ניהול הליד</h5>
       <div class="row row2"><div><label for="ldStage">שלב</label><select id="ldStage">${STAGES.map(x=>`<option value="${x.id}" ${x.id===stageOf(id)?'selected':''}>${x.t}</option>`).join('')}</select></div>
