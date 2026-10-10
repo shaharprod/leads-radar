@@ -2376,7 +2376,7 @@ if(results.length) log('נטענו '+results.length+' תוצאות מהסריק�
 <dialog id="dlgAdmin" style="max-width:1100px;width:96vw;max-height:94vh">
   <div class="dlg-h"><b>🛠️ ניהול מנויים</b><span class="chip" id="admWho" style="margin-inline-start:8px"></span><div class="spacer"></div><button class="ghost" id="admRefresh">↻ רענן</button><button class="ghost" id="admCsv">⬇️ CSV</button><button class="ghost" data-close>סגור</button></div>
   <div class="dlg-b">
-    <div class="sec"><h5>➕ הוספה / עדכון ידני (מנוי ששילם מחוץ ל-PayPal, גישה חינם ללקוח הדרכה, חסימה)</h5>
+    <div class="sec"><h5>➕ הוספה / עדכון ידני (מנוי ששילם מחוץ לדף התשלום, גישה חינם ללקוח הדרכה, חסימה)</h5>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
         <div><label for="admEmail">מייל</label><input id="admEmail" placeholder="name@domain.com" style="width:230px;direction:ltr"></div>
         <div><label for="admStatus">סטטוס</label><select id="admStatus"><option value="active">פעיל</option><option value="trial">ניסיון</option><option value="free">חינם</option><option value="cancelled">בוטל</option><option value="blocked">חסום</option></select></div>
@@ -2398,11 +2398,11 @@ if(results.length) log('נטענו '+results.length+' תוצאות מהסריק�
         <div><label for="cpNote">למי / למה</label><input id="cpNote" placeholder="למשל: משתתפי ההדרכה 5.10" style="width:200px"></div>
         <button class="primary" id="cpAdd">צור קופון</button>
       </div>
-      <div class="hint">הקופון מוריד את המחיר ב-PayPal בלחיצה (97 ← 87.30 ₪ לחודש, 970 ← 873 ₪ לשנה ב-10%). הלקוח מקבל קישור עם הקופון או מקליד אותו בדף המנוי. "שלח" פותח וואטסאפ/מייל עם הודעה מוכנה — אתה לוחץ שלח.</div>
+      <div class="hint">הקופון מציג מחיר מוזל בדף המכירה (97 ← 87.30 ₪ לחודש, 970 ← 873 ₪ לשנה ב-10%) ומפנה לדף תשלום במורנינג במחיר המוזל. לכל קופון צריך דף תשלום משלו במורנינג. הלקוח מקבל קישור עם הקופון או מקליד אותו בדף המנוי. "שלח" פותח וואטסאפ/מייל עם הודעה מוכנה — אתה לוחץ שלח.</div>
       <div class="scroll"><table id="admCoupons"><thead><tr><th>קוד</th><th>הנחה</th><th>חודשי</th><th>שנתי</th><th>שימושים</th><th>תוקף</th><th>הערה</th><th>מצב</th><th></th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="sec"><h5>💳 אירועי PayPal אחרונים</h5><div class="scroll"><table id="admEvents"><thead><tr><th>זמן</th><th>סוג</th><th>מייל</th><th>סכום</th><th>חיוב הבא</th><th>מזהה</th></tr></thead><tbody></tbody></table></div>
-      <div class="hint">מנויים נפתחים ונסגרים אוטומטית מ-PayPal דרך Webhook. הכתובת להגדרה ב-PayPal מופיעה במדריך, פרק 20.</div></div>
+    <div class="sec"><h5>💳 אירועי תשלום אחרונים</h5><div class="scroll"><table id="admEvents"><thead><tr><th>זמן</th><th>סוג</th><th>מייל</th><th>סכום</th><th>חיוב הבא</th><th>מזהה</th></tr></thead><tbody></tbody></table></div>
+      <div class="hint">מנויים נפתחים אוטומטית מכל חשבונית חדשה של המוצר במורנינג (בדיקה כל 10 דקות, ומיד בדף התודה).</div></div>
   </div>
 </dialog>
 <script type="module">
@@ -2468,7 +2468,7 @@ async function loadAdmin(op) {
   $('admWho').textContent = d.admin; $('admCount').textContent = d.subscribers.length; $('admVisCount').textContent = d.visitors.length;
   const fmt = t => t ? String(t).slice(0, 16).replace('T', ' ') : '—'; const stClass = s => 'st-' + (s || '');
   $('admTable').querySelector('tbody').innerHTML = d.subscribers.map(s => { const u = s.usage || {}; const eff = (s.until && Date.parse(s.until) < Date.now()) ? 'expired' : s.status;
-    return `<tr><td dir="ltr">${esc2(s.email)}</td><td class="${stClass(eff)}">${STATUS_HE[eff] || eff}</td><td>${s.until || '∞'}</td><td>${esc2(s.plan)}${s.coupon ? ' 🎟️' + esc2(s.coupon) : ''}</td><td>${s.source === 'paypal' ? 'PayPal' : 'ידני'}</td><td>${fmt(s.since)}</td><td>${fmt(u.lastLogin || u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td>${u.scan || 0}</td><td>${u.audit || 0}</td><td>${u.report || 0}</td><td title="${esc2(s.note)}">${esc2((s.note || '').slice(0, 30))}</td>
+    return `<tr><td dir="ltr">${esc2(s.email)}</td><td class="${stClass(eff)}">${STATUS_HE[eff] || eff}</td><td>${s.until || '∞'}</td><td>${esc2(s.plan)}${s.coupon ? ' 🎟️' + esc2(s.coupon) : ''}</td><td>${s.source === 'morning' ? 'מורנינג' : s.source === 'paypal' ? 'PayPal (ישן)' : 'ידני'}</td><td>${fmt(s.since)}</td><td>${fmt(u.lastLogin || u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td>${u.scan || 0}</td><td>${u.audit || 0}</td><td>${u.report || 0}</td><td title="${esc2(s.note)}">${esc2((s.note || '').slice(0, 30))}</td>
       <td><button class="ghost" style="padding:2px 8px;font-size:12px" data-edit="${esc2(s.email)}">✏️</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-block="${esc2(s.email)}">${s.status === 'blocked' ? '🔓 שחרר' : '⛔ חסום'}</button> <button class="ghost" style="padding:2px 8px;font-size:12px" data-remove="${esc2(s.email)}">🗑️</button></td></tr>`; }).join('') || '<tr><td colspan="13">אין מנויים עדיין</td></tr>';
   $('admVisitors').querySelector('tbody').innerHTML = d.visitors.map(v => { const u = v.usage || {}; return `<tr><td dir="ltr">${esc2(v.email)}</td><td>${fmt(u.first)}</td><td>${fmt(u.last)}</td><td>${(u.login || 0) + (u.resume || 0)}</td><td><button class="primary" style="padding:3px 10px;font-size:12px" data-grant="${esc2(v.email)}">✅ פתח גישה</button></td></tr>`; }).join('') || '<tr><td colspan="5">אין</td></tr>';
   const P = d.prices || { monthly: 97, annual: 970 }; const pr = (v, pct) => (Math.round(v * (100 - pct)) / 100).toLocaleString('he-IL');
