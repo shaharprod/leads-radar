@@ -512,14 +512,17 @@ document.getElementById('couponIn').addEventListener('keydown', e => { if (e.key
 { const c = new URLSearchParams(location.search).get('coupon'); if (c) { document.getElementById('couponIn').value = c; applyCoupon(c, true); } }
 const agree = document.getElementById('agree');
 // Morning (משולם) payment pages. Base links below; a coupon can carry its own pair of links (set in the admin screen).
-const MORNING = { monthly: '', annual: '' };
+const MORNING = { monthly: 'https://mrng.to/mvgJhdZK2P', annual: 'https://mrng.to/02dudpXUGZ' };
+// Morning payment pages per coupon code (used when the coupon record on the server carries no links of its own)
+const COUPON_LINKS = { SAM10: { monthly: 'https://mrng.to/yLFflFSerc', annual: 'https://mrng.to/ckY4JHapc0' } };
+function couponLink(key) { if (!coupon) return ''; return (coupon.morning && coupon.morning[key]) || ((COUPON_LINKS[String(coupon.code || '').toUpperCase()] || {})[key]) || ''; }
 const THANKS = 'https://shaharprod.github.io/leads-radar/thanks.html';
-function payLink(key) { return (coupon && coupon.morning && coupon.morning[key]) || MORNING[key] || ''; }
+function payLink(key) { return coupon ? couponLink(key) : (MORNING[key] || ''); }
 function renderPay() {
   ['monthly', 'annual'].forEach(key => {
     const box = document.getElementById('pp-' + key);
     if (!agree.checked) { box.innerHTML = '<div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div>'; return; }
-    if (coupon && !(coupon.morning && coupon.morning[key])) { box.innerHTML = '<div class="locked">הקופון הזה עדיין לא זמין לתשלום. כתבו לנו ונשלח קישור.</div>'; return; }
+    if (coupon && !couponLink(key)) { box.innerHTML = '<div class="locked">הקופון הזה עדיין לא זמין לתשלום. כתבו לנו ונשלח קישור.</div>'; return; }
     const url = payLink(key);
     if (!url) { box.innerHTML = '<div class="locked">דף התשלום יעלה בקרוב.</div>'; return; }
     const label = key === 'annual' ? 'לתשלום השנתי (עד 10 תשלומים)' : 'לתשלום החודשי';
