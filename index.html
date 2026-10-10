@@ -217,6 +217,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
   </div>
   <div class="spacer"></div>
   <button class="ghost" id="btnSettings">⚙️ הגדרות</button>
+  <button class="ghost" id="btnBackupTop" title="גיבוי ושחזור של כל הנתונים">💾 גיבוי</button>
   <button class="ghost" id="btnHelp">❓ עזרה</button>
 </header>
 
@@ -298,6 +299,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
         <option value="legal">🛡️ מיון: חשיפה משפטית (הגבוהה קודם)</option><option value="reviews">מיון: מספר ביקורות</option><option value="dist">מיון: מרחק</option><option value="name">מיון: שם</option></select>
       <button id="btnCsv">⬇️ CSV לאקסל</button>
       <button id="btnJson">⬇️ JSON</button>
+      <button id="btnArchive">📚 סריקות קודמות</button>
       <button id="btnQueue">📲 תור וואטסאפ</button>
       <button id="btnHookAll">🔗 שלח חמים ל-Webhook</button>
       <button id="btnClear" class="ghost">🗑️ נקה תוצאות</button>
@@ -427,10 +429,27 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
         <textarea id="setPkgs" rows="8" style="direction:rtl;font-size:13px"></textarea></div>
       <div class="hint">המחירים כאן הם דוגמה — עדכן לפי המחירון שלך. הצעת המחיר בוחרת אוטומטית חבילות לפי הליקויים שנמצאו בעסק.</div>
     </div>
+    <div class="sec" id="secBackup"><h5>💾 גיבוי ושחזור — כל הנתונים <span class="chip" id="stBackup"></span></h5>
+      <div class="hint">הגיבוי המלא שומר לקובץ אחד את <b>כל</b> מה שיש בדפדפן: הלידים והמשפך (שלבים, הערות, סדרות מעקב), <b>כל הסריקות שבוצעו</b> (📚 הארכיון) עם כל המידע שנאסף עליהן — ביקורות עומק, ניתוח משפטי, ביקורות לקוחות, רשתות חברתיות, דוחות וערכות תוכן — וגם החיפוש האחרון, ההגדרות, המיתוג והמחירון.</div>
+      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+        <button class="primary" id="btnBackup">⬇️ הורד גיבוי מלא</button>
+        <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="bkKeys" style="width:auto"> לכלול גם מפתחות API (רק אם הקובץ נשמר במקום בטוח)</label></div>
+      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="bkMode" style="width:auto" aria-label="אופן השחזור"><option value="merge">שחזור באיחוד — מוסיף, לא מוחק כלום (מומלץ)</option><option value="replace">שחזור בהחלפה מלאה — כמו שהיה בגיבוי</option></select>
+        <button id="btnRestore">⬆️ שחזר מקובץ גיבוי…</button>
+        <button class="ghost" id="btnUndoRestore">↩️ בטל את השחזור האחרון</button>
+        <input type="file" id="bkFile" accept=".json,application/json" hidden></div>
+      <div class="hint">מעבר למחשב או לדפדפן חדש: מורידים כאן גיבוי מלא, ובמחשב החדש לוחצים «שחזר מקובץ». מומלץ להוריד גיבוי פעם בשבוע — ניקוי היסטוריה בדפדפן מוחק את הנתונים.</div>
+    </div>
     <button class="primary" id="btnSaveSettings">שמור</button>
   </div>
 </dialog>
 
+<dialog id="dlgArchive" style="max-width:900px;width:94vw"><div class="dlg-h"><b>📚 סריקות קודמות</b> <span class="hint" id="arcInfo" style="margin-inline-start:8px"></span><div class="spacer"></div><button class="ghost" data-close>סגור</button></div>
+  <div class="dlg-b"><div class="hint" style="margin-bottom:10px">כל סריקה נשמרת כאן אוטומטית עם כל מה שנאסף עליה. «📂 פתח» מחזיר אותה למסך ולמפה, וכל ניתוח נוסף שתריץ עליה יישמר בה. הארכיון נמצא בדפדפן הזה בלבד — לגיבוי ומעבר מחשב: <a href="#" onclick="dlgArchive.close();$('btnBackupTop').click();return false">💾 גיבוי מלא</a>.</div>
+  <div id="arcList"></div></div>
+</dialog>
+<style>.arcRow{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}.arcRow.cur{background:rgba(79,124,255,.07)}.arcBtns{display:flex;gap:6px;flex-wrap:wrap}.arcBtns button{padding:6px 10px}</style>
 <dialog id="dlgBiz"><div class="dlg-h"><b id="bizTitle"></b><div class="spacer"></div>
   <button id="bizDig" title="מחפש בגוגל חדשות, ביקורות באתרים אחרים, רשתות חברתיות, אינדקסים ודרושים — ומציג רק קישורים שנמצאו בחיפוש אמיתי">🔎 חפירה מלאה</button><button id="bizReport">📄 דוח</button><button id="bizAd" title="כותב מודעה חדשה ושולף מחדש את תמונות העסק, ואז מפיק את הדוח">📣 מודעה חדשה</button><button id="bizLive">🔗 קישור חי</button><button id="bizQuote">💰 הצעת מחיר</button><button id="bizKit">🎁 ערכת תוכן</button><button id="bizOutreach">✉️ פנייה</button>
   <button class="ghost" data-close>סגור</button></div><div class="dlg-b" id="bizBody"></div></dialog>
@@ -514,6 +533,143 @@ let center = {lat:31.7683, lng:35.2137};
 let results = store.get(LS.results, []);
 let leads = store.get(LS.leads, {});
 let manualSocial = store.get('lr_social', {});   // {placeId: {facebook:url,...}}
+
+/* ---------- 💾 ארכיון סריקות (IndexedDB) + גיבוי ושחזור מלא ---------- */
+// כל סריקה נשמרת בארכיון עם כל הנתונים שנאספו עליה (ביקורות עומק, דוחות, הערות) — סריקה חדשה כבר לא מוחקת את הקודמת
+const ARC = (()=>{ let dbp=null;
+  const open=()=> dbp||(dbp=new Promise((res,rej)=>{ try{ const r=indexedDB.open('leads-radar',1);
+    r.onupgradeneeded=()=>{ const db=r.result; if(!db.objectStoreNames.contains('scans')) db.createObjectStore('scans',{keyPath:'id'}); if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta'); };
+    r.onsuccess=()=>res(r.result); r.onerror=()=>{ dbp=null; rej(r.error); }; }catch(e){ dbp=null; rej(e); } }));
+  const tx=async(st,mode,fn)=>{ const db=await open(); return new Promise((res,rej)=>{ const t=db.transaction(st,mode), s=t.objectStore(st); let out; const r=fn(s); if(r) r.onsuccess=()=>{ out=r.result; };
+    t.oncomplete=()=>res(out); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error||new Error('IndexedDB abort')); }); };
+  return { all:()=>tx('scans','readonly',s=>s.getAll()), get:id=>tx('scans','readonly',s=>s.get(id)), put:o=>tx('scans','readwrite',s=>s.put(o)),
+    del:id=>tx('scans','readwrite',s=>s.delete(id)), clear:()=>tx('scans','readwrite',s=>s.clear()),
+    metaGet:k=>tx('meta','readonly',s=>s.get(k)), metaSet:(k,v)=>tx('meta','readwrite',s=>s.put(v,k)) };
+})();
+let curScanId = (store.get(LS.last,{})||{}).scanId || null;
+const clone = o => JSON.parse(JSON.stringify(o));
+async function archiveNow(){
+  if(!results.length) return null;
+  const last=store.get(LS.last,{})||{};
+  if(!curScanId){ curScanId='s'+Date.now(); store.set(LS.last, Object.assign({}, last, {scanId:curScanId, ts:last.ts||Date.now()})); }
+  const prev=await ARC.get(curScanId).catch(()=>null);
+  const rec={ id:curScanId, ts:(prev&&prev.ts)||last.ts||Date.now(), updated:Date.now(),
+    center:last.center||center, R:last.R||+$('rad').value, kw:last.kw||'', cat:last.cat||'', note:(prev&&prev.note)||'',
+    count:results.length, analyzed:results.filter(b=>b.astate==='done').length,
+    results:clone(results.map(b=>Object.assign({},b,{_s:undefined}))) };
+  await ARC.put(rec); return rec;
+}
+let arcT=null;
+function archiveSoon(){ clearTimeout(arcT); arcT=setTimeout(()=>{ archiveNow().catch(e=>log('⚠️ ארכיון הסריקות לא נשמר: '+e.message)); }, 1500); }
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
+
+const catLabel = v => { const o=[...($('cat')?$('cat').options:[])].find(o=>o.value===v); return o?o.textContent.trim():v; };
+const scanTitle = s => s.kw ? '«'+s.kw+'»' : (s.cat ? catLabel(s.cat) : 'כל העסקים');
+const fmtR = R => !R ? '' : (R>=1000 ? (R/1000).toFixed(R%1000?1:0)+' ק״מ' : R+' מ׳');
+const daysOld = ts => Math.floor((Date.now()-(ts||Date.now()))/864e5);
+
+async function openArchive(){
+  await archiveNow().catch(()=>{});
+  let list=[]; try{ list=(await ARC.all()).sort((a,b)=>b.ts-a.ts); }catch(e){ $('arcList').innerHTML='<div class="err">לא ניתן לקרוא את הארכיון בדפדפן הזה: '+esc(e.message)+'</div>'; dlgArchive.showModal(); return; }
+  $('arcInfo').textContent = list.length ? list.length+' סריקות שמורות בדפדפן הזה' : '';
+  $('arcList').innerHTML = list.length ? list.map(s=>{ const d=daysOld(s.ts), cur=s.id===curScanId;
+    return `<div class="arcRow${cur?' cur':''}"><div><b>${esc(scanTitle(s))}</b> ${cur?'<span class="chip ok">על המסך עכשיו</span>':''} ${d>30?'<span class="chip w" title="תנאי Google: נתוני מקומות מעל 30 יום — יש לרענן בסריקה חדשה">⚠️ '+d+' ימים — לרענן</span>':''}
+      <div class="hint">${new Date(s.ts).toLocaleString('he-IL')} · רדיוס ${fmtR(s.R)} · ${s.count} עסקים · ${s.analyzed} נותחו לעומק${s.note?' · 📝 '+esc(s.note):''}</div></div>
+      <div class="arcBtns"><button onclick="loadScan('${s.id}')">📂 פתח</button><button class="ghost" onclick="noteScan('${s.id}')">📝 שם</button><button class="ghost" onclick="csvScan('${s.id}')">⬇️ CSV</button><button class="ghost" onclick="delScan('${s.id}')">🗑️</button></div></div>`; }).join('')
+    : '<div class="hint">עדיין אין סריקות בארכיון. כל סריקה חדשה נשמרת כאן אוטומטית.</div>';
+  if(!dlgArchive.open) dlgArchive.showModal();
+}
+window.loadScan = async id=>{
+  try{ await archiveNow(); const s=await ARC.get(id); if(!s) return;
+    results=clone(s.results||[]); results.forEach(b=>{ if(b.astate==='run') b.astate=''; }); curScanId=s.id;
+    store.set(LS.last,{center:s.center,R:s.R,kw:s.kw,cat:s.cat,ts:s.ts,scanId:s.id});
+    store.set(LS.results, results);
+    if(s.center){ center=s.center; if(marker){ marker.setPosition(center); circle.setCenter(center); } }
+    if(s.R){ $('rad').value=s.R; $('rad').dispatchEvent(new Event('input')); }
+    $('kw').value=s.kw||''; if([...$('cat').options].some(o=>o.value===(s.cat||''))) $('cat').value=s.cat||'';
+    render(); drawMarkers(); try{ fitCircle(); }catch(e){} loadHist(results);
+    dlgArchive.close(); log('📂 נפתחה סריקה מ-'+new Date(s.ts).toLocaleDateString('he-IL')+': '+results.length+' עסקים.');
+  }catch(e){ alertBox('פתיחת הסריקה נכשלה: '+esc(e.message)); }
+};
+window.noteScan = async id=>{ const s=await ARC.get(id); if(!s) return; const n=prompt('שם או הערה לסריקה:', s.note||''); if(n===null) return; s.note=n.trim(); await ARC.put(s); openArchive(); };
+window.csvScan = async id=>{ const s=await ARC.get(id); if(s&&s.results&&s.results.length) dl('scan-'+new Date(s.ts).toISOString().slice(0,10)+'.csv',csv(rowsOf(s.results)),'text/csv;charset=utf-8'); };
+window.delScan = async id=>{ const s=await ARC.get(id); if(!s) return;
+  if(!confirm('למחוק מהארכיון את הסריקה '+scanTitle(s)+' מ-'+new Date(s.ts).toLocaleDateString('he-IL')+'?\nהלידים השמורים במשפך לא נמחקים. מומלץ להוריד גיבוי מלא לפני.')) return;
+  await ARC.del(id); if(id===curScanId) curScanId=null; openArchive(); };
+
+/* --- גיבוי מלא לקובץ --- */
+const SECRET_SET=['key','gemini','token'];
+async function buildBackup(withKeys){
+  await archiveNow().catch(()=>{});
+  const ls={}; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^lr_/.test(k)) ls[k]=localStorage.getItem(k); }
+  delete ls.lr_lastBackup;
+  if(!withKeys){ delete ls.lr_apikey; if(ls.lr_settings){ try{ const s=JSON.parse(ls.lr_settings); SECRET_SET.forEach(f=>delete s[f]); ls.lr_settings=JSON.stringify(s); }catch(e){} } }
+  const scans=await ARC.all().catch(()=>[]);
+  const L=store.get(LS.leads,{});
+  return { app:'leads-radar', kind:'full-backup', v:2, created:new Date().toISOString(), withKeys:!!withKeys,
+    counts:{ leads:Object.keys(L).length, scans:scans.length, businesses:scans.reduce((n,s)=>n+(s.count||0),0), current:results.length },
+    localStorage:ls, scans };
+}
+function backupSummary(b){ const c=b.counts||{}; return `${c.leads||0} לידים במשפך · ${c.scans||0} סריקות בארכיון (${c.businesses||0} עסקים) · ${c.current||0} עסקים בסריקה שעל המסך · הגדרות ומיתוג${b.withKeys?' · כולל מפתחות':' · בלי מפתחות'}`; }
+async function downloadBackup(){
+  const btn=$('btnBackup'); btn.disabled=true;
+  try{ const b=await buildBackup($('bkKeys').checked);
+    dl('leads-radar-full-backup-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json', JSON.stringify(b), 'application/json');
+    try{ localStorage.setItem('lr_lastBackup', String(Date.now())); }catch(e){}
+    backupStatus(); log('💾 גיבוי מלא ירד: '+backupSummary(b));
+  }catch(e){ alertBox('הגיבוי נכשל: '+esc(e.message)); } finally{ btn.disabled=false; }
+}
+function backupStatus(){ const el=$('stBackup'); if(!el) return; const t=+localStorage.getItem('lr_lastBackup')||0, d=t?daysOld(t):null;
+  el.className='chip '+(t&&d<=7?'ok':'no'); el.textContent = t ? (d===0?'✓ גיבוי אחרון: היום':(d<=7?'✓':'⚠️')+' גיבוי אחרון לפני '+d+' ימים') : '⚠️ עוד לא גובה'; }
+
+/* --- שחזור מקובץ --- */
+async function applyBackup(b, mode){
+  const ls=b.localStorage||{};
+  const curSet=store.get(LS.set,{})||{}, curKey=localStorage.getItem(LS.key);
+  if(mode==='replace'){
+    Object.keys(localStorage).filter(k=>/^lr_/.test(k)&&k!=='lr_lastBackup').forEach(k=>localStorage.removeItem(k));
+    for(const [k,v] of Object.entries(ls)) localStorage.setItem(k,v);
+    const s=store.get(LS.set,{})||{}; SECRET_SET.forEach(f=>{ if(!s[f]&&curSet[f]) s[f]=curSet[f]; }); store.set(LS.set,s);   // מפתח שלא היה בגיבוי — נשאר
+    if(!localStorage.getItem(LS.key)&&curKey) localStorage.setItem(LS.key,curKey);
+    await ARC.clear();
+  } else {
+    const parse=v=>{ try{ return JSON.parse(v); }catch(e){ return null; } };
+    // לידים: מאחדים; כשליד קיים בשני המקומות — הגרסה שעודכנה אחרונה מנצחת
+    const L=store.get(LS.leads,{})||{}, BL=parse(ls.lr_leads)||{};
+    for(const [id,l] of Object.entries(BL)){ if(!L[id] || (l.updated||0)>(L[id].updated||0)) L[id]=l; }
+    store.set(LS.leads,L);
+    const S=store.get('lr_social',{})||{}, BS=parse(ls.lr_social)||{};
+    for(const [id,o] of Object.entries(BS)) S[id]=Object.assign({},o,S[id]||{}); store.set('lr_social',S);
+    const BSet=parse(ls.lr_settings)||{}; for(const [k,v] of Object.entries(BSet)){ if((curSet[k]===undefined||curSet[k]==='')&&v!=='') curSet[k]=v; } store.set(LS.set,curSet);
+    if(!results.length && ls.lr_results){ localStorage.setItem(LS.results, ls.lr_results); if(ls.lr_last) localStorage.setItem(LS.last, ls.lr_last); }
+    for(const [k,v] of Object.entries(ls)){ if(!['lr_leads','lr_social','lr_settings','lr_results','lr_last'].includes(k) && localStorage.getItem(k)===null) localStorage.setItem(k,v); }
+  }
+  for(const s of (b.scans||[])){ if(!s||!s.id) continue; const ex=mode==='replace'?null:await ARC.get(s.id).catch(()=>null); if(!ex || (s.updated||0)>(ex.updated||0)) await ARC.put(s); }
+}
+async function restoreFromFile(file){
+  let b; try{ b=JSON.parse(await file.text()); }catch(e){ alertBox('הקובץ אינו קובץ גיבוי תקין (JSON פגום).'); return; }
+  if(!b || b.app!=='leads-radar' || b.kind!=='full-backup'){ alertBox('זה לא קובץ «גיבוי מלא» של Leads Radar. קובץ ⬇️ JSON הישן מכיל רק טבלת תוצאות ואי אפשר לשחזר ממנו.'); return; }
+  const mode=$('bkMode').value;
+  const msg=(mode==='replace'
+      ? '⚠️ החלפה מלאה: כל הנתונים שבדפדפן יוחלפו בנתוני הגיבוי.'
+      : 'איחוד: מה שבגיבוי יתווסף למה שכבר יש. שום דבר קיים לא יימחק; ליד שקיים בשניהם — נשמרת הגרסה המעודכנת יותר.')
+    + '\n\nבגיבוי מ-'+new Date(b.created).toLocaleString('he-IL')+':\n'+backupSummary(b)
+    + '\n\nלפני השחזור נשמרת אוטומטית תמונת מצב של הנתונים הנוכחיים, ואפשר לבטל ב-«↩️ בטל את השחזור האחרון».\n\nלהמשיך?';
+  if(!confirm(msg)) return;
+  try{
+    await ARC.metaSet('undo', await buildBackup(true));
+    await applyBackup(b, mode);
+    sessionStorage.setItem('lr_restored', backupSummary(b)+(mode==='replace'?' (החלפה)':' (איחוד)'));
+    location.reload();
+  }catch(e){ alertBox('השחזור נכשל: '+esc(e.message)+'<br>הנתונים הקודמים שמורים — אפשר ללחוץ «↩️ בטל את השחזור האחרון».'); }
+}
+async function undoRestore(){
+  const u=await ARC.metaGet('undo').catch(()=>null);
+  if(!u){ alertBox('אין שחזור לבטל בדפדפן הזה.','ok'); return; }
+  if(!confirm('להחזיר את הנתונים למצב שהיה רגע לפני השחזור האחרון ('+new Date(u.created).toLocaleString('he-IL')+')?\n'+backupSummary(u))) return;
+  try{ await applyBackup(u,'replace'); await ARC.metaSet('undo',null); sessionStorage.setItem('lr_restored','בוטל השחזור האחרון — הנתונים חזרו למצב הקודם'); location.reload(); }
+  catch(e){ alertBox('הביטול נכשל: '+esc(e.message)); }
+}
 const NETS = [
   {k:'facebook', t:'פייסבוק', ico:'📘', site:'facebook.com'},
   {k:'instagram',t:'אינסטגרם',ico:'📸', site:'instagram.com'},
@@ -579,7 +735,7 @@ function madlanLinks(addr){
 }
 const fmtDist = d => d==null?'':(d>=1000?(d/1000).toFixed(1)+' ק״מ':d+' מ׳');
 const waNum = p => String(p||'').replace(/\D/g,'').replace(/^0/,'972');
-const saveResults = ()=> store.set(LS.results, results.map(b=>Object.assign({},b,{_s:undefined})));
+const saveResults = ()=> { store.set(LS.results, results.map(b=>Object.assign({},b,{_s:undefined}))); try{ archiveSoon(); }catch(e){} };
 // לידים: לפני כל שמירה ממזגים עם מה שכבר בדפדפן (טאב אחר יכול היה לשמור בינתיים) — כדי שליד לא ייעלם
 function mergeLeadsFromStorage(){ const disk=store.get(LS.leads, {}); let changed=false;
   for(const [id,l] of Object.entries(disk)){ if(!leads[id] || (l.updated||0)>(leads[id].updated||0)){ if(!leads._deleted || !leads._deleted[id]) { leads[id]=l; changed=true; } } }
@@ -839,7 +995,7 @@ $('btnScan').onclick = async ()=>{
     }
     results=[...found.values()];
     if(!results.length) alertBox('לא נמצאו עסקים. נסה מילת חיפוש אחרת, רדיוס גדול יותר או עומק סריקה גבוה יותר.');
-    saveResults(); store.set(LS.last,{center,R,kw,cat,ts:Date.now()});
+    curScanId='s'+Date.now(); store.set(LS.last,{center,R,kw,cat,ts:Date.now(),scanId:curScanId}); saveResults();
     pushSnaps(results).then(()=>loadHist(results));
     render(); drawMarkers(); log('✔ נמצאו '+results.length+' עסקים.');
     if($('autoAnalyze').checked && results.some(b=>b.astate!=='done')){ log('🔬 מתחיל ניתוח אוטומטי של העסקים שנמצאו…'); setTimeout(()=>$('btnAnalyzeAll').click(), 300); }
@@ -1686,7 +1842,7 @@ const stamp=()=>new Date().toISOString().slice(0,10);
 $('btnCsv').onclick=()=>{ if(results.length) dl('leads-radar-'+stamp()+'.csv',csv(rowsOf(results)),'text/csv;charset=utf-8'); };
 $('btnJson').onclick=()=>{ if(results.length) dl('leads-radar-'+stamp()+'.json',JSON.stringify(rowsOf(results),null,2),'application/json'); };
 $('btnLeadsCsv').onclick=()=>{ const l=Object.values(leads).filter(x=>x.biz).map(x=>x.biz); if(l.length) dl('my-leads-'+stamp()+'.csv',csv(rowsOf(l)),'text/csv;charset=utf-8'); };
-$('btnClear').onclick=()=>{ if(confirm('לנקות את תוצאות הסריקה מהמסך? (הלידים השמורים נשארים)')){ results=[]; saveResults(); render(); drawMarkers(); } };
+$('btnClear').onclick=()=>{ if(confirm('לנקות את תוצאות הסריקה מהמסך?\n(הלידים השמורים נשארים, והסריקה נשארת שמורה ב-📚 סריקות קודמות)')){ archiveNow().catch(()=>{}); results=[]; curScanId=null; saveResults(); render(); drawMarkers(); } };
 
 /* ============================================================
    v3 modules: competitors · local rank grid · registry · AI review summary ·
@@ -2354,6 +2510,13 @@ $('kitDl').onclick=()=>{ const b=findBiz(curKit); if(!b||!b.kit) return; const h
 $('outSeq').onclick=()=>outBizId&&startSeq(outBizId);
 
 try{ const lg=$('legend'); lg.open = localStorage.getItem('lr_legend')!=='closed'; lg.addEventListener('toggle',()=>{ try{ localStorage.setItem('lr_legend', lg.open?'open':'closed'); }catch(e){} }); }catch(e){}
+$('btnArchive').onclick=openArchive; $('btnBackup').onclick=downloadBackup; $('btnUndoRestore').onclick=undoRestore;
+$('btnRestore').onclick=()=>$('bkFile').click(); $('bkFile').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) restoreFromFile(f); };
+$('btnBackupTop').onclick=()=>{ $('btnSettings').click(); setTimeout(()=>{ try{ $('secBackup').scrollIntoView({block:'start'}); }catch(e){} },150); };
+backupStatus();
+if(results.length) archiveSoon();   // סריקה שהייתה על המסך לפני שהארכיון נוסף — נכנסת אליו
+try{ const m=sessionStorage.getItem('lr_restored'); if(m){ sessionStorage.removeItem('lr_restored'); alertBox('✅ השחזור הושלם: '+esc(m),'ok'); log('✅ שוחזר: '+m); } }catch(e){}
+try{ const t=+localStorage.getItem('lr_lastBackup')||0; if(Object.keys(leads).length && (!t || Date.now()-t>7*864e5)) log('💾 תזכורת: '+(t?'עברו יותר מ-7 ימים מהגיבוי האחרון':'עוד לא הורדת גיבוי מלא')+' — ⚙️ הגדרות ← 💾 גיבוי ושחזור.'); }catch(e){}
 /* ---------- start ---------- */
 $('rad').dispatchEvent(new Event('input'));
 results.forEach(b=>{ if(b.astate==='run') b.astate=''; });
