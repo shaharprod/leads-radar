@@ -109,6 +109,10 @@ nav ul a:hover{color:var(--txt)}
 .plan ul{list-style:none;padding:0;margin:0 0 18px}
 .plan li{padding:6px 0;border-bottom:1px solid var(--line);color:var(--mut)}
 .plan li::before{content:"✓ ";color:var(--good);font-weight:700}
+.plan.managed{max-width:864px;margin:24px auto 0;border-color:var(--acc);background:linear-gradient(135deg,var(--card),rgba(79,124,255,.10))}
+.plan.managed .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+.plan.managed .cta{display:inline-block;margin-top:6px}
+@media (max-width:860px){.plan.managed .mgrid{grid-template-columns:1fr}}
 .consent{max-width:864px;margin:24px auto 0;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:flex;gap:12px;align-items:flex-start}
 .consent input{width:22px;height:22px;margin-top:4px;accent-color:var(--acc)}
 .paybox{min-height:60px;margin-top:8px}
@@ -419,6 +423,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
     <div class="step"><div class="n">2</div><h3>מפעילים 4 שירותים ויוצרים מפתח</h3><p>Maps, Places, Geocoding ו-PageSpeed. לוחצים "צור מפתח", מעתיקים.</p></div>
     <div class="step"><div class="n">3</div><h3>מדביקים בהגדרות</h3><p>פעם אחת. מכאן הכלי עובד, ואתה הבעלים של הכול: הנתונים, המפתח והחשבון.</p></div>
   </div>
+  <p class="note" style="margin-top:22px">מעדיפים שלא להתעסק עם מפתחות בכלל? יש <a href="#managed">מנוי מנוהל</a> לארגונים: המפתחות והניהול עלינו.</p>
   <p class="note" style="margin-top:22px">אותו עיקרון חל על מפתח Gemini (אופציונלי, לניסוח פניות ב-AI): נוצר ב-Google AI Studio שלך, ונשאר אצלך.</p>
 </div></section>
 
@@ -443,6 +448,21 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
       <div class="paybox" id="pp-annual"><div class="locked">אשרו את התנאים למטה כדי לפתוח את כפתור התשלום</div></div>
     </div>
   </div>
+  <div class="plan managed" id="managed">
+    <div class="badge" style="background:var(--acc);color:#fff">לארגונים וסוכנויות</div>
+    <h3>מנוי מנוהל: המפתחות שלנו, הניהול עלינו</h3>
+    <div class="per">לא רוצים להתעסק עם Google Cloud, מפתחות וחשבונות חיוב? אנחנו מספקים את הכול ומנהלים את החשבון בשבילכם.</div>
+    <div class="mgrid"><ul>
+      <li>מפתחות ושרתים שלנו: בלי הקמה בצד שלכם</li>
+      <li>ניהול החשבון, כולל הוצאות טוקנים ו-API</li>
+      <li>אחזקה שוטפת של המערכת וגיבויים</li></ul><ul>
+      <li>ריטיינר שעות תכנות להתאמות ופיתוחים</li>
+      <li>יכולות מתקדמות: נפחי חיפוש לפי עיר ועוד</li>
+      <li>מספר משתמשים לפי צורך הארגון</li></ul></div>
+    <div class="price" style="font-size:1.6rem">הצעה מותאמת אישית</div>
+    <div class="per">שלחו לנו את פרטי הארגון והצרכים במייל, ונחזור אליכם עם הצעה.</div>
+    <a class="btn primary cta" href="mailto:shaharprod@gmail.com?subject=%D7%91%D7%A7%D7%A9%D7%94%20%D7%9C%D7%9E%D7%A0%D7%95%D7%99%20%D7%9E%D7%A0%D7%95%D7%94%D7%9C%20-%20%D7%A8%D7%93%D7%90%D7%A8%20%D7%9E%D7%A4%D7%AA%20%D7%94%D7%9C%D7%99%D7%93%D7%99%D7%9D&body=%D7%A9%D7%9C%D7%95%D7%9D%2C%0A%D7%90%D7%A0%D7%99%20%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F/%D7%AA%20%D7%91%D7%9E%D7%A0%D7%95%D7%99%20%D7%94%D7%9E%D7%A0%D7%95%D7%94%D7%9C%20%D7%A9%D7%9C%20%D7%A8%D7%93%D7%90%D7%A8%20%D7%9E%D7%A4%D7%AA%20%D7%94%D7%9C%D7%99%D7%93%D7%99%D7%9D%3A%20%D7%90%D7%AA%D7%9D%20%D7%9E%D7%A1%D7%A4%D7%A7%D7%99%D7%9D%20%D7%90%D7%AA%20%D7%94%D7%9E%D7%A4%D7%AA%D7%97%D7%95%D7%AA%20%D7%95%D7%94%D7%A9%D7%A8%D7%AA%D7%99%D7%9D%2C%20%D7%9E%D7%A0%D7%94%D7%9C%D7%99%D7%9D%20%D7%90%D7%AA%20%D7%94%D7%97%D7%A9%D7%91%D7%95%D7%9F%20%28%D7%9B%D7%95%D7%9C%D7%9C%20%D7%94%D7%95%D7%A6%D7%90%D7%95%D7%AA%20%D7%98%D7%95%D7%A7%D7%A0%D7%99%D7%9D%20%D7%95-API%29%20%D7%95%D7%9E%D7%AA%D7%97%D7%96%D7%A7%D7%99%D7%9D%20%D7%90%D7%AA%20%D7%94%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA%2C%20%D7%A2%D7%9D%20%D7%A8%D7%99%D7%98%D7%99%D7%99%D7%A0%D7%A8%20%D7%A9%D7%A2%D7%95%D7%AA%20%D7%AA%D7%9B%D7%A0%D7%95%D7%AA.%0A%0A%D7%A4%D7%A8%D7%98%D7%99%D7%9D%20%D7%9C%D7%91%D7%97%D7%99%D7%A0%D7%AA%20%D7%94%D7%91%D7%A7%D7%A9%D7%94%3A%0A1.%20%D7%A9%D7%9D%20%D7%94%D7%A2%D7%A1%D7%A7%20/%20%D7%94%D7%90%D7%A8%D7%92%D7%95%D7%9F%3A%0A2.%20%D7%90%D7%99%D7%A9%20%D7%A7%D7%A9%D7%A8%20%D7%95%D7%98%D7%9C%D7%A4%D7%95%D7%9F%3A%0A3.%20%D7%9E%D7%A1%D7%A4%D7%A8%20%D7%9E%D7%A9%D7%AA%D7%9E%D7%A9%D7%99%D7%9D%20%D7%A9%D7%99%D7%A2%D7%91%D7%93%D7%95%20%D7%A2%D7%9D%20%D7%94%D7%9B%D7%9C%D7%99%3A%0A4.%20%D7%94%D7%99%D7%A7%D7%A3%20%D7%A1%D7%A8%D7%99%D7%A7%D7%95%D7%AA%20%D7%9E%D7%A9%D7%95%D7%A2%D7%A8%20%D7%91%D7%97%D7%95%D7%93%D7%A9%20%28%D7%90%D7%96%D7%95%D7%A8%D7%99%D7%9D%20/%20%D7%A2%D7%A8%D7%99%D7%9D%29%3A%0A5.%20%D7%AA%D7%97%D7%95%D7%9E%D7%99%D7%9D%20%D7%95%D7%90%D7%96%D7%95%D7%A8%D7%99%D7%9D%20%D7%A2%D7%99%D7%A7%D7%A8%D7%99%D7%99%D7%9D%3A%0A6.%20%D7%99%D7%9B%D7%95%D7%9C%D7%95%D7%AA%20%D7%A0%D7%93%D7%A8%D7%A9%D7%95%D7%AA%20%28%D7%9C%D7%9E%D7%A9%D7%9C%3A%20%D7%A0%D7%A4%D7%97%D7%99%20%D7%97%D7%99%D7%A4%D7%95%D7%A9%20%D7%9C%D7%A4%D7%99%20%D7%A2%D7%99%D7%A8%2C%20%D7%A9%D7%9B%D7%91%D7%AA%20%D7%97%D7%99%D7%95%D6%BC%D7%AA%20%D7%94%D7%90%D7%96%D7%95%D7%A8%2C%20%D7%A2%D7%A1%D7%A7%D7%90%D7%95%D7%AA%20%D7%A0%D7%93%D7%9C%22%D7%9F%2C%20%D7%97%D7%99%D7%91%D7%95%D7%A8%20%D7%9C-CRM%29%3A%0A7.%20%D7%A9%D7%A2%D7%95%D7%AA%20%D7%AA%D7%9B%D7%A0%D7%95%D7%AA%20%D7%9E%D7%A9%D7%95%D7%A2%D7%A8%D7%95%D7%AA%20%D7%91%D7%97%D7%95%D7%93%D7%A9%20%D7%9C%D7%A4%D7%99%D7%AA%D7%95%D7%97%20%D7%95%D7%94%D7%AA%D7%90%D7%9E%D7%95%D7%AA%20%28%D7%A8%D7%99%D7%98%D7%99%D7%99%D7%A0%D7%A8%29%3A%0A8.%20%D7%9E%D7%95%D7%A2%D7%93%20%D7%94%D7%AA%D7%97%D7%9C%D7%94%20%D7%A8%D7%A6%D7%95%D7%99%3A%0A9.%20%D7%94%D7%A2%D7%A8%D7%95%D7%AA%20%D7%A0%D7%95%D7%A1%D7%A4%D7%95%D7%AA%3A%0A%0A%D7%AA%D7%95%D7%93%D7%94">✉️ שלחו בקשה למנוי מנוהל</a>
+  </div>
   <div id="couponBox" style="max-width:560px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center">
     <label for="couponIn" style="font-weight:700">🎟️ יש לך קופון?</label><input id="couponIn" placeholder="הקלד קוד" style="padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);width:150px;direction:ltr;text-transform:uppercase"><button type="button" id="couponBtn" style="padding:9px 16px;border-radius:10px;border:0;background:var(--acc);color:#fff;font:inherit;cursor:pointer">החל</button>
     <div id="couponMsg" style="width:100%;text-align:center;font-size:.9rem;color:var(--mut)"></div>
@@ -457,6 +477,7 @@ html.lr-a11y-focus *:focus{outline:4px solid #ff8c00!important;outline-offset:2p
   <h2>לפני שקונים</h2>
   <details><summary>מה צריך כדי להתחיל?</summary><p>דפדפן, ומפתח Google Maps Platform שיוצרים בחשבון Google Cloud שלך (יש הדרכה בתוך המערכת, לוקח כ-10 דקות). Google נותנת מכסה חודשית חינמית נדיבה; מעבר לה החיוב הוא לפי שימוש, ישירות מול Google.</p></details>
   <details><summary>למה המפתח שלי ולא שלכם?</summary><p>שלוש סיבות: אבטחה (המפתח נשאר בחשבון שלך ובדפדפן שלך), שליטה בהוצאות (אתה רואה כל חיוב אצל Google, בלי עמלה שלנו ובלי מגבלת סריקות), ופרטיות (הלידים שלך לא עוברים דרך השרת של אף אחד). ההסבר המלא ב<a href="#keys">סעיף "המפתח שלך"</a>.</p></details>
+  <details><summary>אפשר שתנהלו את המפתחות והחשבון בשבילי?</summary><p>כן, במסגרת <a href="#managed">המנוי המנוהל</a>: המפתחות והשרתים שלנו, ניהול החשבון כולל הוצאות טוקנים, אחזקת המערכת וריטיינר שעות תכנות. ההצעה מותאמת לכל ארגון: שלחו את הפרטים במייל דרך הכפתור בכרטיס המנוי המנוהל.</p></details>
   <details><summary>איך נכנסים? יש סיסמה?</summary><p>אין סיסמה. מקלידים את המייל, מקבלים קוד בן 6 ספרות, ונכנסים. הכניסה תקפה 7 ימים. חשוב: נכנסים עם אותו מייל שבו שילמת ב-PayPal.</p></details>
   <details><summary>איך מבטלים?</summary><p>בכל עת, מחשבון PayPal שלך או במייל אלינו. במנוי חודשי הביטול חל מהחודש הבא. ב-14 הימים הראשונים אפשר לבטל ולקבל החזר לפי חוק הגנת הצרכן. הכול כתוב ב<a href="https://shaharprod.github.io/leads-radar/legal/terms.html" target="_blank" rel="noopener">תנאי השימוש</a>.</p></details>
   <details><summary>הדוחות באמת על שמי?</summary><p>כן. הלוגו, הצבע, פרטי הקשר והתיאור שלך מופיעים בדוח ובהצעת המחיר. אין אזכור שלנו.</p></details>
